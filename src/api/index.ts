@@ -10,6 +10,7 @@ import { listBannerPagination } from "./admin/maintenanceBanner/listBannerPagina
 import { updateBanner } from "./admin/maintenanceBanner/updateBanner";
 import { deleteBanner } from "./admin/maintenanceBanner/deleteBanner";
 import { getBannerById } from "./admin/maintenanceBanner/getBannerById";
+import { activationPaymentMethod } from "./admin/maintenancePayment/activationPaymentMethod";
 
 let router = Router();
 
@@ -20,6 +21,9 @@ const apis = [
     updateBanner,
     deleteBanner,
     getBannerById,
+
+    // Maintenance Payment Method
+    activationPaymentMethod,
 
     // Order -- POST
     postOrder,

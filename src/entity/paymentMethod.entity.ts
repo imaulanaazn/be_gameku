@@ -45,7 +45,7 @@ export class PaymentMethodEntity extends Model<PaymentMethodEntity> {
 
     @AllowNull(false)
     @Column(DataType.BOOLEAN)
-    isActive!: string;
+    isActive!: boolean;
 
     @AllowNull(false)
     @Column(DataType.INTEGER)

@@ -9,7 +9,7 @@ export class PaymentMethodDto extends MainDto {
     cd: string;
     category: PaymentsCategory;
     isSingleUse: boolean;
-    isActive: string;
+    isActive: boolean;
     durationExpired: number;
     durationCd: DurationCD;
     logo: string;
