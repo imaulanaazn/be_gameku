@@ -1,0 +1,38 @@
+{
+    "ts-node": {
+        "transpileOnly": true,
+        "require": ["typescript-transform-paths/register"]
+    },
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "CommonJS",
+        "target": "ES2017",
+        "noImplicitAny": false,
+        "outDir": "./dist",
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "types": ["node", "express", "./src/helper/custom.d.ts"],
+        "paths": {
+            "@entity/*": ["src/entity/*"],
+            "@dto/*": ["src/dtos/*"],
+            "@serviceExternal/*": ["src/services/external/*"],
+            "@serviceInternal/*": ["src/services/internal/*"],
+            "@helper/*": ["src/helper/*"],
+            "@config/*": ["src/config/*"],
+            "@enum/*": ["src/enum/*"],
+            "@interfaces/*": ["src/interfaces/"],
+            "@middleware/*": ["src/middlewares/*"]
+        },
+        "plugins": [
+            { "transform": "typescript-transform-paths" },
+            { "transform": "typescript-transform-paths", "afterDeclarations": true }
+        ]
+    },
+    "include": ["src/**/*"],
+    "exclude": ["./dist"]
+}

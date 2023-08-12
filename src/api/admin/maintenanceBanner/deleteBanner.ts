@@ -1,0 +1,54 @@
+import { RequestHandler } from "express";
+import { IApiRouter, Validation } from "@interfaces/index";
+import { BusinessError } from "@helper/handleError";
+import { ErrorType, ValidatorType } from "@enum/index";
+import fs from "fs";
+import { FirebaseService } from "@serviceExternal/firebase.service";
+import { Validator } from "@helper/validator";
+import { BannerService } from "@serviceInternal/banner.service";
+import { v4 as uuid } from "uuid";
+import { BannerDto } from "@dto/banner.dto";
+
+const path = "/v1/banner/:id";
+const method = "DELETE";
+const auth = "guess";
+
+const schemaValidation: Validation[] = [
+    {
+        name: "id",
+        type: "string",
+        required: true,
+    },
+];
+
+const main: RequestHandler = async (req, res) => {
+    const body = new Validator(req, res).process<{
+        id: string;
+    }>(schemaValidation, ValidatorType.PARAMS);
+
+    const firebaseService = new FirebaseService();
+    const bannerService = new BannerService();
+
+    const banner = await bannerService.findOneBy({
+        column: "id",
+        value: body.id,
+    });
+
+    if (!banner) {
+        throw new BusinessError("Banner tidak ditemukan dengan id " + body.id, ErrorType.BadRequest);
+    }
+
+    await firebaseService.deleteImg(banner.imageUrl);
+    await bannerService.deleteBy({
+        by: "id",
+        value: banner.id,
+    });
+    return res.sendStatus(200);
+};
+
+export const deleteBanner: IApiRouter = {
+    path,
+    method,
+    main,
+    auth,
+};
