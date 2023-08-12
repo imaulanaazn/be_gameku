@@ -6,7 +6,7 @@ import { ValidatorType } from "@enum/index";
 
 const path = "/v1/banner";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [];
 

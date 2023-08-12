@@ -11,7 +11,7 @@ import { BannerDto } from "@dto/banner.dto";
 
 const path = "/v1/banner";
 const method = "PUT";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

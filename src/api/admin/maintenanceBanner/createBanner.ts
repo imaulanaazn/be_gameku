@@ -10,7 +10,7 @@ import { v4 as uuid } from "uuid";
 
 const path = "/v1/banner";
 const method = "POST";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {
