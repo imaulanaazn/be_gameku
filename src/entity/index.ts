@@ -7,3 +7,5 @@ export * from "./game.entity";
 export * from "./invoice.entity";
 export * from "./orderDetail.entity";
 export * from "./banner.entity";
+export * from "./article.entity";
+export * from "./comment.entity";

@@ -7,3 +7,5 @@ export * from "./promotion.dto";
 export * from "./invoice.dto";
 export * from "./orderDetail.dto";
 export * from "./banner.dto";
+export * from "./article.dto";
+export * from "./comment.dto";
