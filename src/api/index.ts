@@ -2,8 +2,8 @@ import { Request, Response, NextFunction, Router } from "express";
 import { authAdmin, authLoginUser, authWehbookInternal, authWehbookXendit } from "../middlewares/sessions";
 import responseErrorHandler from "@middleware/responseErrorHandler";
 import { IApiRouter } from "src/interfaces";
-import { postOrder } from "./order/POST/postOrder";
-import { getBanners } from "./lainnya/GET/getBanners";
+import { postOrder } from "./POST/postOrder";
+import { getBanners } from "./GET/getBanners";
 import upload from "@config/multer";
 import { createBanner } from "./admin/maintenanceBanner/createBanner";
 import { listBannerPagination } from "./admin/maintenanceBanner/listBannerPagination";
@@ -11,6 +11,7 @@ import { updateBanner } from "./admin/maintenanceBanner/updateBanner";
 import { deleteBanner } from "./admin/maintenanceBanner/deleteBanner";
 import { getBannerById } from "./admin/maintenanceBanner/getBannerById";
 import { activationPaymentMethod } from "./admin/maintenancePayment/activationPaymentMethod";
+import { getGameByCategory } from "./GET/getGameByCategory";
 
 let router = Router();
 
@@ -25,11 +26,12 @@ const apis = [
     // Maintenance Payment Method
     activationPaymentMethod,
 
-    // Order -- POST
+    // POST
     postOrder,
 
-    // LAINNYA -- GET
+    // GET
     getBanners,
+    getGameByCategory,
 ];
 
 for (const api of apis) {

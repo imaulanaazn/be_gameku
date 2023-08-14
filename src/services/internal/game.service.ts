@@ -6,4 +6,15 @@ export class GameService extends MainService<GameEntity, GameDto> {
     constructor() {
         super(GameEntity);
     }
+
+    async findGameByCategory(category: string): Promise<GameDto[]> {
+        const games = await this.model.findAll({
+            where: {
+                category,
+                isPopular: false,
+            },
+        });
+
+        return games;
+    }
 }

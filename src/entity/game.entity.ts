@@ -29,6 +29,17 @@ export class GameEntity extends Model<GameEntity> {
     @Column(DataType.STRING(255))
     platform: string;
 
+    @Column(DataType.STRING(255))
+    category: string;
+
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    isPopular: boolean;
+
+    @Default(false)
+    @Column(DataType.INTEGER)
+    popSequence: number;
+
     @Unique(true)
     @Column(DataType.STRING(255))
     slug: string;

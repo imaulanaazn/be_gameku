@@ -2,12 +2,7 @@ import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { BusinessError } from "@helper/handleError";
 import { ErrorType, ValidatorType } from "@enum/index";
-import fs from "fs";
-import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Validator } from "@helper/validator";
-import { BannerService } from "@serviceInternal/banner.service";
-import { v4 as uuid } from "uuid";
-import { PaymentMethodEntity } from "@entity/paymentMethod.entity";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
 const path = "/v1/activate-payment/:id";

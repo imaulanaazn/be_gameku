@@ -4,13 +4,14 @@ import { Model, ModelCtor } from "sequelize-typescript";
 import { CreationAttributes, DestroyOptions, UpdateOptions, WhereOptions } from "sequelize/types/model";
 
 type ColumnKeys<T> = keyof T;
-type OperatorString = "like";
+type OperatorString = "like" | "and" | "or";
 type OperatorNumber = "lt" | "lte" | "gt" | "gte";
 type ConditionOperator<T> = T extends string ? OperatorString : T extends number ? OperatorNumber : never;
-interface FindDto<K, T> {
+interface FindDto<K, T, Dto> {
     column: K;
-    value: T;
+    value: T | Array<T>;
     operator?: ConditionOperator<T>;
+    only?: Array<ColumnKeys<Dto>>;
 }
 interface UpdateDto<K, V, Dto> {
     by: K;
@@ -29,14 +30,16 @@ const operators = {
     gt: Op.gt,
     gte: Op.gte,
     like: Op.like,
+    or: Op.or,
+    and: Op.and,
 };
 
 export interface IBaseService<T extends Model, Dto> {
     create(data: Partial<Dto>): Promise<T>;
-    findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K]>): Promise<T | null>;
-    findManyBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K]>): Promise<T[]>;
+    findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T | null>;
+    findManyBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T[]>;
     findManyByPagination<K extends ColumnKeys<Dto>>(
-        filterCriteria: FindDto<K, Dto[K]>,
+        filterCriteria: FindDto<K, Dto[K], Dto>,
         pagination: IPagination,
     ): Promise<T[]>;
     findAll(): Promise<T[]>;
@@ -46,7 +49,7 @@ export interface IBaseService<T extends Model, Dto> {
 }
 
 export class MainService<T extends Model, Dto extends CreationAttributes<T>> implements IBaseService<T, Dto> {
-    private model: ModelCtor<T>;
+    protected model: ModelCtor<T>;
 
     constructor(model: ModelCtor<T>) {
         this.model = model;
@@ -56,39 +59,94 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
         return await this.model.create(data as Dto);
     }
 
-    public async findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K]>): Promise<T | null> {
-        const whereOptions: WhereOptions = {
-            [filterCriteria.column]: {
-                [operators[filterCriteria.operator || "eq"]]: filterCriteria.value,
-            },
-        };
-        return await this.model.findOne({ where: whereOptions });
+    public async findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T | null> {
+        let whereOptions: WhereOptions;
+        if (Array.isArray(filterCriteria.value)) {
+            let arrVal = [];
+            for (const filterValue of filterCriteria.value) {
+                arrVal.push({ [filterCriteria.column]: filterValue });
+            }
+
+            whereOptions = {
+                [operators[filterCriteria.operator || "eq"]]: arrVal,
+            };
+        } else {
+            whereOptions = {
+                [filterCriteria.column]: {
+                    [operators[filterCriteria.operator || "eq"]]: filterCriteria.value,
+                },
+            };
+        }
+
+        if (filterCriteria.only && filterCriteria.only.length) {
+            return await this.model.findOne({ where: whereOptions, attributes: filterCriteria.only as any });
+        } else {
+            return await this.model.findOne({ where: whereOptions });
+        }
     }
 
-    public async findManyBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K]>): Promise<T[]> {
-        const whereOptions: WhereOptions = {
-            [filterCriteria.column]: {
-                [operators[filterCriteria.operator || "eq"]]: filterCriteria.value,
-            },
-        };
-        return await this.model.findAll({ where: whereOptions });
+    public async findManyBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T[]> {
+        let whereOptions: WhereOptions;
+        if (Array.isArray(filterCriteria.value)) {
+            let arrVal = [];
+            for (const filterValue of filterCriteria.value) {
+                arrVal.push({ [filterCriteria.column]: filterValue });
+            }
+
+            whereOptions = {
+                [operators[filterCriteria.operator || "eq"]]: arrVal,
+            };
+        } else {
+            whereOptions = {
+                [filterCriteria.column]: {
+                    [operators[filterCriteria.operator || "eq"]]: filterCriteria.value,
+                },
+            };
+        }
+        if (filterCriteria.only && filterCriteria.only.length) {
+            return await this.model.findAll({ where: whereOptions, attributes: filterCriteria.only as any });
+        } else {
+            return await this.model.findAll({ where: whereOptions });
+        }
     }
 
     public async findManyByPagination<K extends ColumnKeys<Dto>>(
-        filterCriteria: FindDto<K, Dto[K]>,
+        filterCriteria: FindDto<K, Dto[K], Dto>,
         pagination: IPagination,
     ): Promise<T[]> {
-        const whereOptions: WhereOptions = {
-            [filterCriteria.column]: {
-                [operators[filterCriteria.operator || "eq"]]: filterCriteria.value,
-            },
-        };
-        return await this.model.findAll({
-            where: whereOptions,
-            offset: (pagination.page - 1) * pagination.limit,
-            limit: pagination.limit,
-            order: [[pagination.sort, pagination.order]],
-        });
+        let whereOptions: WhereOptions;
+        if (Array.isArray(filterCriteria.value)) {
+            let arrVal = [];
+            for (const filterValue of filterCriteria.value) {
+                arrVal.push({ [filterCriteria.column]: filterValue });
+            }
+
+            whereOptions = {
+                [operators[filterCriteria.operator || "eq"]]: arrVal,
+            };
+        } else {
+            whereOptions = {
+                [filterCriteria.column]: {
+                    [operators[filterCriteria.operator || "eq"]]: filterCriteria.value,
+                },
+            };
+        }
+        if (filterCriteria.only && filterCriteria.only.length) {
+            return await this.model.findAll({
+                where: whereOptions,
+                offset: (pagination.page - 1) * pagination.limit,
+                limit: pagination.limit,
+                order: [[pagination.sort, pagination.order]],
+                attributes: filterCriteria.only as any,
+            });
+        } else {
+            return await this.model.findAll({
+                where: whereOptions,
+                offset: (pagination.page - 1) * pagination.limit,
+                limit: pagination.limit,
+                order: [[pagination.sort, pagination.order]],
+            });
+        }
     }
 
     public async findAll(): Promise<T[]> {
