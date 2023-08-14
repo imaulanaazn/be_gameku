@@ -12,7 +12,7 @@ import { FirebaseService } from "@serviceExternal/firebase.service";
 
 const path = "/v1/article";
 const method = "POST";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {
