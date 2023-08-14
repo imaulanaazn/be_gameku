@@ -9,3 +9,4 @@ export * from "./orderDetail.dto";
 export * from "./banner.dto";
 export * from "./article.dto";
 export * from "./comment.dto";
+export * from "./video.dto";

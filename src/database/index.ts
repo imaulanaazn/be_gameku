@@ -12,6 +12,7 @@ import {
     PaymentMethodEntity,
     ProductEntity,
     PromotionEntity,
+    VideoEntity,
 } from "@entity/index";
 
 const config = new Config();
@@ -35,6 +36,7 @@ const sequelize = new Sequelize({
         BannerEntity,
         ArticleEntity,
         CommentEntity,
+        VideoEntity,
     ],
 });
 

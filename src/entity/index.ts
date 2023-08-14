@@ -9,3 +9,4 @@ export * from "./orderDetail.entity";
 export * from "./banner.entity";
 export * from "./article.entity";
 export * from "./comment.entity";
+export * from "./video.entity";
