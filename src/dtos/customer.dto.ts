@@ -8,5 +8,4 @@ export class CustomerDto extends MainDto {
     mobileNumber: string;
     password: string;
     isActive: boolean;
-    accountNo: string;
 }

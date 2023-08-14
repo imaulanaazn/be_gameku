@@ -22,7 +22,7 @@ const sequelize = new Sequelize({
     username: config.databaseUsername,
     password: config.databasePassword,
     logQueryParameters: false,
-    logging: true,
+    logging: false,
     dialect: "mysql",
     models: [
         CustomerEntity,

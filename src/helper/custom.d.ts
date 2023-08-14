@@ -9,6 +9,7 @@ declare module "express-session" {
             loginData?: {
                 userId: string;
                 email: string;
+                mobileNumber: string;
             };
         };
     }

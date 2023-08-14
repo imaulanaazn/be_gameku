@@ -57,9 +57,6 @@ export class CustomerEntity extends Model<CustomerEntity> {
     @Column(DataType.BOOLEAN)
     isActive!: boolean;
 
-    @Column(DataType.STRING(20))
-    accountNo!: string;
-
     @CreatedAt
     @Column(DataType.DATE)
     createdAt!: Date;

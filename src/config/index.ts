@@ -29,7 +29,8 @@ export class Config {
     xenditSecretKey = process.env.XENDIT_SECRET_KEY;
     xenditBaseUrl = process.env.XENDIT_BASE_URL;
     secretSession = process.env.SECRET_SESSION;
-    secretMaxAge = parseInt(process.env.MAX_AGE_SESSION) || 1000 * 60 * 60 * 24 * 3;
+    maxAgeGuest = parseInt(process.env.MAX_AGE_GUEST) || 60;
+    maxAgeLogin = parseInt(process.env.MAX_AGE_LOGIN) || 60 * 60 * 24 * 3;
 
     bucketName = process.env.BUCKET_NAME || "gasskeun-topup.appspot.com";
 }

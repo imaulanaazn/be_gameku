@@ -41,11 +41,10 @@ const getApp = async (app: Application) => {
                 secure: process.env.NODE_ENV.toLowerCase() === "production" ? true : false,
                 httpOnly: true,
                 sameSite: true,
-                maxAge: config.secretMaxAge,
+                maxAge: config.maxAgeGuest * 1000,
             },
         }),
     );
-
     app.use(createSessions);
     app.use(cookieParser());
     app.use(requestTime);
