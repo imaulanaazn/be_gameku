@@ -1,10 +1,8 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { BannerService } from "@serviceInternal/banner.service";
 import { Validator } from "@helper/validator";
 import { ValidatorType } from "@enum/index";
 import { ArticleService } from "@serviceInternal/article.service";
-import { CommentService } from "@serviceInternal/comment.service";
 
 const path = "/v1/newest-articles";
 const method = "GET";

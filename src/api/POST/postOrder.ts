@@ -14,7 +14,6 @@ import { BusinessError } from "@helper/handleError";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { Validator } from "@helper/validator";
 import { XenditService } from "@serviceExternal/xendit.service";
-import { CustomerEntity } from "@entity/index";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 

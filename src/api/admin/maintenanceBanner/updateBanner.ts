@@ -6,7 +6,6 @@ import fs from "fs";
 import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Validator } from "@helper/validator";
 import { BannerService } from "@serviceInternal/banner.service";
-import { v4 as uuid } from "uuid";
 import { BannerDto } from "@dto/banner.dto";
 
 const path = "/v1/banner";

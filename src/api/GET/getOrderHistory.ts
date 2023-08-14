@@ -1,15 +1,7 @@
 import { Request, Response } from "express";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { OrderService } from "@serviceInternal/index";
-import {
-    DiscountType,
-    ErrorStatusCode,
-    ErrorType,
-    FeeType,
-    OrderStatuses,
-    PaymentsCategory,
-    ValidatorType,
-} from "@enum/index";
+import { ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 
 const path = "/v1/order-history";

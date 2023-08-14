@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { BannerService } from "@serviceInternal/banner.service";
 import { Validator } from "@helper/validator";
 import { ValidatorType } from "@enum/index";
 import { GameService } from "@serviceInternal/game.service";

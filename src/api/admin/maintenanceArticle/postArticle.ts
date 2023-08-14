@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { BusinessError } from "@helper/handleError";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import generateSlug, { generateSlugFromLastSlug } from "@helper/generateSlug";
+import generateSlug from "@helper/generateSlug";
 import { ArticleService } from "@serviceInternal/article.service";
 import { ArticleDto } from "@dto/article.dto";
 import { FirebaseService } from "@serviceExternal/firebase.service";
