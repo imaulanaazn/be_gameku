@@ -7,7 +7,7 @@ import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
 const path = "/v1/activate-payment/:id";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {
