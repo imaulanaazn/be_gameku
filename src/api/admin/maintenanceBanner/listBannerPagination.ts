@@ -12,7 +12,6 @@ const schemaValidation: Validation[] = [];
 
 const main: RequestHandler = async (req, res) => {
     const pagination = new Validator(req, res).process(schemaValidation, ValidatorType.QUERY, true);
-    console.log(pagination);
     const bannerService = new BannerService();
     const banners = await bannerService.findAllPagination(pagination);
 

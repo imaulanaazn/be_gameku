@@ -1,8 +1,13 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { ErrorStatusCode, ErrorType } from "@enum/index";
+import fs from "fs";
 
-const responseHandler = (error: Error, res: Response) => {
+const responseHandler = (error: Error, res: Response, req: Request) => {
     if (error) {
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
         switch (error.name) {
             case ErrorType.Authentication:
                 res.status(ErrorStatusCode.Authentication);

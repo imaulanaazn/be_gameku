@@ -4,8 +4,8 @@ import { Model, ModelCtor } from "sequelize-typescript";
 import { CreationAttributes, DestroyOptions, UpdateOptions, WhereOptions } from "sequelize/types/model";
 
 type ColumnKeys<T> = keyof T;
-type OperatorString = "like" | "and" | "or";
-type OperatorNumber = "lt" | "lte" | "gt" | "gte";
+type OperatorString = "like" | "and" | "or" | "in";
+type OperatorNumber = "lt" | "lte" | "gt" | "gte" | "in";
 type ConditionOperator<T> = T extends string ? OperatorString : T extends number ? OperatorNumber : never;
 interface FindDto<K, T, Dto> {
     column: K;
@@ -32,6 +32,7 @@ const operators = {
     like: Op.like,
     or: Op.or,
     and: Op.and,
+    in: Op.in,
 };
 
 export interface IBaseService<T extends Model, Dto> {

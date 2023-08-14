@@ -58,7 +58,6 @@ export class Validator {
         }
 
         const result = this.checking(schema, type);
-        console.log(result);
         if (!result.success) {
             throw new BusinessError(result.message, ErrorType.Validation);
         } else {

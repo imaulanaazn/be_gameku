@@ -7,7 +7,7 @@ export class GameService extends MainService<GameEntity, GameDto> {
         super(GameEntity);
     }
 
-    async findGameByCategory(category: string): Promise<GameDto[]> {
+    async findGameByCategory(category: string): Promise<GameEntity[]> {
         const games = await this.model.findAll({
             where: {
                 category,

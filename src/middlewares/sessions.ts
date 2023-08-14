@@ -34,7 +34,6 @@ export const createSessions: RequestHandler = (req, res, next) => {
             const sessionExpiration = moment(req.session.cookie.expires);
 
             const timeDiffInMinutes = sessionExpiration.diff(currentTime, "minutes");
-            console.log(timeDiffInMinutes);
             if (timeDiffInMinutes <= 5) {
                 regenerateSession(req);
             }

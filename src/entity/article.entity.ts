@@ -1,4 +1,15 @@
-import { Column, CreatedAt, DataType, Model, PrimaryKey, Table, UpdatedAt } from "sequelize-typescript";
+import {
+    Column,
+    CreatedAt,
+    DataType,
+    HasMany,
+    Model,
+    PrimaryKey,
+    Table,
+    Unique,
+    UpdatedAt,
+} from "sequelize-typescript";
+import { CommentEntity } from ".";
 
 @Table({
     tableName: "articles",
@@ -28,6 +39,7 @@ export class ArticleEntity extends Model<ArticleEntity> {
     @Column(DataType.STRING(255))
     externalUrl!: string;
 
+    @Unique(true)
     @Column(DataType.STRING(255))
     slug!: string;
 
@@ -44,4 +56,7 @@ export class ArticleEntity extends Model<ArticleEntity> {
     @UpdatedAt
     @Column(DataType.DATE)
     updatedAt!: Date;
+
+    @HasMany(() => CommentEntity, "articleId")
+    comments!: CommentEntity[];
 }

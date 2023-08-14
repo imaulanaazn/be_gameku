@@ -12,6 +12,8 @@ import { deleteBanner } from "./admin/maintenanceBanner/deleteBanner";
 import { getBannerById } from "./admin/maintenanceBanner/getBannerById";
 import { activationPaymentMethod } from "./admin/maintenancePayment/activationPaymentMethod";
 import { getGameByCategory } from "./GET/getGameByCategory";
+import { postArticle } from "./admin/maintenanceArticle/postArticle";
+import { getLastArticels } from "./GET/getArticles";
 
 let router = Router();
 
@@ -26,12 +28,16 @@ const apis = [
     // Maintenance Payment Method
     activationPaymentMethod,
 
+    // Maintenance Article
+    postArticle,
+
     // POST
     postOrder,
 
     // GET
     getBanners,
     getGameByCategory,
+    getLastArticels,
 ];
 
 for (const api of apis) {
@@ -49,7 +55,7 @@ for (const api of apis) {
 
     const main = (req: Request, res: Response, next: NextFunction) =>
         api.main(req, res, next).catch((err: Error) => {
-            responseErrorHandler(err, res);
+            responseErrorHandler(err, res, req);
         });
 
     if (isUploadImage) {
@@ -86,7 +92,7 @@ for (const api of apisWebhook) {
 
     const main = (req: Request, res: Response, next: NextFunction) =>
         api.main(req, res, next).catch((err: Error) => {
-            responseErrorHandler(err, res);
+            responseErrorHandler(err, res, req);
         });
 
     if (auth === "guess") {

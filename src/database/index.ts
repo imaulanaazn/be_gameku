@@ -1,7 +1,9 @@
 import { Sequelize } from "sequelize-typescript";
 import { Config } from "../config";
 import {
+    ArticleEntity,
     BannerEntity,
+    CommentEntity,
     CustomerEntity,
     GameEntity,
     InvoiceEntity,
@@ -31,6 +33,8 @@ const sequelize = new Sequelize({
         InvoiceEntity,
         OrderDetailEntity,
         BannerEntity,
+        ArticleEntity,
+        CommentEntity,
     ],
 });
 

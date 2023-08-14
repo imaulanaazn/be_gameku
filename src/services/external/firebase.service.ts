@@ -43,6 +43,7 @@ export class FirebaseService {
         });
 
         const downloadUrl = await getDownloadURL(upload.ref);
+        fs.unlinkSync(localFilePath);
         return downloadUrl;
     }
 

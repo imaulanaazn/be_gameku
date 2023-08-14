@@ -51,14 +51,7 @@ const main: RequestHandler = async (req, res) => {
         external: body.external,
         imageUrl: upload,
     });
-
-    fs.unlink("uploads/" + req.file.filename, (err) => {
-        if (err) {
-            throw new BusinessError("Something wrong went delete file", ErrorType.Internal);
-        } else {
-            res.send(newBanner);
-        }
-    });
+    res.send(newBanner);
 };
 
 export const createBanner: IApiRouter = {
