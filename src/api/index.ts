@@ -17,6 +17,7 @@ import { getLastArticels } from "./GET/getArticles";
 import { getVideos } from "./GET/getVideos";
 import { postRegistration } from "./POST/postRegistration";
 import { getUserProfileById } from "./GET/getUserProfileById";
+import { postLogin } from "./POST/postLogin";
 
 let router = Router();
 
@@ -37,6 +38,7 @@ const apis = [
     // POST
     postOrder,
     postRegistration,
+    postLogin,
 
     // GET
     getBanners,

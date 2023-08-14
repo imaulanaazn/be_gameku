@@ -21,6 +21,10 @@ const main: RequestHandler = async (req, res) => {
     const param = new Validator(req, res).process<{
         id: string;
     }>(schemaValidation, ValidatorType.PARAMS);
+
+    if (req.session.data.loginData.userId !== param.id) {
+        throw new BusinessError("Cannot access to this resource", ErrorType.Authorization);
+    }
     const userService = new CustomerService();
     const user = await userService.findOneBy({
         column: "id",

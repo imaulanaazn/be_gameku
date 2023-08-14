@@ -84,7 +84,7 @@ export class Validator {
                     str = schema.enum.join("");
                 }
 
-                result.message = `${schema.name} harus berisi antara ${str}`;
+                result.message = schema.errorMessage || `${schema.name} harus berisi antara ${str}`;
                 return result;
             }
         }
@@ -92,25 +92,27 @@ export class Validator {
         switch (schema.type) {
             case "string":
                 if (typeof value !== "string") {
-                    result.message = `${schema.name} harus berupa string`;
+                    result.message = schema.errorMessage || `${schema.name} harus berupa string`;
                     return result;
                 }
 
                 if (schema.isEmail) {
                     const email = validator.isEmail(value);
                     if (!email) {
-                        result.message = `Email tidak valid`;
+                        result.message = schema.errorMessage || `Email tidak valid`;
                         return result;
                     }
                 }
 
                 if (schema.minLength && value.length < schema.minLength) {
-                    result.message = `${schema.name} harus memiliki setidaknya ${schema.minLength} karakter`;
+                    result.message =
+                        schema.errorMessage || `${schema.name} harus memiliki setidaknya ${schema.minLength} karakter`;
                     return result;
                 }
 
                 if (schema.maxLength && value.length > schema.maxLength) {
-                    result.message = `${schema.name} harus memiliki maksimal ${schema.maxLength} karakter`;
+                    result.message =
+                        schema.errorMessage || `${schema.name} harus memiliki maksimal ${schema.maxLength} karakter`;
                     return result;
                 }
 
@@ -119,7 +121,7 @@ export class Validator {
                     const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
                     const check = validator.isMobilePhone(convertedNumber, "id-ID");
                     if (!check) {
-                        result.message = `Nomor handphone tidak valid`;
+                        result.message = schema.errorMessage || `Nomor handphone tidak valid`;
                         return result;
                     }
                 }
@@ -127,7 +129,7 @@ export class Validator {
 
             case "number":
                 if (typeof value !== "number") {
-                    result.message = `${schema.name} harus berupa angka`;
+                    result.message = schema.errorMessage || `${schema.name} harus berupa angka`;
                     return result;
                 }
 
@@ -137,39 +139,39 @@ export class Validator {
                     const check = validator.isMobilePhone(convertedNumber, "id-ID");
 
                     if (!check) {
-                        result.message = `Nomor handphone tidak valid`;
+                        result.message = schema.errorMessage || `Nomor handphone tidak valid`;
                         return result;
                     }
                 }
 
                 if (!schema.minNumber && value < schema.minNumber) {
-                    result.message = `${schema.name} harus minimal ${schema.minNumber}`;
+                    result.message = schema.errorMessage || `${schema.name} harus minimal ${schema.minNumber}`;
                     return result;
                 }
 
                 if (!schema.minNumber && value > schema.maxNumber) {
-                    result.message = `${schema.name} harus maksimal ${schema.maxNumber}`;
+                    result.message = schema.errorMessage || `${schema.name} harus maksimal ${schema.maxNumber}`;
                     return result;
                 }
                 break;
 
             case "boolean":
                 if (typeof value !== "boolean") {
-                    result.message = `${schema.name} harus berupa boolean`;
+                    result.message = schema.errorMessage || `${schema.name} harus berupa boolean`;
                     return result;
                 }
                 break;
 
             case "array":
                 if (!Array.isArray(value)) {
-                    result.message = `${schema.name} harus berupa array`;
+                    result.message = schema.errorMessage || `${schema.name} harus berupa array`;
                     return result;
                 }
 
                 if (schema.items) {
                     const itemSchema = schema.items;
                     if (itemSchema.required && value.length === 0) {
-                        result.message = `Array tidak boleh kosong`;
+                        result.message = schema.errorMessage || `Array tidak boleh kosong`;
                         return result;
                     }
 
@@ -177,7 +179,8 @@ export class Validator {
                         const itemValue = value[i];
                         const itemValidationResult = this.validationValue(itemSchema, itemValue);
                         if (!itemValidationResult.success) {
-                            result.message = `${schema.name}[${i}] | ${itemValidationResult.message}`;
+                            result.message =
+                                schema.errorMessage || `${schema.name}[${i}] | ${itemValidationResult.message}`;
                             return result;
                         }
                     }
@@ -187,7 +190,7 @@ export class Validator {
 
             case "object":
                 if (typeof value !== "object" || Array.isArray(value)) {
-                    result.message = `${schema.name} harus berupa object`;
+                    result.message = schema.errorMessage || `${schema.name} harus berupa object`;
                     return result;
                 } else if (schema.properties) {
                     const propertySchemas = schema.properties;
@@ -203,7 +206,9 @@ export class Validator {
                         } else {
                             const propValidationResult = this.validationValue(propSchema, propValue);
                             if (!propValidationResult.success) {
-                                result.message = `${schema.name}.${propName} | ${propValidationResult.message}`;
+                                result.message =
+                                    schema.errorMessage ||
+                                    `${schema.name}.${propName} | ${propValidationResult.message}`;
                                 return result;
                             }
                         }
@@ -230,7 +235,7 @@ export class Validator {
             if (schema.name === "page" || schema.name === "limit") {
                 req[schema.name] = parseInt(req[schema.name]);
                 if (isNaN(req[schema.name])) {
-                    result.message = `${schema.name} Harus berupa number`;
+                    result.message = schema.errorMessage || `${schema.name} Harus berupa number`;
                     return result;
                 }
             }
@@ -279,14 +284,14 @@ export class Validator {
                 value = req[schema.name];
                 if (isNaN(value)) {
                     result.success = false;
-                    result.message = `${schema.name} Harus berupa number`;
+                    result.message = schema.errorMessage || `${schema.name} Harus berupa number`;
                     return result;
                 }
             }
 
             if (schema.required && !value) {
                 result.success = false;
-                result.message = `${schema.name} harus diisi`;
+                result.message = schema.errorMessage || `${schema.name} harus diisi`;
                 return result;
             } else {
                 const resultFromChecking = this.validationValue(schema, value);

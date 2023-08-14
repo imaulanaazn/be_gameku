@@ -25,4 +25,5 @@ export interface Validation {
     items?: Validation;
     properties?: Array<Validation>;
     enum?: Array<string | number | boolean>;
+    errorMessage?: string;
 }
