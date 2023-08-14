@@ -151,7 +151,9 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
     }
 
     public async findAll(): Promise<T[]> {
-        return this.model.findAll();
+        return this.model.findAll({
+            order: [["createdAt", "DESC"]],
+        });
     }
 
     public async findAllPagination(pagination: IPagination): Promise<{ total: number; data: T[] }> {

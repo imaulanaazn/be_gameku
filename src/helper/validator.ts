@@ -21,8 +21,8 @@ const paginationSchema: Validation[] = [
         name: "order",
         type: "string",
         required: false,
-        enum: ["asc", "desc"],
-        default: "asc",
+        enum: ["DESC", "ASC"],
+        default: "DESC",
     },
     {
         name: "limit",
@@ -36,7 +36,7 @@ const paginationSchema: Validation[] = [
 
 export interface IPagination {
     page: number;
-    sort: "asc" | "desc";
+    sort: "ASC" | "DESC";
     order: string;
     limit: number;
 }

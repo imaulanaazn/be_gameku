@@ -14,6 +14,10 @@ export class VideoEntity extends Model<VideoEntity> {
     @Column(DataType.STRING(255))
     url!: string;
 
+    @AllowNull(false)
+    @Column(DataType.STRING(255))
+    videoId!: string;
+
     @CreatedAt
     @Column(DataType.DATE)
     createdAt!: Date;

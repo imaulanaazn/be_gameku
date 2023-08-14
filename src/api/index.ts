@@ -14,6 +14,7 @@ import { activationPaymentMethod } from "./admin/maintenancePayment/activationPa
 import { getGameByCategory } from "./GET/getGameByCategory";
 import { postArticle } from "./admin/maintenanceArticle/postArticle";
 import { getLastArticels } from "./GET/getArticles";
+import { getVideos } from "./GET/getVideos";
 
 let router = Router();
 
@@ -38,6 +39,7 @@ const apis = [
     getBanners,
     getGameByCategory,
     getLastArticels,
+    getVideos,
 ];
 
 for (const api of apis) {
