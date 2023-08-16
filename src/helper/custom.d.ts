@@ -1,3 +1,4 @@
+import { CustomerDto } from "@dto/customer.dto";
 import { Session } from "express-session";
 
 declare module "express-session" {
@@ -6,11 +7,7 @@ declare module "express-session" {
             roleId: string;
             isLogin: boolean;
             ip: string;
-            loginData?: {
-                userId: string;
-                email: string;
-                mobileNumber: string;
-            };
+            userData?: CustomerDto;
         };
     }
 }

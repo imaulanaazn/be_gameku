@@ -10,7 +10,6 @@ import { Config } from "@config/index";
 import { v4 as uuid } from "uuid";
 import moment from "moment";
 import { CustomerEntity } from "@entity/customer.entity";
-import { regenerateSession } from "@middleware/sessions";
 
 const path = "/v1/customer/registration";
 const method = "POST";
@@ -111,11 +110,7 @@ const main: RequestHandler = async (req, res) => {
             roleId: user.roleId || config.roleUser,
             isLogin: true,
             ip: req.clientIp,
-            loginData: {
-                userId: user.id,
-                email: user.email,
-                mobileNumber: user.mobileNumber,
-            },
+            userData: user,
         };
     }
 

@@ -74,11 +74,7 @@ const main: RequestHandler = async (req, res) => {
             roleId: user.roleId || config.roleUser,
             isLogin: true,
             ip: req.clientIp,
-            loginData: {
-                userId: user.id,
-                email: user.email,
-                mobileNumber: user.mobileNumber,
-            },
+            userData: { ...user.dataValues, password: undefined },
         };
     }
 

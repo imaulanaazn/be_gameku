@@ -16,7 +16,7 @@ import { postArticle } from "./admin/maintenanceArticle/postArticle";
 import { getLastArticels } from "./GET/getArticles";
 import { getVideos } from "./GET/getVideos";
 import { postRegistration } from "./POST/postRegistration";
-import { getUserProfileById } from "./GET/getUserProfileById";
+import { getUserProfile } from "./GET/getUserProfile";
 import { postLogin } from "./POST/postLogin";
 
 let router = Router();
@@ -45,7 +45,7 @@ const apis = [
     getGameByCategory,
     getLastArticels,
     getVideos,
-    getUserProfileById,
+    getUserProfile,
 ];
 
 for (const api of apis) {
