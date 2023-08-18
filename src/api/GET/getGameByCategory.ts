@@ -33,10 +33,12 @@ const main: RequestHandler = async (req, res) => {
     let games: GameDto[] = [];
 
     if (query.category === "popular") {
-        games = await gameService.findManyBy({
+        const gamesPopular = await gameService.findManyBy({
             column: "isPopular",
             value: true,
         });
+
+        games = gamesPopular.sort((a, b) => a.popSequence - b.popSequence);
     } else if (query.category === "mobile") {
         games = await gameService.findManyBy({
             column: "platform",

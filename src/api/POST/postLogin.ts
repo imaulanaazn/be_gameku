@@ -33,8 +33,13 @@ const main: RequestHandler = async (req, res) => {
         password: string;
     }>(schemaValidation, ValidatorType.BODY);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmail = emailRegex.test(body.username);
+    const convertedNumber = body.username.replace(/^(\+62|62|0)?(\d+)/, "0$2");
+    const isMobileNo = validator.isMobilePhone(convertedNumber, "id-ID");
+    const isEmail = validator.isEmail(body.username);
+
+    if (!isEmail && !isMobileNo) {
+        throw new BusinessError("Format Email/Nomor Whatsapp tidak valid", ErrorType.Validation);
+    }
 
     const userService = new CustomerService();
     const config = new Config();
@@ -43,12 +48,6 @@ const main: RequestHandler = async (req, res) => {
     if (isEmail) {
         user = await userService.findUserWithPasswordBy("email", body.username);
     } else {
-        const convertedNumber = body.username.replace(/^(\+62|62|0)?(\d+)/, "0$2");
-        const isMobileNo = validator.isMobilePhone(convertedNumber, "id-ID");
-        if (!isMobileNo) {
-            throw new BusinessError("Format nomor whatsapp tidak valid", ErrorType.Validation);
-        }
-
         user = await userService.findUserWithPasswordBy("mobileNumber", convertedNumber);
     }
 
