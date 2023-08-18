@@ -19,6 +19,7 @@ import { postRegistration } from "./POST/postRegistration";
 import { getUserProfile } from "./GET/getUserProfile";
 import { postLogin } from "./POST/postLogin";
 import { deleteLogout } from "./DELETE/deleteLogout";
+import { getProducts } from "./GET/getProducts";
 
 let router = Router();
 
@@ -47,6 +48,7 @@ const apis = [
     getLastArticels,
     getVideos,
     getUserProfile,
+    getProducts,
 
     // DELETE
     deleteLogout,

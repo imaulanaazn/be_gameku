@@ -275,6 +275,7 @@ export class Validator {
                     req[schema.name] = schema.default;
                     value = req[schema.name];
                 } else {
+                    result.success = true;
                     continue;
                 }
             }

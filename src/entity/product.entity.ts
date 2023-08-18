@@ -38,7 +38,7 @@ export class ProductEntity extends Model<ProductEntity> {
     @AllowNull(false)
     @ForeignKey(() => GameEntity)
     @Column(DataType.STRING(40))
-    game_id!: string;
+    gameId!: string;
 
     @AllowNull(false)
     @Default(false)
@@ -53,6 +53,6 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.DATE)
     updatedAt!: Date;
 
-    @BelongsTo(() => GameEntity, "game_id")
+    @BelongsTo(() => GameEntity, "gameId")
     game!: GameEntity;
 }
