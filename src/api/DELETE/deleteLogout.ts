@@ -1,13 +1,6 @@
-import { ErrorType, ValidatorType } from "@enum/index";
-import { BusinessError } from "@helper/handleError";
-import { Validator } from "@helper/validator";
-import { Validation, IApiRouter } from "@interfaces/index";
-import { CustomerService } from "@serviceInternal/customer.service";
+import { IApiRouter } from "@interfaces/index";
 import { RequestHandler } from "express";
-import bcrypt from "bcrypt";
 import { Config } from "@config/index";
-import { CustomerEntity } from "@entity/customer.entity";
-import validator from "validator";
 
 const path = "/v1/customer/logout";
 const method = "DELETE";
