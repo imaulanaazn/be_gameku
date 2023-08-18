@@ -18,6 +18,7 @@ import { getVideos } from "./GET/getVideos";
 import { postRegistration } from "./POST/postRegistration";
 import { getUserProfile } from "./GET/getUserProfile";
 import { postLogin } from "./POST/postLogin";
+import { deleteLogout } from "./DELETE/deleteLogout";
 
 let router = Router();
 
@@ -46,6 +47,9 @@ const apis = [
     getLastArticels,
     getVideos,
     getUserProfile,
+
+    // DELETE
+    deleteLogout,
 ];
 
 for (const api of apis) {
