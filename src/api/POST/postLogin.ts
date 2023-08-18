@@ -34,13 +34,8 @@ const main: RequestHandler = async (req, res) => {
     }>(schemaValidation, ValidatorType.BODY);
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10,12}$/;
     const isEmail = emailRegex.test(body.username);
-    const isMobilePhone = phoneRegex.test(body.username);
 
-    if (!isEmail && !isMobilePhone) {
-        throw new BusinessError("Email atau Nomor Whatsapp tidak valid", ErrorType.Validation);
-    }
     const userService = new CustomerService();
     const config = new Config();
 
@@ -54,16 +49,16 @@ const main: RequestHandler = async (req, res) => {
             throw new BusinessError("Format nomor whatsapp tidak valid", ErrorType.Validation);
         }
 
-        user = await userService.findUserWithPasswordBy("mobileNumber", body.username);
+        user = await userService.findUserWithPasswordBy("mobileNumber", convertedNumber);
     }
 
     if (!user) {
-        throw new BusinessError("Email atau Nomor Whatsapp belum terdaftar", ErrorType.Validation);
+        throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
     }
 
     const comparePassword = bcrypt.compareSync(body.password, user.password);
     if (!comparePassword) {
-        throw new BusinessError("Kata sandi salah", ErrorType.Validation);
+        throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
     }
 
     req.session.cookie.maxAge = config.maxAgeLogin * 1000;
