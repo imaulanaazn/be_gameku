@@ -8,6 +8,7 @@ import {
     UpdatedAt,
     PrimaryKey,
     Unique,
+    AllowNull,
 } from "sequelize-typescript";
 
 @Table({
@@ -43,6 +44,10 @@ export class GameEntity extends Model<GameEntity> {
     @Unique(true)
     @Column(DataType.STRING(255))
     slug: string;
+
+    @AllowNull(false)
+    @Column(DataType.STRING(255))
+    logoDenom: string;
 
     @CreatedAt
     @Column(DataType.DATE)

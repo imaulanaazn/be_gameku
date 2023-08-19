@@ -8,5 +8,6 @@ export class GameDto extends MainDto {
     isPopular: boolean;
     popSequence?: number;
     slug: string;
+    logoDenom: string;
     deleted: boolean;
 }

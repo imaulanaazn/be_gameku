@@ -52,7 +52,7 @@ const main: RequestHandler = async (req, res) => {
         column: "gameId",
         value: game.id,
     });
-
+    products.sort((a, b) => a.price - b.price);
     res.send({
         ...game.dataValues,
         products,

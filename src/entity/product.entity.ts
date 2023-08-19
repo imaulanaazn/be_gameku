@@ -32,8 +32,20 @@ export class ProductEntity extends Model<ProductEntity> {
     price!: number;
 
     @AllowNull(false)
+    @Column(DataType.INTEGER)
+    unit!: number;
+
+    @AllowNull(true)
+    @Column(DataType.INTEGER)
+    unitBonus!: number;
+
+    @AllowNull(false)
     @Column(DataType.STRING(255))
     cd: string;
+
+    @AllowNull(true)
+    @Column(DataType.STRING(255))
+    logoDenom: string;
 
     @AllowNull(false)
     @ForeignKey(() => GameEntity)
