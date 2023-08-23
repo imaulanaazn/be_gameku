@@ -36,8 +36,8 @@ const paginationSchema: Validation[] = [
 
 export interface IPagination {
     page: number;
-    sort: "ASC" | "DESC";
-    order: string;
+    sort: string;
+    order: "ASC" | "DESC";
     limit: number;
 }
 
@@ -274,10 +274,10 @@ export class Validator {
                 if (schema.default) {
                     req[schema.name] = schema.default;
                     value = req[schema.name];
-                } else {
-                    result.success = true;
-                    continue;
                 }
+
+                result.success = true;
+                continue;
             }
 
             if (schema.name === "page" || schema.name === "limit") {

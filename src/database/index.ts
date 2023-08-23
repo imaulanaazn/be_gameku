@@ -5,6 +5,7 @@ import {
     BannerEntity,
     CommentEntity,
     CustomerEntity,
+    GameCategoryEntity,
     GameEntity,
     InvoiceEntity,
     OrderDetailEntity,
@@ -22,7 +23,7 @@ const sequelize = new Sequelize({
     username: config.databaseUsername,
     password: config.databasePassword,
     logQueryParameters: false,
-    logging: false,
+    logging: true,
     dialect: "mysql",
     models: [
         CustomerEntity,
@@ -37,6 +38,7 @@ const sequelize = new Sequelize({
         ArticleEntity,
         CommentEntity,
         VideoEntity,
+        GameCategoryEntity,
     ],
 });
 

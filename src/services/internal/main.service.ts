@@ -1,7 +1,7 @@
 import { IPagination } from "@helper/validator";
 import { Op } from "sequelize";
 import { Model, ModelCtor } from "sequelize-typescript";
-import { CreationAttributes, DestroyOptions, UpdateOptions, WhereOptions } from "sequelize/types/model";
+import { CreationAttributes, DestroyOptions, FindOptions, UpdateOptions, WhereOptions } from "sequelize/types/model";
 
 type ColumnKeys<T> = keyof T;
 type OperatorString = "like" | "and" | "or" | "in";
@@ -37,6 +37,7 @@ const operators = {
 
 export interface IBaseService<T extends Model, Dto> {
     create(data: Partial<Dto>): Promise<T>;
+    find(options: FindOptions<T>): Promise<T[]>;
     findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T | null>;
     findManyBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T[]>;
     findManyByPagination<K extends ColumnKeys<Dto>>(
@@ -58,6 +59,10 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
 
     public async create(data: Partial<Dto>): Promise<T> {
         return await this.model.create(data as Dto);
+    }
+
+    public async find(options: FindOptions<T>): Promise<T[]> {
+        return await this.model.findAll(options);
     }
 
     public async findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T | null> {

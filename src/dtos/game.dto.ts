@@ -1,10 +1,9 @@
 import { MainDto } from "./main.dto";
 
 export class GameDto extends MainDto {
+    categoryId: string;
     name: string;
     logoUrl: string;
-    platform: string;
-    category: string;
     isPopular: boolean;
     popSequence?: number;
     slug: string;

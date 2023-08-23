@@ -9,7 +9,10 @@ import {
     PrimaryKey,
     Unique,
     AllowNull,
+    ForeignKey,
+    BelongsTo,
 } from "sequelize-typescript";
+import { GameCategoryEntity } from "./gameCategory.entity";
 
 @Table({
     tableName: "games",
@@ -21,17 +24,15 @@ export class GameEntity extends Model<GameEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @ForeignKey(() => GameCategoryEntity)
+    @Column(DataType.STRING(40))
+    categoryId!: string;
+
     @Column(DataType.STRING(40))
     name!: string;
 
     @Column(DataType.STRING(255))
     logoUrl: string;
-
-    @Column(DataType.STRING(255))
-    platform: string;
-
-    @Column(DataType.STRING(255))
-    category: string;
 
     @Default(false)
     @Column(DataType.BOOLEAN)
@@ -60,4 +61,7 @@ export class GameEntity extends Model<GameEntity> {
     @Default(false)
     @Column(DataType.BOOLEAN)
     deleted!: boolean;
+
+    @BelongsTo(() => GameCategoryEntity, "categoryId")
+    gameCategory!: GameCategoryEntity;
 }

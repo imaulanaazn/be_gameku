@@ -1,60 +1,116 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ValidatorType } from "@enum/index";
+import { ErrorType, ValidatorType } from "@enum/index";
 import { GameService } from "@serviceInternal/game.service";
 import { GameDto } from "@dto/index";
+import { GameCategoryService } from "@serviceInternal/gameCategory.service";
+import { BusinessError } from "@helper/handleError";
+import { Op } from "sequelize";
 
-const path = "/v1/games-by";
+const path = "/v1/games";
 const method = "GET";
 const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
-        name: "category",
+        name: "categoryId",
         type: "string",
         required: false,
     },
     {
-        name: "max",
-        type: "number",
-        default: 10,
+        name: "isPopular",
+        type: "string",
+        default: "false",
+        required: false,
+        enum: ["true", "false"],
+    },
+    {
+        name: "search",
+        type: "string",
         required: false,
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
-        category: string;
-        max: number;
+        categoryId: string;
+        isPopular: "true" | "false";
+        search: string;
     }>(schemaValidation, ValidatorType.QUERY);
 
     const gameService = new GameService();
-    let games: GameDto[] = [];
+    const gameCategoryService = new GameCategoryService();
 
-    if (query.category === "popular") {
+    if (query.isPopular === "true") {
+        if (query.search) {
+            const games = await gameService.find({
+                where: {
+                    isPopular: true,
+                    name: {
+                        [Op.like]: "%" + query.search + "%",
+                    },
+                },
+                order: [["popSequence", "ASC"]],
+            });
+
+            return res.send(games);
+        }
+
         const gamesPopular = await gameService.findManyBy({
             column: "isPopular",
             value: true,
         });
 
-        games = gamesPopular.sort((a, b) => a.popSequence - b.popSequence);
-    } else if (query.category === "mobile") {
-        games = await gameService.findManyBy({
-            column: "platform",
-            value: ["mobile", "pcmobile"],
-            operator: "or",
-        });
-    } else if (query.category === "pc") {
-        games = await gameService.findManyBy({
-            column: "platform",
-            value: ["pc", "pcmobile"],
-            operator: "or",
-        });
-    } else {
-        games = await gameService.findGameByCategory(query.category);
+        const games = gamesPopular.sort((a, b) => a.popSequence - b.popSequence);
+
+        return res.send(games);
     }
 
+    if (query.categoryId) {
+        const category = await gameCategoryService.findOneBy({
+            column: "id",
+            value: query.categoryId,
+        });
+
+        if (!category) {
+            throw new BusinessError("Game Category ID tidak valid: " + query.categoryId, ErrorType.NotFound);
+        }
+
+        if (query.search) {
+            const games = await gameService.find({
+                where: {
+                    categoryId: query.categoryId,
+                    name: {
+                        [Op.like]: "%" + query.search + "%",
+                    },
+                },
+            });
+
+            return res.send(games);
+        }
+
+        const games = await gameService.findManyBy({
+            column: "categoryId",
+            value: category.id,
+        });
+
+        return res.send(games);
+    }
+
+    if (query.search) {
+        const games = await gameService.find({
+            where: {
+                name: {
+                    [Op.like]: query.search + "%",
+                },
+            },
+        });
+
+        return res.send(games);
+    }
+
+    const games = await gameService.findAll();
     return res.send(games);
 };
 

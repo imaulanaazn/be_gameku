@@ -11,6 +11,7 @@ import "moment-timezone";
         if (process.env.NODE_ENV.toLowerCase() === "development") {
             console.log(process.env);
         }
+
         moment.tz.setDefault(process.env.TZ);
         const app: Express = express();
         const port = process.env.PORT || 3000;

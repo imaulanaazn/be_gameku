@@ -1,10 +1,11 @@
 {
-    "name": "invitation",
+    "name": "gasskeun_topup",
     "version": "1.0.0",
     "description": "",
     "main": "dist/index.js",
     "scripts": {
-        "build": "rm -r dist && tsc && cp -r src/templates ./dist",
+        "build": "tsc && tsc-alias",
+        "start": "NODE_ENV=PRODUCTION node .",
         "start:stage": "NODE_ENV=STAGE node .",
         "start:prod": "NODE_ENV=PRODUCTION node .",
         "dev": "NODE_ENV=DEVELOPMENT nodemon --exec \"ts-node src/index.ts\""
@@ -59,6 +60,7 @@
         "nodemon": "^3.0.1",
         "ts-node": "^10.9.1",
         "ts-patch": "^3.0.2",
+        "tsc-alias": "^1.8.7",
         "typescript": "^4.9.5",
         "typescript-transform-paths": "^3.4.6"
     }

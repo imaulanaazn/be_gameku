@@ -15,15 +15,21 @@ const getApp = async (app: Application) => {
     const config = new Config();
     const allowOrigin = config.originCors.split(",");
 
+    const corsOptions = {
+        origin: (origin, callback) => {
+            if (allowOrigin.includes(origin) || !origin) {
+                callback(null, true);
+            } else {
+                callback(new Error("Origin not allowed by CORS"));
+            }
+        },
+        credentials: true,
+    };
+
     app.set("trust proxy", true);
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(
-        cors({
-            origin: "http://localhost:3000",
-            credentials: true,
-        }),
-    );
+    app.use(cors(corsOptions));
 
     app.use((req, res, next) => {
         const clientIp = requestIp.getClientIp(req);
@@ -40,7 +46,6 @@ const getApp = async (app: Application) => {
             cookie: {
                 secure: process.env.NODE_ENV.toLowerCase() === "production" ? true : false,
                 httpOnly: true,
-                sameSite: true,
                 maxAge: config.maxAgeGuest * 1000,
             },
         }),

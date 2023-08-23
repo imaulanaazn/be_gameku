@@ -16,7 +16,6 @@
         "allowJs": true,
         "esModuleInterop": true,
         "baseUrl": ".",
-        "types": ["node", "express", "./src/helper/custom.d.ts"],
         "paths": {
             "@entity/*": ["src/entity/*"],
             "@dto/*": ["src/dtos/*"],

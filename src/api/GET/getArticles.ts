@@ -10,7 +10,7 @@ const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
-        name: "max",
+        name: "limit",
         type: "number",
         default: 3,
         required: false,
@@ -19,12 +19,13 @@ const schemaValidation: Validation[] = [
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
-        max: number;
+        limit: number;
     }>(schemaValidation, ValidatorType.QUERY);
+    console.log(query.limit);
 
     const articleService = new ArticleService();
     const getLastarticle = await articleService.findLastArticleAndTotalComments({
-        max: query.max,
+        max: query.limit,
         attributes: ["id", "slug", "title", "publishDate", "img", "externalUrl", "isExternal"],
     });
 

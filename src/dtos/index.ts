@@ -10,3 +10,4 @@ export * from "./banner.dto";
 export * from "./article.dto";
 export * from "./comment.dto";
 export * from "./video.dto";
+export * from "./gameCategory.dto";

@@ -22,6 +22,7 @@ import { deleteLogout } from "./DELETE/deleteLogout";
 import { getProducts } from "./GET/getProducts";
 import { getGameDetailById } from "./GET/getGameDetail";
 import { getListPaymentsMethod } from "./GET/getListPaymentMethod";
+import { getGameCategory } from "./GET/getGameCategory";
 
 let router = Router();
 
@@ -53,6 +54,7 @@ const apis = [
     getProducts,
     getGameDetailById,
     getListPaymentsMethod,
+    getGameCategory,
 
     // DELETE
     deleteLogout,
