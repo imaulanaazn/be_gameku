@@ -8,28 +8,29 @@ const path = "/v1/newest-articles";
 const method = "GET";
 const auth = "guess";
 
-const schemaValidation: Validation[] = [
-    {
-        name: "limit",
-        type: "number",
-        default: 3,
-        required: false,
-    },
-];
+const schemaValidation: Validation[] = [];
 
 const main: RequestHandler = async (req, res) => {
-    const query = new Validator(req, res).process<{
-        limit: number;
-    }>(schemaValidation, ValidatorType.QUERY);
-    console.log(query.limit);
+    const query = new Validator(req, res).process(schemaValidation, ValidatorType.QUERY, true);
+    if (query.sort === "createdAt") {
+        query.sort = "publishDate";
+    }
 
     const articleService = new ArticleService();
     const getLastarticle = await articleService.findLastArticleAndTotalComments({
-        max: query.limit,
         attributes: ["id", "slug", "title", "publishDate", "img", "externalUrl", "isExternal"],
+        pagination: {
+            limit: query.limit,
+            page: query.page,
+            order: query.order,
+            sort: query.sort,
+        },
     });
 
-    res.send(getLastarticle);
+    const countArticles = await articleService.countArticles();
+    console.log(countArticles);
+
+    res.send({ data: getLastarticle, totalData: countArticles });
 };
 
 export const getLastArticels: IApiRouter = {

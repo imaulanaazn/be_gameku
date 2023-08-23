@@ -2,9 +2,10 @@ import { MainService } from "./main.service";
 import { ArticleDto } from "src/dtos/index";
 import { ArticleEntity, CommentEntity } from "@entity/index";
 import { col, fn } from "sequelize";
+import { IPagination } from "@helper/validator";
 
 interface IFindLatestArticle<T> {
-    max: number;
+    pagination: IPagination;
     attributes: Array<keyof T>;
 }
 
@@ -27,8 +28,13 @@ export class ArticleService extends MainService<ArticleEntity, ArticleDto> {
             },
             group: ["ArticleEntity.id", "ArticleEntity.title"],
             order: [["publishDate", "DESC"]],
-            limit: criteria.max,
+            limit: criteria.pagination.limit,
+            offset: (criteria.pagination.page - 1) * criteria.pagination.limit,
             subQuery: false,
         });
+    }
+
+    async countArticles(): Promise<any> {
+        return await this.model.count();
     }
 }

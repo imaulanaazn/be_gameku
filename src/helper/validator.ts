@@ -30,7 +30,7 @@ const paginationSchema: Validation[] = [
         required: false,
         minNumber: 1,
         maxNumber: 100,
-        default: "10",
+        default: 10,
     },
 ];
 
