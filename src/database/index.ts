@@ -8,6 +8,7 @@ import {
     GameCategoryEntity,
     GameEntity,
     InvoiceEntity,
+    ListServerEntity,
     OrderDetailEntity,
     OrderEntity,
     PaymentMethodEntity,
@@ -39,6 +40,7 @@ const sequelize = new Sequelize({
         CommentEntity,
         VideoEntity,
         GameCategoryEntity,
+        ListServerEntity,
     ],
 });
 

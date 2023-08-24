@@ -1,3 +1,4 @@
+import { ServerIdType, VoucherType } from "@enum/index";
 import { MainDto } from "./main.dto";
 
 export class GameDto extends MainDto {
@@ -9,4 +10,8 @@ export class GameDto extends MainDto {
     slug: string;
     logoDenom: string;
     deleted: boolean;
+    needServerId: boolean;
+    typeServerId: ServerIdType;
+    type: string;
+    voucherType: VoucherType;
 }

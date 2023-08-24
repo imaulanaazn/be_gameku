@@ -11,3 +11,4 @@ export * from "./article.dto";
 export * from "./comment.dto";
 export * from "./video.dto";
 export * from "./gameCategory.dto";
+export * from "./listServer.dto";

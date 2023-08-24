@@ -11,3 +11,4 @@ export * from "./article.entity";
 export * from "./comment.entity";
 export * from "./video.entity";
 export * from "./gameCategory.entity";
+export * from "./listServer.entity";

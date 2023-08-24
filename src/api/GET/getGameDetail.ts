@@ -1,11 +1,12 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { ErrorType, ServerIdType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { ProductService } from "@serviceInternal/product.service";
 import { ProductEntity } from "@entity/product.entity";
 import { GameService } from "@serviceInternal/game.service";
+import { ListServerService } from "@serviceInternal/listServer.service";
 
 const path = "/v1/game-detail";
 const method = "GET";
@@ -52,10 +53,21 @@ const main: RequestHandler = async (req, res) => {
         column: "gameId",
         value: game.id,
     });
+
+    const listServerService = new ListServerService();
+    let listServers;
+    if (game.needServerId && game.typeServerId === ServerIdType.LIST) {
+        listServers = await listServerService.findManyBy({
+            column: "gameId",
+            value: game.id,
+        });
+    }
+
     products.sort((a, b) => a.price - b.price);
     res.send({
         ...game.dataValues,
         products,
+        servers: listServers,
     });
 };
 

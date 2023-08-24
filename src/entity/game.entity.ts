@@ -13,6 +13,7 @@ import {
     BelongsTo,
 } from "sequelize-typescript";
 import { GameCategoryEntity } from "./gameCategory.entity";
+import { ServerIdType, VoucherType } from "@enum/index";
 
 @Table({
     tableName: "games",
@@ -30,6 +31,18 @@ export class GameEntity extends Model<GameEntity> {
 
     @Column(DataType.STRING(40))
     name!: string;
+
+    @Column(DataType.STRING(255))
+    type!: string;
+
+    @Column(DataType.STRING(255))
+    voucherType!: VoucherType;
+
+    @Column(DataType.BOOLEAN)
+    needServerId!: boolean;
+
+    @Column(DataType.STRING(255))
+    typeServerId!: ServerIdType;
 
     @Column(DataType.STRING(255))
     logoUrl: string;

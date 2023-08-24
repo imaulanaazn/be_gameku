@@ -68,3 +68,13 @@ export enum PaymentsCategory {
     VIRTUAL_ACCOUNT = "3",
     RETAIL = "4",
 }
+
+export enum VoucherType {
+    INTERNAL = "internal",
+    EXTERNAL = "external",
+}
+
+export enum ServerIdType {
+    INPUT = "input",
+    LIST = "list",
+}
