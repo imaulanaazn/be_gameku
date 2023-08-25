@@ -27,6 +27,9 @@ const responseHandler = (error: Error, res: Response, req: Request) => {
             case ErrorType.ToManyRequest:
                 res.status(ErrorStatusCode.ToManyRequest);
                 break;
+            case ErrorType.BadRequest:
+                res.status(ErrorStatusCode.BadRequest);
+                break;
             default:
                 res.status(ErrorStatusCode.Internal);
                 break;

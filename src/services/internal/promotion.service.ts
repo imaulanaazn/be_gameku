@@ -3,7 +3,7 @@ import { PromotionDto } from "src/dtos/index";
 import { PromotionEntity } from "@entity/index";
 import { Op } from "sequelize";
 
-export class VoucherService extends MainService<PromotionEntity, PromotionDto> {
+export class PromotionService extends MainService<PromotionEntity, PromotionDto> {
     constructor() {
         super(PromotionEntity);
     }

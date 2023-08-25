@@ -9,7 +9,9 @@ import {
     CreatedAt,
     UpdatedAt,
     AllowNull,
+    ForeignKey,
 } from "sequelize-typescript";
+import { GameEntity } from "./game.entity";
 
 @Table({
     tableName: "promotions",
@@ -21,41 +23,41 @@ export class PromotionEntity extends Model<PromotionEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
-    @AllowNull(false)
+    @ForeignKey(() => GameEntity)
+    @Column(DataType.STRING(40))
+    gameId: string;
+
+    @AllowNull(true)
     @Column(DataType.STRING(255))
     name!: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.STRING(100))
     discountType!: DiscountType;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.INTEGER)
     discountValue!: number;
 
     @Default(0)
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.INTEGER)
     minPurchase!: number;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.STRING(255))
     description!: string;
 
-    @AllowNull(false)
-    @Column(DataType.DATE)
-    publishAt!: Date;
-
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.DATE)
     startAt!: Date;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.DATE)
     endAt!: Date;
 
-    @Default(false)
-    @AllowNull(false)
+    @Default(true)
+    @AllowNull(true)
     @Column(DataType.BOOLEAN)
     deleted!: boolean;
 

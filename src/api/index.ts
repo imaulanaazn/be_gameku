@@ -23,6 +23,7 @@ import { getProducts } from "./GET/getProducts";
 import { getGameDetailById } from "./GET/getGameDetail";
 import { getListPaymentsMethod } from "./GET/getListPaymentMethod";
 import { getGameCategory } from "./GET/getGameCategory";
+import { postCheckPromoCode } from "./POST/postCheckPromoCode";
 
 let router = Router();
 
@@ -44,6 +45,7 @@ const apis = [
     postOrder,
     postRegistration,
     postLogin,
+    postCheckPromoCode,
 
     // GET
     getBanners,
