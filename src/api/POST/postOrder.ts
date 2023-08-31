@@ -255,11 +255,12 @@ const main: RequestHandler = async (req, res) => {
     };
 
     if (payment.category === PaymentsCategory.EWALLET) {
+        const redirectUrl = config.feUrl + "/payment/" + invoiceId;
         let channel_properties = {};
         if (payment.cd === "ID_ASTRAPAY") {
             channel_properties = {
-                success_redirect_url: config.successRedirectUrl,
-                failure_redirect_url: config.failedRedirectUrl,
+                success_redirect_url: redirectUrl,
+                failure_redirect_url: redirectUrl,
             };
         } else if (payment.cd === "ID_OVO") {
             const mobile_number = `+62${body.mobileNumber.slice(1)}`;
@@ -269,7 +270,7 @@ const main: RequestHandler = async (req, res) => {
             channel_properties = { cashtag };
         } else {
             channel_properties = {
-                success_redirect_url: config.successRedirectUrl,
+                success_redirect_url: redirectUrl,
             };
         }
 

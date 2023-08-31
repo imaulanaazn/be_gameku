@@ -10,8 +10,7 @@ export class Config {
     roleAdmin = process.env.ROLE_ADMIN || "wqbdfpouqwbfpiqbfpndpqn";
     roleGuest = process.env.ROLE_GUEST || "wqbdfpouqwbfpiqbfpndpqn";
 
-    successRedirectUrl = process.env.SUCCESS_REDIRECT_URL || "http://localhost:3000/success";
-    failedRedirectUrl = process.env.SUCCESS_REDIRECT_URL || "http://localhost:3000/failed";
+    feUrl = process.env.FE_URL || "http://localhost:3000";
 
     redisUri = process.env.REDIS_URI;
 
