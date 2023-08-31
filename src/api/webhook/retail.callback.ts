@@ -5,44 +5,31 @@ import { OrderService } from "@serviceInternal/order.service";
 import { BusinessError } from "@helper/handleError";
 import { ErrorType, OrderStatuses } from "@enum/index";
 import { ProductService } from "@serviceInternal/product.service";
-import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
+import { InvoiceService } from "@serviceInternal/invoice.service";
 
-const path = "/v1/webhook/qris";
+const path = "/v1/webhook/retail";
 const method = "POST";
 const auth = "webhook-xendit";
 
 const main: RequestHandler = async (req, res) => {
     const body: {
-        created: string;
-        business_id: string;
-        event: string;
-        api_version: string;
-        data: {
-            amount: number;
-            basket: string;
-            business_id: string;
-            channel_code: string;
-            created: string;
-            currency: string;
-            expires_at: string;
-            id: string;
-            metadata: string;
-            payment_detail: {
-                account_details: string;
-                name: string;
-                receipt_id: string;
-                source: string;
-            };
-            qr_id: string;
-            qr_string: string;
-            reference_id: string;
-            status: string;
-            type: string;
-        };
+        id: string;
+        external_id: string;
+        prefix: string;
+        payment_code: string;
+        retail_outlet_name: string;
+        name: string;
+        amount: number;
+        status: string;
+        transaction_timestamp: string;
+        payment_id: string;
+        fixed_payment_code_payment_id: string;
+        fixed_payment_code_id: string;
+        owner_id: string;
     } = req.body;
-    console.log(`Webhook QRIS diterima [${body.data.reference_id}]`);
-    console.log("Request Body", body);
+    console.log(`Webhook VA diterima [${body.external_id}]`);
+    console.log(JSON.stringify(body));
 
     const orderService = new OrderService();
     const productService = new ProductService();
@@ -50,11 +37,11 @@ const main: RequestHandler = async (req, res) => {
 
     const invoice = await invoiceService.findOneBy({
         column: "id",
-        value: body.data.reference_id,
+        value: body.external_id,
     });
 
     if (!invoice) {
-        throw new BusinessError(`Order tidak ditemukan dengan invoice: ${body.data.reference_id}`, ErrorType.Internal);
+        throw new BusinessError(`Order tidak ditemukan dengan invoice: ${body.external_id}`, ErrorType.Internal);
     }
 
     const order = await orderService.findOneBy({
@@ -62,8 +49,8 @@ const main: RequestHandler = async (req, res) => {
         value: invoice.id,
     });
 
-    if (order.totalAmt !== body.data.amount) {
-        console.log(`Amount berbeda, seharusnya: ${order.totalAmt}, dibayarkan: ${body.data.amount}`);
+    if (order.totalAmt !== body.amount) {
+        console.log(`Amount berbeda, seharusnya: ${order.totalAmt}, dibayarkan: ${body.amount}`);
         console.log(`Memproses update order partial paid`);
         await invoiceService.updateBy({
             by: "id",
@@ -110,7 +97,7 @@ const main: RequestHandler = async (req, res) => {
     res.sendStatus(200);
 };
 
-export const webhookQris: IApiRouter = {
+export const webhookVirtualAccount: IApiRouter = {
     path,
     method,
     main,

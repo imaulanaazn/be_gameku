@@ -3,16 +3,21 @@ dotenv.config();
 
 import express, { Express } from "express";
 import getApp from "./app";
-import * as moment from "moment";
-import "moment-timezone";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import advanced from "dayjs/plugin/advancedFormat";
 
 (async () => {
     try {
         if (process.env.NODE_ENV.toLowerCase() === "development") {
             console.log(process.env);
         }
+        dayjs.extend(utc);
+        dayjs.extend(timezone);
+        dayjs.extend(advanced);
 
-        moment.tz.setDefault(process.env.TZ);
+        dayjs.tz.setDefault(process.env.TZ || "Asia/Jakarta");
         const app: Express = express();
         const port = process.env.PORT || 3000;
         getApp(app);

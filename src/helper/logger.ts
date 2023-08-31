@@ -6,7 +6,7 @@ const transport = new DailyRotateFile({
     filename: "logs/logger-management-gasskeuntopup %DATE%.log",
     datePattern: "YYYY-MM-DD",
     maxSize: "100m",
-    maxFiles: "30d",
+    maxFiles: "5d",
 });
 
 const logger = winston.createLogger({
@@ -36,14 +36,32 @@ const logger = winston.createLogger({
     ],
 });
 
-console.log = function (msg) {
-    logger.info(msg);
+console.log = function (...msg) {
+    if (msg.length > 1) {
+        for (const log of msg) {
+            logger.info(log);
+        }
+    } else {
+        logger.info(msg[0]);
+    }
 };
 
-console.warn = function (msg) {
-    logger.warn(msg);
+console.warn = function (...msg) {
+    if (msg.length > 1) {
+        for (const log of msg) {
+            logger.warn(log);
+        }
+    } else {
+        logger.warn(msg[0]);
+    }
 };
 
-console.error = function (msg) {
-    logger.error(msg);
+console.error = function (...msg) {
+    if (msg.length > 1) {
+        for (const log of msg) {
+            logger.error(log);
+        }
+    } else {
+        logger.error(msg[0]);
+    }
 };

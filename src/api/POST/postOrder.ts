@@ -1,10 +1,11 @@
 import { RequestHandler } from "express";
 import {
     CustomerService,
+    GameService,
     OrderService,
     PaymentMethodService,
     ProductService,
-    VoucherService,
+    PromotionService,
 } from "@serviceInternal/index";
 import { Config } from "@config/index";
 import { DiscountType, ErrorType, FeeType, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
@@ -16,6 +17,8 @@ import { Validator } from "@helper/validator";
 import { XenditService } from "@serviceExternal/xendit.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
+import dayjs from "dayjs";
+import validator from "validator";
 
 const path = "/v1/order";
 const method = "POST";
@@ -41,6 +44,7 @@ const schemaValidation: Validation[] = [
         name: "quantity",
         type: "number",
         required: true,
+        maxNumber: 100,
     },
     {
         name: "paymentId",
@@ -76,7 +80,7 @@ const main: RequestHandler = async (req, res) => {
         cashtag?: string;
     }>(schemaValidation, ValidatorType.BODY);
 
-    const voucherService = new VoucherService();
+    const voucherService = new PromotionService();
     const productService = new ProductService();
     const paymentMethodService = new PaymentMethodService();
     const xenditService = new XenditService();
@@ -84,6 +88,7 @@ const main: RequestHandler = async (req, res) => {
     const customerService = new CustomerService();
     const invoiceService = new InvoiceService();
     const orderDetailService = new OrderDetailService();
+    const gameService = new GameService();
     const config = new Config();
 
     // let customer: CustomerEntity;
@@ -96,22 +101,26 @@ const main: RequestHandler = async (req, res) => {
     //         throw new BusinessError(`Customer dengan id ${body.customerId} tidak valid`, ErrorType.NotFound);
     //     }
     // }
+    const convertedNumber = body.mobileNumber.replace(/^(\+62|62|0)?(\d+)/, "0$2");
+    const check = validator.isMobilePhone(convertedNumber, "id-ID");
+    if (!check) {
+        throw new BusinessError("Nomor Whatsapp tidak valid", ErrorType.BadRequest);
+    }
 
     let customer = await customerService.findOneBy({
         column: "mobileNumber",
-        value: body.mobileNumber,
+        value: convertedNumber,
     });
 
     if (!customer) {
         customer = await customerService.create({
             id: uuid(),
             roleId: config.roleGuest,
-            mobileNumber: body.mobileNumber,
+            mobileNumber: convertedNumber,
             isActive: true,
             isRegistered: false,
         });
     }
-
     const payment = await paymentMethodService.findOneBy({
         column: "id",
         value: body.paymentId,
@@ -134,11 +143,24 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Produk ID tidak valid", ErrorType.NotFound);
     }
 
+    const game = await gameService.findOneBy({
+        column: "id",
+        value: product.gameId,
+    });
+
     let discount = 0;
     if (body.promoCode) {
         const voucher = await voucherService.findAvailablePromoBypromoCode(body.promoCode);
         if (!voucher) {
-            throw new BusinessError(`Kode promo ${voucher.id} tidak valid atau kadaluarsa`, ErrorType.NotFound);
+            throw new BusinessError(`Kode Promo tidak valid atau kadaluarsa`, ErrorType.NotFound);
+        }
+
+        if (voucher.gameId && !product.gameId) {
+            throw new BusinessError("Kode Promo tidak valid untuk game ini", ErrorType.BadRequest);
+        }
+
+        if (voucher.gameId && voucher.gameId !== product.gameId) {
+            throw new BusinessError("Kode Promo tidak valid untuk game ini", ErrorType.BadRequest);
         }
 
         if (voucher && product.price >= voucher.minPurchase) {
@@ -149,7 +171,7 @@ const main: RequestHandler = async (req, res) => {
             }
         } else if (voucher) {
             throw new BusinessError(
-                `Tidak memenuhi minimal pembelian untuk menggunakan promo ini: ${voucher.id}`,
+                "Kode Promo yang dimasukkan tidak memenuhi minimal pembelian",
                 ErrorType.BadRequest,
             );
         }
@@ -173,38 +195,44 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
+    // TODOOOOOOOOOOOO
     // CHECK USERNAME GAME
     // ......
     // CHECK USERNAME GAME
 
-    const invoiceId = `INV_${payment.cd}_${new Date().getTime()}`;
-    let expiredAt = moment().add(payment.durationExpired, payment.durationCd).tz(config.timezone).toDate();
+    const invoiceId = `INV${new Date().getTime()}`;
+    const expiredAt = dayjs().tz("Asia/Jakarta").add(payment.durationExpired, payment.durationCd).toDate();
     let charge: any;
+
+    await invoiceService.create({
+        id: invoiceId,
+        status: OrderStatuses.UNPAID,
+        expiredAt,
+    });
 
     const order = await orderService.create({
         id: uuid(),
         customerId: customer.id,
+        invoiceId,
         paymentMethodId: payment.id,
         totalAmt: amount,
         feeAmt: fee,
         discAmt: discount,
         status: OrderStatuses.UNPAID,
         promoCd: body.promoCode ? body.promoCode : "",
+        game: game.name,
+        productName: product.name,
+        paymentMethod: payment.name,
     });
-
+    console.log(body.quantity);
     await orderDetailService.create({
         id: uuid(),
         orderId: order.id,
+        productId: product.id,
         userId: body.userId || "",
         serverId: body.serverId || "",
         amount: product.price,
-        quantiy: body.quantity,
-    });
-
-    await invoiceService.create({
-        id: invoiceId,
-        status: OrderStatuses.UNPAID,
-        expiredAt,
+        quantity: body.quantity,
     });
 
     const response: any = {
@@ -282,7 +310,7 @@ const main: RequestHandler = async (req, res) => {
             external_id: invoiceId,
             bank_code: payment.cd,
             name: "Jokikugasskeun",
-            expiration_date: moment().utc().add(1, "m").toISOString(),
+            expiration_date: expiredAt.toISOString(),
             country: "ID",
             currency: "IDR",
             is_single_use: payment.isSingleUse,
@@ -310,7 +338,6 @@ const main: RequestHandler = async (req, res) => {
     }
 
     if (charge.error_code) {
-        console.log(JSON.stringify(charge));
         await orderService.updateBy({
             by: "id",
             value: order.id,
@@ -332,7 +359,6 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
-    console.log(JSON.stringify(charge));
     await invoiceService.updateBy({
         by: "id",
         value: invoiceId,
@@ -341,7 +367,10 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    return res.send(response);
+    return res.send({
+        invoice: invoiceId,
+        expiredAt,
+    });
 };
 
 export const postOrder: IApiRouter = {
@@ -350,4 +379,3 @@ export const postOrder: IApiRouter = {
     main,
     auth,
 };
-

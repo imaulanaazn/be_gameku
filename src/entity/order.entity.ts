@@ -33,6 +33,15 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.STRING(40))
     paymentMethodId!: string;
 
+    @Column(DataType.STRING(255))
+    game!: string;
+
+    @Column(DataType.STRING(255))
+    productName!: string;
+
+    @Column(DataType.STRING(255))
+    paymentMethod!: string;
+
     @Column(DataType.INTEGER)
     totalAmt!: number;
 
@@ -57,7 +66,7 @@ export class OrderEntity extends Model<OrderEntity> {
     updatedAt!: Date;
 
     @Column(DataType.DATE)
-    completedAt!: Date;
+    completedAt!: Date | string;
 
     @BelongsTo(() => InvoiceEntity, "invoiceId")
     invoice!: InvoiceEntity;
@@ -66,5 +75,5 @@ export class OrderEntity extends Model<OrderEntity> {
     customer!: CustomerEntity;
 
     @BelongsTo(() => PaymentMethodEntity, "paymentMethodId")
-    paymentMethod!: PaymentMethodEntity;
+    payment!: PaymentMethodEntity;
 }

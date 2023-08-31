@@ -3,7 +3,7 @@ import { OrderEntity, ProductEntity } from ".";
 
 @Table({
     tableName: "orders_detail",
-    timestamps: true,
+    timestamps: false,
     underscored: true,
 })
 export class OrderDetailEntity extends Model<OrderDetailEntity> {

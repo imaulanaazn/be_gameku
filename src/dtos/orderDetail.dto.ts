@@ -4,7 +4,7 @@ export class OrderDetailDto {
     productId: string;
     userId: string;
     serverId: string;
-    gameVoucher: string;
+    gameVoucher?: string;
     amount: number;
-    quantiy: number;
+    quantity: number;
 }

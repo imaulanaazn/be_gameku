@@ -67,6 +67,10 @@ export const authAdmin: RequestHandler = (req, res, next) => {
     next();
 };
 
-export const authWehbookXendit: RequestHandler = (req, res, next) => {};
+export const authWehbookXendit: RequestHandler = (req, res, next) => {
+    next();
+};
 
-export const authWehbookInternal: RequestHandler = (req, res, next) => {};
+export const authWehbookInternal: RequestHandler = (req, res, next) => {
+    next();
+};

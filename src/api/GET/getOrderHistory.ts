@@ -1,8 +1,19 @@
 import { Request, Response } from "express";
 import { Validation, IApiRouter } from "@interfaces/index";
-import { OrderService } from "@serviceInternal/index";
-import { ValidatorType } from "@enum/index";
+import {
+    CustomerService,
+    GameService,
+    OrderService,
+    PaymentMethodService,
+    ProductService,
+} from "@serviceInternal/index";
+import { ErrorType, OrderStatuses, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
+import { BusinessError } from "@helper/handleError";
+import { CustomerEntity } from "@entity/customer.entity";
+import { OrderDetailService } from "@serviceInternal/orderDetail.service";
+import { InvoiceService } from "@serviceInternal/invoice.service";
+import dayjs from "dayjs";
 
 const path = "/v1/order-history";
 const method = "GET";
@@ -10,12 +21,7 @@ const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
-        name: "customerId",
-        type: "string",
-        required: false,
-    },
-    {
-        name: "orderId",
+        name: "invoice",
         type: "string",
         required: false,
     },
@@ -28,14 +34,115 @@ const schemaValidation: Validation[] = [
 ];
 const main = async (req: Request, res: Response) => {
     const query = new Validator(req, res).process<{
-        customerId?: string;
-        orderId?: string;
+        invoice?: string;
         mobileNumber?: string;
     }>(schemaValidation, ValidatorType.QUERY, true);
 
+    if (!query.mobileNumber && !query.invoice) {
+        throw new BusinessError("Minimal harus ada nomor invoice atau nomor whatsapp", ErrorType.BadRequest);
+    }
+    const customerService = new CustomerService();
+
+    let customer: CustomerEntity;
+    if (query.mobileNumber) {
+        customer = await customerService.findOneBy({
+            column: "mobileNumber",
+            value: query.mobileNumber,
+        });
+    }
+
+    if (query.mobileNumber && !customer) {
+        return res.send({
+            data: [],
+            page: 1,
+            total: 0,
+            totalPage: 1,
+            order: query.order,
+            sort: query.sort,
+            limit: query.limit,
+        });
+    }
+
     const orderService = new OrderService();
-    // const findAll = await orderService.findBy(query);
-    // return res.send(query.saa);
+    const orderDetailService = new OrderDetailService();
+    const productService = new ProductService();
+    const gameService = new GameService();
+    const invoiceService = new InvoiceService();
+
+    const orders = await orderService.findManyByPagination(
+        {
+            column: query.mobileNumber ? "customerId" : "invoiceId",
+            value: query.mobileNumber ? customer.id : query.invoice,
+        },
+        {
+            page: query.page,
+            sort: query.sort,
+            order: query.order,
+            limit: query.limit,
+        },
+    );
+    const invoiceId = orders.rows.map((data) => data.invoiceId);
+    const invoices = await invoiceService.findManyBy({
+        column: "id",
+        value: invoiceId,
+        operator: "in",
+        only: ["id", "expiredAt"],
+    });
+    console.log(invoices);
+    const orderId = orders.rows.map((data) => data.id);
+    const ordersDetail = await orderDetailService.findManyBy({
+        column: "orderId",
+        value: orderId,
+        operator: "in",
+        only: ["orderId", "quantity", "productId"],
+    });
+
+    const productId = ordersDetail.map((data) => data.productId);
+    const products = await productService.findManyBy({
+        column: "id",
+        value: productId,
+        operator: "in",
+        only: ["id", "name", "gameId"],
+    });
+
+    const gameId = products.map((data) => data.gameId);
+    const games = await gameService.findManyBy({
+        column: "id",
+        value: gameId,
+        operator: "in",
+        only: ["id", "name", "logoUrl", "name"],
+    });
+
+    const newData = [];
+    for (const order of orders.rows) {
+        const invoice = invoices.find((data) => data.id === order.invoiceId);
+        const orderDetail = ordersDetail.find((data) => data.orderId === order.id);
+        const product = products.find((data) => data.id === orderDetail.productId);
+        const game = games.find((data) => data.id === product.gameId);
+
+        const dateNow = dayjs();
+        const expiredDate = dayjs(invoice.expiredAt);
+
+        newData.push({
+            ...order.dataValues,
+            logoUrl: game.logoUrl,
+            quantity: orderDetail.quantity,
+            status:
+                expiredDate.isBefore(dateNow) && order.status === OrderStatuses.UNPAID
+                    ? OrderStatuses.EXPIRED
+                    : order.status,
+        });
+    }
+
+    return res.send({
+        data: newData,
+        page: query.page,
+        total: orders.count,
+        totalPage: Math.ceil(orders.count / query.limit),
+        order: query.order,
+        sort: query.sort,
+        limit: query.limit,
+    });
 };
 
 export const getOrderHistory: IApiRouter = {

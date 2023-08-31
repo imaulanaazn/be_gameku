@@ -1,3 +1,5 @@
+import { PaymentsCategory } from "@enum/index";
+
 interface Basket {
     reference_id: string;
     name: string;
@@ -65,4 +67,9 @@ export interface XenditCreateRetailDto {
     payment_code?: string;
     expiration_date: string;
     is_single_use?: boolean;
+}
+
+export interface IGetPayment {
+    category: PaymentsCategory;
+    id: string;
 }

@@ -24,6 +24,9 @@ import { getGameDetailById } from "./GET/getGameDetail";
 import { getListPaymentsMethod } from "./GET/getListPaymentMethod";
 import { getGameCategory } from "./GET/getGameCategory";
 import { postCheckPromoCode } from "./POST/postCheckPromoCode";
+import { webhookQris } from "./webhook/qris.callback";
+import { getOrderHistory } from "./GET/getOrderHistory";
+import { getOrderDetail } from "./GET/getOrderDetail";
 
 let router = Router();
 
@@ -57,6 +60,8 @@ const apis = [
     getGameDetailById,
     getListPaymentsMethod,
     getGameCategory,
+    getOrderHistory,
+    getOrderDetail,
 
     // DELETE
     deleteLogout,
@@ -75,8 +80,8 @@ for (const api of apis) {
         authorization = authAdmin;
     }
 
-    const main = (req: Request, res: Response, next: NextFunction) =>
-        api.main(req, res, next).catch((err: Error) => {
+    const main = (req: Request, res: Response) =>
+        api.main(req, res).catch((err: Error) => {
             responseErrorHandler(err, res, req);
         });
 
@@ -97,7 +102,7 @@ for (const api of apis) {
 
 let webhook = Router();
 
-const apisWebhook = [];
+const apisWebhook = [webhookQris];
 
 for (const api of apisWebhook) {
     let { path, method, auth } = api as IApiRouter;

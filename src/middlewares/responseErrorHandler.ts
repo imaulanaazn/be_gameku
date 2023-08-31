@@ -4,6 +4,7 @@ import fs from "fs";
 
 const responseHandler = (error: Error, res: Response, req: Request) => {
     if (error) {
+        console.log(error);
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }

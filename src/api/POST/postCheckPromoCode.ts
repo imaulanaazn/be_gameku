@@ -51,11 +51,11 @@ const main: RequestHandler = async (req, res) => {
     }
 
     if (promoCode.gameId && !body.gameId) {
-        throw new BusinessError("Kode Promo tidak valid untuk game ini 1", ErrorType.BadRequest);
+        throw new BusinessError("Kode Promo tidak valid untuk game ini", ErrorType.BadRequest);
     }
 
     if (promoCode.gameId && promoCode.gameId !== body.gameId) {
-        throw new BusinessError("Kode Promo tidak valid untuk game ini 2", ErrorType.BadRequest);
+        throw new BusinessError("Kode Promo tidak valid untuk game ini", ErrorType.BadRequest);
     }
 
     const productService = new ProductService();
@@ -74,7 +74,7 @@ const main: RequestHandler = async (req, res) => {
 
     const totalPrice = body.quantity * product.price;
     if (totalPrice < promoCode.minPurchase) {
-        throw new BusinessError("Kode Promo yang dimasukkan idak memenuhi minimal pembelian", ErrorType.BadRequest);
+        throw new BusinessError("Kode Promo yang dimasukkan tidak memenuhi minimal pembelian", ErrorType.BadRequest);
     }
 
     let totalDiscount = 0;
