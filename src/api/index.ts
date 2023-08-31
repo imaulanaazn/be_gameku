@@ -27,6 +27,9 @@ import { postCheckPromoCode } from "./POST/postCheckPromoCode";
 import { webhookQris } from "./webhook/qris.callback";
 import { getOrderHistory } from "./GET/getOrderHistory";
 import { getOrderDetail } from "./GET/getOrderDetail";
+import { webhookEwallet } from "./webhook/ewallet.callback";
+import { webhookRetail } from "./webhook/retail.callback";
+import { webhookVirtualAccount } from "./webhook/va.callback";
 
 let router = Router();
 
@@ -102,7 +105,7 @@ for (const api of apis) {
 
 let webhook = Router();
 
-const apisWebhook = [webhookQris];
+const apisWebhook = [webhookQris, webhookEwallet, webhookRetail, webhookVirtualAccount];
 
 for (const api of apisWebhook) {
     let { path, method, auth } = api as IApiRouter;

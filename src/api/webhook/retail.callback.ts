@@ -97,7 +97,7 @@ const main: RequestHandler = async (req, res) => {
     res.sendStatus(200);
 };
 
-export const webhookVirtualAccount: IApiRouter = {
+export const webhookRetail: IApiRouter = {
     path,
     method,
     main,

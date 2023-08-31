@@ -8,7 +8,7 @@ import { ProductService } from "@serviceInternal/product.service";
 import dayjs from "dayjs";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 
-const path = "/v1/webhook/retail";
+const path = "/v1/webhook/ewallet";
 const method = "POST";
 const auth = "webhook-xendit";
 
@@ -137,7 +137,7 @@ const main: RequestHandler = async (req, res) => {
     res.sendStatus(200);
 };
 
-export const webhookVirtualAccount: IApiRouter = {
+export const webhookEwallet: IApiRouter = {
     path,
     method,
     main,
