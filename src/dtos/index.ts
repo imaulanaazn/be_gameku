@@ -12,3 +12,4 @@ export * from "./comment.dto";
 export * from "./video.dto";
 export * from "./gameCategory.dto";
 export * from "./listServer.dto";
+export * from "./sysConfig.dto";

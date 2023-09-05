@@ -9,7 +9,14 @@ export class GameCategoryService extends MainService<GameCategoryEntity, GameCat
 
     async findGameCategoryWithGame(limit: number): Promise<any> {
         return await this.model.findAll({
-            include: [GameEntity],
+            include: [
+                {
+                    model: GameEntity,
+                    where: {
+                        deleted: false,
+                    },
+                },
+            ],
             limit,
         });
     }

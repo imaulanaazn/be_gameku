@@ -30,10 +30,18 @@ import { getOrderDetail } from "./GET/getOrderDetail";
 import { webhookEwallet } from "./webhook/ewallet.callback";
 import { webhookRetail } from "./webhook/retail.callback";
 import { webhookVirtualAccount } from "./webhook/va.callback";
+import { getAllUserPagination } from "./admin/maintenanceUser/getAllUserPagination";
+import { getAllGamePagination } from "./admin/maintenanceGame/getAllGameagination";
 
 let router = Router();
 
 const apis = [
+    // Maintenance User
+    getAllUserPagination,
+
+    // Maintenance Game
+    getAllGamePagination,
+
     // Maintenance Banner
     createBanner,
     listBannerPagination,

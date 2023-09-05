@@ -4,7 +4,6 @@ import { Validator } from "@helper/validator";
 import { ErrorType, ServerIdType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { ProductService } from "@serviceInternal/product.service";
-import { ProductEntity } from "@entity/product.entity";
 import { GameService } from "@serviceInternal/game.service";
 import { ListServerService } from "@serviceInternal/listServer.service";
 

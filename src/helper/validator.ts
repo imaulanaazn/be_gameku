@@ -9,7 +9,7 @@ const paginationSchema: Validation[] = [
         name: "page",
         type: "number",
         required: false,
-        default: "1",
+        default: 1,
     },
     {
         name: "sort",

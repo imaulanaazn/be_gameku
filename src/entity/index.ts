@@ -12,3 +12,4 @@ export * from "./comment.entity";
 export * from "./video.entity";
 export * from "./gameCategory.entity";
 export * from "./listServer.entity";
+export * from "./sysConfig.entity";

@@ -310,7 +310,7 @@ const main: RequestHandler = async (req, res) => {
         charge = await xenditService.createVAPayment({
             external_id: invoiceId,
             bank_code: payment.cd,
-            name: "Jokikugasskeun",
+            name: customer.name || customer.mobileNumber,
             expiration_date: expiredAt.toISOString(),
             country: "ID",
             currency: "IDR",
@@ -324,7 +324,7 @@ const main: RequestHandler = async (req, res) => {
         charge = await xenditService.createRetailPayment({
             external_id: invoiceId,
             retail_outlet_name: payment.cd,
-            name: "Jokikugasskeun",
+            name: customer.name || customer.mobileNumber,
             expected_amount: amount,
             expiration_date: expiredAt.toISOString(),
             is_single_use: payment.isSingleUse,

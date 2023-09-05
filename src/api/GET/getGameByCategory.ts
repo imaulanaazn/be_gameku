@@ -50,6 +50,7 @@ const main: RequestHandler = async (req, res) => {
                     name: {
                         [Op.like]: "%" + query.search + "%",
                     },
+                    deleted: false,
                 },
                 order: [["popSequence", "ASC"]],
             });
@@ -84,15 +85,18 @@ const main: RequestHandler = async (req, res) => {
                     name: {
                         [Op.like]: "%" + query.search + "%",
                     },
+                    deleted: false,
                 },
             });
 
             return res.send(games);
         }
 
-        const games = await gameService.findManyBy({
-            column: "categoryId",
-            value: category.id,
+        const games = await gameService.find({
+            where: {
+                categoryId: query.categoryId,
+                deleted: false,
+            },
         });
 
         return res.send(games);
@@ -104,6 +108,7 @@ const main: RequestHandler = async (req, res) => {
                 name: {
                     [Op.like]: query.search + "%",
                 },
+                deleted: false,
             },
         });
 
@@ -111,7 +116,8 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const games = await gameService.findAll();
-    return res.send(games);
+    const filteredGame = games.filter((game) => !game.deleted);
+    return res.send(filteredGame);
 };
 
 export const getGameByCategory: IApiRouter = {

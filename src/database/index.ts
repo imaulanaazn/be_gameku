@@ -16,6 +16,7 @@ import {
     PromotionEntity,
     VideoEntity,
 } from "@entity/index";
+import { SysConfigEntity } from "@entity/sysConfig.entity";
 
 const config = new Config();
 
@@ -41,6 +42,7 @@ const sequelize = new Sequelize({
         VideoEntity,
         GameCategoryEntity,
         ListServerEntity,
+        SysConfigEntity,
     ],
 });
 

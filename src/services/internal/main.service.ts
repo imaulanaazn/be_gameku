@@ -8,7 +8,7 @@ type ColumnKeys<T> = keyof T;
 type OperatorString = "like" | "and" | "or" | "in";
 type OperatorNumber = "lt" | "lte" | "gt" | "gte" | "in";
 type ConditionOperator<T> = T extends string ? OperatorString : T extends number ? OperatorNumber : never;
-interface FindDto<K, T, Dto> {
+export interface FindDto<K, T, Dto> {
     column: K;
     value: T | Array<T>;
     operator?: ConditionOperator<T>;
@@ -44,6 +44,7 @@ export interface IBaseService<T extends Model, Dto> {
     findManyByPagination<K extends ColumnKeys<Dto>>(
         filterCriteria: FindDto<K, Dto[K], Dto>,
         pagination: IPagination,
+        additional?: { column: K; value: Dto[K] },
     ): Promise<{ rows: T[]; count: number }>;
     findAll(): Promise<T[]>;
     findAllPagination(pagination: IPagination): Promise<{ total: number; data: T[] }>;
@@ -125,9 +126,10 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
         }
     }
 
-    public async findManyByPagination<K extends ColumnKeys<Dto>>(
+    public async findManyByPagination<K extends ColumnKeys<Dto>, M extends ColumnKeys<Dto>>(
         filterCriteria: FindDto<K, Dto[K], Dto>,
         pagination: IPagination,
+        additional?: { column: M; value: Dto[M] },
     ): Promise<{ rows: T[]; count: number }> {
         let whereOptions: WhereOptions;
         if (Array.isArray(filterCriteria.value) && filterCriteria.operator !== "in") {
@@ -146,6 +148,11 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
                 },
             };
         }
+
+        if (additional) {
+            whereOptions = { ...whereOptions, [additional.column]: additional.value };
+        }
+
         try {
             if (filterCriteria.only && filterCriteria.only.length) {
                 return await this.model.findAndCountAll({
@@ -178,9 +185,19 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
         }
     }
 
-    public async findAllPagination(pagination: IPagination): Promise<{ total: number; data: T[] }> {
+    public async findAllPagination<K extends ColumnKeys<Dto>>(
+        pagination: IPagination,
+        additional?: { column: K; value: Dto[K] },
+    ): Promise<{ total: number; data: T[] }> {
         try {
+            let where;
+            if (additional) {
+                where = {
+                    [additional.column]: additional.value,
+                };
+            }
             const data = await this.model.findAndCountAll({
+                where: where && where,
                 offset: (pagination.page - 1) * pagination.limit,
                 limit: pagination.limit,
                 order: [[pagination.sort, pagination.order]],
