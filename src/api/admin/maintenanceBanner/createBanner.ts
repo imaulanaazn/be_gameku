@@ -9,9 +9,14 @@ import { v4 as uuid } from "uuid";
 
 const path = "/v1/banner";
 const method = "POST";
-const auth = "admin";
+const auth = "guess";
 
 const schemaValidation: Validation[] = [
+    {
+        name: "name",
+        type: "string",
+        required: true,
+    },
     {
         name: "eventUrl",
         type: "string",
@@ -21,13 +26,15 @@ const schemaValidation: Validation[] = [
     {
         name: "external",
         type: "string",
-        required: true,
+        required: false,
         enum: ["true", "false"],
+        default: "false",
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const body = new Validator(req, res).process<{
+        name: string;
         eventUrl: string;
         external: boolean;
     }>(schemaValidation, ValidatorType.BODY);
@@ -46,10 +53,13 @@ const main: RequestHandler = async (req, res) => {
 
     const newBanner = await bannerService.create({
         id: uuid(),
+        name: body.name,
         eventUrl: body.eventUrl,
         external: body.external,
         imageUrl: upload,
     });
+
+    console.log(newBanner);
     res.send(newBanner);
 };
 

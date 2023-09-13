@@ -6,11 +6,10 @@ import { postOrder } from "./POST/postOrder";
 import { getBanners } from "./GET/getBanners";
 import upload from "@config/multer";
 import { createBanner } from "./admin/maintenanceBanner/createBanner";
-import { listBannerPagination } from "./admin/maintenanceBanner/listBannerPagination";
 import { updateBanner } from "./admin/maintenanceBanner/updateBanner";
 import { deleteBanner } from "./admin/maintenanceBanner/deleteBanner";
 import { getBannerById } from "./admin/maintenanceBanner/getBannerById";
-import { activationPaymentMethod } from "./admin/maintenancePayment/activationPaymentMethod";
+import { putActivationPaymentMethod } from "./admin/maintenancePayment/putActivationPaymentMethod";
 import { getGameByCategory } from "./GET/getGameByCategory";
 import { postArticle } from "./admin/maintenanceArticle/postArticle";
 import { getLastArticels } from "./GET/getArticles";
@@ -31,26 +30,44 @@ import { webhookEwallet } from "./webhook/ewallet.callback";
 import { webhookRetail } from "./webhook/retail.callback";
 import { webhookVirtualAccount } from "./webhook/va.callback";
 import { getAllUserPagination } from "./admin/maintenanceUser/getAllUserPagination";
-import { getAllGamePagination } from "./admin/maintenanceGame/getAllGameagination";
+import { getAllGamePagination } from "./admin/maintenanceGame/getAllGamePagination";
+import { putPopularBulk } from "./admin/maintenanceGame/putPopularBulk";
+import { deleteGame } from "./admin/maintenanceGame/deleteGame";
+import { getAllDenomPagination } from "./admin/maintenanceProduct/getAllDenomPagination";
+import { getAllPaymentMethodPagination } from "./admin/maintenancePayment/getAllPaymentMethodPagination";
+import { getAllPromoCodePagination } from "./admin/maintenancePromoCode/getAllPromoCodePagination";
+import { getAllBannerPagination } from "./admin/maintenanceBanner/getAllGamePagination";
+import { deletePromotion } from "./admin/maintenancePromoCode/deletePromotion";
 
 let router = Router();
 
 const apis = [
+    // Maintenance PromoCode
+    getAllPromoCodePagination,
+    deletePromotion,
+
+    // Maintenance Product
+    getAllDenomPagination,
+
     // Maintenance User
     getAllUserPagination,
 
     // Maintenance Game
     getAllGamePagination,
+    putPopularBulk,
+    deleteGame,
 
     // Maintenance Banner
+    getAllBannerPagination,
     createBanner,
-    listBannerPagination,
+    // listBannerPagination,
     updateBanner,
     deleteBanner,
     getBannerById,
 
     // Maintenance Payment Method
-    activationPaymentMethod,
+    putActivationPaymentMethod,
+    getAllPaymentMethodPagination,
 
     // Maintenance Article
     postArticle,

@@ -8,7 +8,10 @@ const auth = "guess";
 
 const main: RequestHandler = async (req, res) => {
     const paymentMethodService = new PaymentMethodService();
-    const paymentMethod = await paymentMethodService.findAll();
+    const paymentMethod = await paymentMethodService.findManyBy({
+        column: "isActive",
+        value: true,
+    });
     res.send(paymentMethod);
 };
 

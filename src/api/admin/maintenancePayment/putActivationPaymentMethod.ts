@@ -5,44 +5,47 @@ import { ErrorType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
-const path = "/v1/activate-payment/:id";
-const method = "GET";
-const auth = "admin";
+const path = "/v1/payment-method/activation";
+const method = "PUT";
+const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
         name: "id",
-        type: "string",
+        type: "array",
+        required: true,
+        items: {
+            name: "id",
+            type: "string",
+            required: true,
+        },
+    },
+    {
+        name: "isActive",
+        type: "boolean",
         required: true,
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
-    const param = new Validator(req, res).process<{
-        id: string;
-    }>(schemaValidation, ValidatorType.PARAMS);
+    const body = new Validator(req, res).process<{
+        id: string[];
+        isActive: boolean;
+    }>(schemaValidation, ValidatorType.BODY);
 
     const paymentMethodService = new PaymentMethodService();
-    const paymentMethod = await paymentMethodService.findOneBy({ column: "id", value: param.id });
-    if (!paymentMethod) {
-        throw new BusinessError("Payment method tidak valid dengan id " + param.id, ErrorType.BadRequest);
-    }
-
     await paymentMethodService.updateBy({
         by: "id",
-        value: param.id,
+        value: body.id,
         data: {
-            isActive: !paymentMethod.isActive,
+            isActive: body.isActive,
         },
     });
 
-    res.send({
-        ...paymentMethod.dataValues,
-        isActive: !paymentMethod.isActive,
-    });
+    res.sendStatus(200);
 };
 
-export const activationPaymentMethod: IApiRouter = {
+export const putActivationPaymentMethod: IApiRouter = {
     path,
     method,
     main,

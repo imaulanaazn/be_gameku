@@ -8,7 +8,7 @@ import { BannerService } from "@serviceInternal/banner.service";
 
 const path = "/v1/banner/:id";
 const method = "DELETE";
-const auth = "admin";
+const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
@@ -23,22 +23,29 @@ const main: RequestHandler = async (req, res) => {
         id: string;
     }>(schemaValidation, ValidatorType.PARAMS);
 
+    const ids = body.id.split(",");
+
     const firebaseService = new FirebaseService();
     const bannerService = new BannerService();
 
-    const banner = await bannerService.findOneBy({
+    const banners = await bannerService.findManyBy({
         column: "id",
-        value: body.id,
+        value: ids,
+        operator: "in",
     });
 
-    if (!banner) {
+    if (banners.length === 0) {
         throw new BusinessError("Banner tidak ditemukan dengan id " + body.id, ErrorType.BadRequest);
     }
 
-    await firebaseService.deleteImg(banner.imageUrl);
+    for (const banner of banners) {
+        await firebaseService.deleteImg(banner.imageUrl);
+    }
+
     await bannerService.deleteBy({
         by: "id",
-        value: banner.id,
+        value: ids,
+        operator: "in",
     });
     return res.sendStatus(200);
 };

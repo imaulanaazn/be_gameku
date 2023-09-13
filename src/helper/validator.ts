@@ -270,12 +270,24 @@ export class Validator {
         for (const schema of schemas) {
             let value = req[schema.name];
 
-            if (!schema.required && !value) {
-                if (schema.default) {
-                    req[schema.name] = schema.default;
-                    value = req[schema.name];
-                }
+            if (schema.type === "boolean" && !value) {
+                continue;
+            }
 
+            if (!value && schema.default) {
+                req[schema.name] = schema.default;
+                value = req[schema.name];
+                result.success = true;
+                continue;
+            }
+
+            if (schema.required && !value) {
+                result.success = false;
+                result.message = schema.errorMessage || `${schema.name} harus diisi`;
+                return result;
+            }
+
+            if (!schema.required && !value) {
                 result.success = true;
                 continue;
             }
@@ -289,20 +301,12 @@ export class Validator {
                     return result;
                 }
             }
-
-            if (schema.required && !value) {
-                result.success = false;
-                result.message = schema.errorMessage || `${schema.name} harus diisi`;
-                return result;
-            } else {
-                const resultFromChecking = this.validationValue(schema, value);
-                if (!resultFromChecking.success) {
-                    result = resultFromChecking;
-                    return result;
-                }
+            const resultFromChecking = this.validationValue(schema, value);
+            if (!resultFromChecking.success) {
                 result = resultFromChecking;
+                return result;
             }
-
+            result = resultFromChecking;
             result.success = true;
         }
 

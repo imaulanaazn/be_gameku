@@ -16,12 +16,13 @@ export interface FindDto<K, T, Dto> {
 }
 interface UpdateDto<K, V, Dto> {
     by: K;
-    value: V;
+    value: V | V[];
     data: Partial<Dto>;
 }
 interface DeleteDto<K, V, Dto> {
     by: K;
-    value: V;
+    value: V | V[];
+    operator?: ConditionOperator<V>;
 }
 const operators = {
     eq: Op.eq,
@@ -230,8 +231,14 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
     }
 
     public async deleteBy<K extends ColumnKeys<Dto>>(deleteData: DeleteDto<K, Dto[K], Dto>): Promise<number> {
-        const whereOptions: WhereOptions = {
+        let whereOptions: WhereOptions = {
             [deleteData.by]: deleteData.value,
+        };
+
+        whereOptions = {
+            [deleteData.by]: {
+                [operators[deleteData.operator || "eq"]]: deleteData.value,
+            },
         };
         try {
             return await this.model.destroy({

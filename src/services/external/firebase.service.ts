@@ -13,6 +13,8 @@ import {
 
 import { v4 as uuid } from "uuid";
 import fs from "fs";
+import { BusinessError } from "@helper/handleError";
+import { ErrorType } from "@enum/index";
 
 export class FirebaseService {
     private app: FirebaseApp;
@@ -34,17 +36,27 @@ export class FirebaseService {
     }
 
     async uploadImg(localFilePath: string, destinationPath: string): Promise<any> {
-        const storageRef = ref(this.storage, "assets/" + destinationPath);
+        try {
+            const storageRef = ref(this.storage, "assets/" + destinationPath);
 
-        const imgBuffer = fs.readFileSync(localFilePath);
-        const upload = await uploadBytes(storageRef, imgBuffer, {
-            contentType: "image/png",
-            cacheControl: "public, max-age=31536000",
-        });
+            const imgBuffer = fs.readFileSync(localFilePath);
+            const upload = await uploadBytes(storageRef, imgBuffer, {
+                contentType: "image/png",
+                cacheControl: "public, max-age=31536000",
+            });
 
-        const downloadUrl = await getDownloadURL(upload.ref);
-        fs.unlinkSync(localFilePath);
-        return downloadUrl;
+            console.log(upload);
+
+            const downloadUrl = await getDownloadURL(upload.ref);
+            fs.unlinkSync(localFilePath);
+            return downloadUrl;
+        } catch (error) {
+            console.log(error.message);
+            throw new BusinessError(
+                "Tampaknya ada masalah ketika upload file, cobalah beberapa saat lagi",
+                ErrorType.Internal,
+            );
+        }
     }
 
     async deleteImg(currentUrlImg: string): Promise<any> {

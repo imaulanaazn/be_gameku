@@ -11,6 +11,9 @@ export class BannerEntity extends Model<BannerEntity> {
     id!: string;
 
     @Column(DataType.STRING(255))
+    name!: string;
+
+    @Column(DataType.STRING(255))
     imageUrl!: string;
 
     @Column(DataType.STRING(255))
