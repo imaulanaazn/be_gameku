@@ -23,6 +23,9 @@ export class PromotionEntity extends Model<PromotionEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @Column(DataType.STRING(255))
+    code: string;
+
     @ForeignKey(() => GameEntity)
     @Column(DataType.STRING(40))
     gameId: string;

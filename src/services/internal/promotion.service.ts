@@ -13,7 +13,7 @@ export class PromotionService extends MainService<PromotionEntity, PromotionDto>
             const dateNow = new Date();
             const voucher = await PromotionEntity.findOne({
                 where: {
-                    id: promoCode,
+                    code: promoCode,
                     endAt: {
                         [Op.gt]: dateNow,
                     },

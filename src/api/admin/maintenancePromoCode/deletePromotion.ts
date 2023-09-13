@@ -23,11 +23,14 @@ const main: RequestHandler = async (req, res) => {
     const id = param.id.split(",");
 
     const promotionService = new PromotionService();
-    await promotionService.deleteBy({
+    await promotionService.updateBy({
         by: "id",
         value: id,
-        operator: "in",
+        data: {
+            deleted: true,
+        },
     });
+
     res.sendStatus(200);
 };
 

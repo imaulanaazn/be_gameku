@@ -38,11 +38,13 @@ import { getAllPaymentMethodPagination } from "./admin/maintenancePayment/getAll
 import { getAllPromoCodePagination } from "./admin/maintenancePromoCode/getAllPromoCodePagination";
 import { getAllBannerPagination } from "./admin/maintenanceBanner/getAllGamePagination";
 import { deletePromotion } from "./admin/maintenancePromoCode/deletePromotion";
+import { createPromotion } from "./admin/maintenancePromoCode/createPromotion";
 
 let router = Router();
 
 const apis = [
     // Maintenance PromoCode
+    createPromotion,
     getAllPromoCodePagination,
     deletePromotion,
 
