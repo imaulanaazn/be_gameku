@@ -3,7 +3,7 @@ import { MainDto } from "./main.dto";
 
 export class PromotionDto extends MainDto {
     code: string;
-    gameId: string;
+    gameId?: string;
     name: string;
     discountType: DiscountType;
     discountValue: number;

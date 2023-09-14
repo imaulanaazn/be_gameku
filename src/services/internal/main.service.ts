@@ -189,6 +189,7 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
     public async findAllPagination<K extends ColumnKeys<Dto>>(
         pagination: IPagination,
         additional?: { column: K; value: Dto[K] },
+        only?: Array<ColumnKeys<Dto>>,
     ): Promise<{ total: number; data: T[] }> {
         try {
             let where;
@@ -197,17 +198,30 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
                     [additional.column]: additional.value,
                 };
             }
-            const data = await this.model.findAndCountAll({
-                where: where && where,
-                offset: (pagination.page - 1) * pagination.limit,
-                limit: pagination.limit,
-                order: [[pagination.sort, pagination.order]],
-            });
-
-            return {
-                total: data.count,
-                data: data.rows,
-            };
+            if (only && only.length) {
+                const data = await this.model.findAndCountAll({
+                    where: where && where,
+                    offset: (pagination.page - 1) * pagination.limit,
+                    limit: pagination.limit,
+                    order: [[pagination.sort, pagination.order]],
+                    attributes: only as any[],
+                });
+                return {
+                    total: data.count,
+                    data: data.rows,
+                };
+            } else {
+                const data = await this.model.findAndCountAll({
+                    where: where && where,
+                    offset: (pagination.page - 1) * pagination.limit,
+                    limit: pagination.limit,
+                    order: [[pagination.sort, pagination.order]],
+                });
+                return {
+                    total: data.count,
+                    data: data.rows,
+                };
+            }
         } catch (error) {
             throw error;
         }

@@ -39,6 +39,7 @@ import { getAllPromoCodePagination } from "./admin/maintenancePromoCode/getAllPr
 import { getAllBannerPagination } from "./admin/maintenanceBanner/getAllGamePagination";
 import { deletePromotion } from "./admin/maintenancePromoCode/deletePromotion";
 import { createPromotion } from "./admin/maintenancePromoCode/createPromotion";
+import { getAllGameOnlyName } from "./admin/maintenanceGame/getAllGameOnlyName";
 
 let router = Router();
 
@@ -55,6 +56,7 @@ const apis = [
     getAllUserPagination,
 
     // Maintenance Game
+    getAllGameOnlyName,
     getAllGamePagination,
     putPopularBulk,
     deleteGame,

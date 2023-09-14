@@ -5,6 +5,7 @@ import { Validator } from "@helper/validator";
 import { v4 as uuid } from "uuid";
 import { PromotionService } from "@serviceInternal/promotion.service";
 import dayjs from "dayjs";
+import { PromotionDto } from "@dto/promotion.dto";
 
 const path = "/v1/promo-code";
 const method = "POST";
@@ -19,12 +20,14 @@ const schemaValidation: Validation[] = [
     {
         name: "stock",
         type: "number",
-        required: true,
+        required: false,
+        default: null,
     },
     {
         name: "gameId",
         type: "string",
         required: false,
+        default: null,
     },
     {
         name: "name",
@@ -46,16 +49,13 @@ const schemaValidation: Validation[] = [
         name: "minPurchase",
         type: "number",
         required: false,
+        default: 0,
     },
     {
         name: "description",
         type: "string",
-        required: true,
-    },
-    {
-        name: "description",
-        type: "string",
-        required: true,
+        required: false,
+        default: null,
     },
     {
         name: "startAt",
@@ -73,30 +73,32 @@ const main: RequestHandler = async (req, res) => {
     const body = new Validator(req, res).process<{
         code: string;
         stock: number;
-        gameId: string;
+        gameId?: string;
         name: string;
         discType: "PERCENTAGE" | "AMOUNT";
         discValue: number;
-        minPurchase: number;
-        description: string;
+        minPurchase?: number;
+        description?: string;
         startAt: string;
         endAt: string;
     }>(schemaValidation, ValidatorType.BODY);
 
     const promotionService = new PromotionService();
-    await promotionService.create({
+    const data: PromotionDto = {
         id: uuid(),
         code: body.code,
-        gameId: body.gameId,
         name: body.name,
+        gameId: body.gameId || null,
         discountType: DiscountType[body.discType],
         discountValue: body.discValue,
-        minPurchase: body.minPurchase | 0,
-        description: body.description,
+        minPurchase: body.minPurchase || 0,
+        description: body.description || null,
         startAt: dayjs(body.startAt).toDate(),
         endAt: dayjs(body.endAt).toDate(),
         deleted: false,
-    });
+    };
+
+    await promotionService.create(data);
 
     res.sendStatus(200);
 };

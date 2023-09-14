@@ -62,6 +62,6 @@ console.error = function (...msg) {
             logger.error(log);
         }
     } else {
-        logger.error(msg[0]);
+        logger.error(msg);
     }
 };
