@@ -27,3 +27,7 @@ export interface Validation {
     enum?: Array<string | number | boolean>;
     errorMessage?: string;
 }
+
+interface ReqWithWhatsappService extends Request {
+    whatsappService;
+}

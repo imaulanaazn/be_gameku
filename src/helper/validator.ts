@@ -116,15 +116,15 @@ export class Validator {
                     return result;
                 }
 
-                if (schema.isMobileNo) {
-                    let mobileNo = value.toString();
-                    const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
-                    const check = validator.isMobilePhone(convertedNumber, "id-ID");
-                    if (!check) {
-                        result.message = schema.errorMessage || `Nomor handphone tidak valid`;
-                        return result;
-                    }
-                }
+                // if (schema.isMobileNo) {
+                //     let mobileNo = value.toString();
+                //     const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
+                //     const check = validator.isMobilePhone(convertedNumber, "id-ID");
+                //     if (!check) {
+                //         result.message = schema.errorMessage || `Nomor handphone tidak valid`;
+                //         return result;
+                //     }
+                // }
                 break;
 
             case "number":
@@ -133,16 +133,16 @@ export class Validator {
                     return result;
                 }
 
-                if (schema.isMobileNo) {
-                    let mobileNo = value.toString();
-                    const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
-                    const check = validator.isMobilePhone(convertedNumber, "id-ID");
+                // if (schema.isMobileNo) {
+                //     let mobileNo = value.toString();
+                //     const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
+                //     const check = validator.isMobilePhone(convertedNumber, "id-ID");
 
-                    if (!check) {
-                        result.message = schema.errorMessage || `Nomor handphone tidak valid`;
-                        return result;
-                    }
-                }
+                //     if (!check) {
+                //         result.message = schema.errorMessage || `Nomor handphone tidak valid`;
+                //         return result;
+                //     }
+                // }
 
                 if (!schema.minNumber && value < schema.minNumber) {
                     result.message = schema.errorMessage || `${schema.name} harus minimal ${schema.minNumber}`;
@@ -301,6 +301,25 @@ export class Validator {
                     return result;
                 }
             }
+
+            if (schema.isMobileNo) {
+                let mobileNo = value.toString();
+                const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
+                const check = validator.isMobilePhone(convertedNumber, "id-ID");
+                if (!check) {
+                    result.message = schema.errorMessage || `Nomor handphone tidak valid`;
+                    return result;
+                }
+
+                if (schema.type === "number") {
+                    req[schema.name] = parseInt(convertedNumber);
+                } else {
+                    req[schema.name] = convertedNumber;
+                }
+                result.success = true;
+                continue;
+            }
+
             const resultFromChecking = this.validationValue(schema, value);
             if (!resultFromChecking.success) {
                 result = resultFromChecking;

@@ -25,7 +25,8 @@
             "@config/*": ["src/config/*"],
             "@enum/*": ["src/enum/*"],
             "@interfaces/*": ["src/interfaces/"],
-            "@middleware/*": ["src/middlewares/*"]
+            "@middleware/*": ["src/middlewares/*"],
+            "@templates/*": ["src/template/*"]
         },
         "plugins": [
             { "transform": "typescript-transform-paths" },

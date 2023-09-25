@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import advanced from "dayjs/plugin/advancedFormat";
+import http from "http";
 
 (async () => {
     try {
@@ -18,9 +19,10 @@ import advanced from "dayjs/plugin/advancedFormat";
         dayjs.extend(advanced);
 
         dayjs.tz.setDefault(process.env.TZ || "Asia/Jakarta");
-        const app: Express = express();
+        const e: Express = express();
+        const app = http.createServer(e);
         const port = process.env.PORT || 3000;
-        getApp(app);
+        getApp(e, app);
 
         app.listen(port, () => {
             console.log(`⚡️[${process.env.NODE_ENV}]: Server is running at ${port}`);

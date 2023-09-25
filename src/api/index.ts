@@ -40,10 +40,15 @@ import { getAllBannerPagination } from "./admin/maintenanceBanner/getAllGamePagi
 import { deletePromotion } from "./admin/maintenancePromoCode/deletePromotion";
 import { createPromotion } from "./admin/maintenancePromoCode/createPromotion";
 import { getAllGameOnlyName } from "./admin/maintenanceGame/getAllGameOnlyName";
+import { sendWhatsappTest } from "./admin/sendWhatsappTest";
+import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
+    getWhatsappStatus,
+    sendWhatsappTest,
+
     // Maintenance PromoCode
     createPromotion,
     getAllPromoCodePagination,

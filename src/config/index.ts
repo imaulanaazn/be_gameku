@@ -21,4 +21,6 @@ export class Config {
     maxAgeLogin = parseInt(process.env.MAX_AGE_LOGIN) || 60 * 60 * 24 * 3;
 
     bucketName = process.env.BUCKET_NAME || "gasskeun-topup.appspot.com";
+
+    expiredTimeOtp = parseInt(process.env.EXPIRED_TIME_OTP) || 10;
 }

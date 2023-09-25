@@ -78,3 +78,11 @@ export enum ServerIdType {
     INPUT = "input",
     LIST = "list",
 }
+
+export enum TemplateMessage {
+    OTP_LOGIN = "otp_login",
+    OTP_REGISTER = "otp_register",
+    ORDER_FAILED = "order_failed",
+    ORDER_SUCCESS = "order_success",
+    ORDER_PENDING = "order_pending",
+}
