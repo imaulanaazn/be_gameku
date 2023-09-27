@@ -14,6 +14,7 @@ import {
     PaymentMethodEntity,
     ProductEntity,
     PromotionEntity,
+    SocialMediaEntity,
     VideoEntity,
 } from "@entity/index";
 import { SysConfigEntity } from "@entity/sysConfig.entity";
@@ -43,6 +44,7 @@ const sequelize = new Sequelize({
         GameCategoryEntity,
         ListServerEntity,
         SysConfigEntity,
+        SocialMediaEntity,
     ],
 });
 

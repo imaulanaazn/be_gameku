@@ -13,3 +13,4 @@ export * from "./video.entity";
 export * from "./gameCategory.entity";
 export * from "./listServer.entity";
 export * from "./sysConfig.entity";
+export * from "./socialMedia.entity";

@@ -42,6 +42,8 @@ import { createPromotion } from "./admin/maintenancePromoCode/createPromotion";
 import { getAllGameOnlyName } from "./admin/maintenanceGame/getAllGameOnlyName";
 import { sendWhatsappTest } from "./admin/sendWhatsappTest";
 import { getAllTemplateWhatsapp } from "./admin/maintenanceConfiguration/getAllTemplateWhatsapp";
+import { getSocialMedia } from "./GET/getSocialMedia";
+import { getAllSocialMediaPagination } from "./admin/maintenanceSocialMedia/getAllSocialMediaPagination";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -83,6 +85,9 @@ const apis = [
     // Maintenance Article
     postArticle,
 
+    // Maintenance Sosmed
+    getAllSocialMediaPagination,
+
     // POST
     postOrder,
     postRegistration,
@@ -101,6 +106,7 @@ const apis = [
     getGameCategory,
     getOrderHistory,
     getOrderDetail,
+    getSocialMedia,
 
     // DELETE
     deleteLogout,

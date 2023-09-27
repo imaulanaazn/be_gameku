@@ -7,7 +7,7 @@ export class Config {
     databasePassword = process.env.DB_PASSWORD || "P@ssw0rd";
 
     roleUser = process.env.ROLE_USER || "asdasdadwqfqwfwqafasd";
-    roleAdmin = process.env.ROLE_ADMIN || "wqbdfpouqwbfpiqbfpndpqn";
+    roleAdmin = process.env.ROLE_ADMIN || "asdwqdwqdwhjqbsadwijqbd";
     roleGuest = process.env.ROLE_GUEST || "wqbdfpouqwbfpiqbfpndpqn";
 
     feUrl = process.env.FE_URL || "http://localhost:3000";

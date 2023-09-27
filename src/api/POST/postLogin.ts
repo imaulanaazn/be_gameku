@@ -55,6 +55,10 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
     }
 
+    if (user.roleId !== config.roleUser) {
+        throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid Role", ErrorType.Validation);
+    }
+
     const comparePassword = bcrypt.compareSync(body.password, user.password);
     if (!comparePassword) {
         throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
