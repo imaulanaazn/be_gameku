@@ -41,13 +41,15 @@ import { deletePromotion } from "./admin/maintenancePromoCode/deletePromotion";
 import { createPromotion } from "./admin/maintenancePromoCode/createPromotion";
 import { getAllGameOnlyName } from "./admin/maintenanceGame/getAllGameOnlyName";
 import { sendWhatsappTest } from "./admin/sendWhatsappTest";
-import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
+import { getAllTemplateWhatsapp } from "./admin/maintenanceConfiguration/getAllTemplateWhatsapp";
+// import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
-    getWhatsappStatus,
+    // getWhatsappStatus,
     sendWhatsappTest,
+    getAllTemplateWhatsapp,
 
     // Maintenance PromoCode
     createPromotion,

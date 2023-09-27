@@ -270,11 +270,12 @@ export class Validator {
         for (const schema of schemas) {
             let value = req[schema.name];
 
-            if (schema.type === "boolean" && !value) {
+            if (schema.type === "boolean" && typeof value === "undefined") {
+                result.success = true;
                 continue;
             }
 
-            if (!value && schema.default) {
+            if (typeof value === "undefined" && schema.default) {
                 req[schema.name] = schema.default;
                 value = req[schema.name];
                 result.success = true;
