@@ -9,7 +9,7 @@ import { RequestHandler } from "express";
 
 const path = "/v1/promo-code";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

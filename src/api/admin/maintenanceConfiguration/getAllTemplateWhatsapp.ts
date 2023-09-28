@@ -6,7 +6,7 @@ import { readFileSync, readdirSync } from "fs";
 
 const path = "/v1/whatsapp";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

@@ -9,7 +9,7 @@ import { PromotionDto } from "@dto/promotion.dto";
 
 const path = "/v1/promo-code";
 const method = "POST";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

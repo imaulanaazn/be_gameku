@@ -8,7 +8,7 @@ import { BannerService } from "@serviceInternal/banner.service";
 
 const path = "/v1/banner/:id";
 const method = "DELETE";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

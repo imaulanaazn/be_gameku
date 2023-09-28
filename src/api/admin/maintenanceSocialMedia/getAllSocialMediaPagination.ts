@@ -7,7 +7,7 @@ import { RequestHandler } from "express";
 
 const path = "/v1/sosmed";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

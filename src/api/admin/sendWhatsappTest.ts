@@ -6,7 +6,7 @@ import { RequestHandler } from "express";
 
 const path = "/v1/whatsapp-test";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

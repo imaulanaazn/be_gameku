@@ -6,7 +6,7 @@ import { RequestHandler } from "express";
 
 const path = "/v1/game/popular-bulk";
 const method = "PUT";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {
