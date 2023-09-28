@@ -1,8 +1,7 @@
-import { ErrorType, TemplateMessage } from "@enum/index";
+import { TemplateMessage } from "@enum/index";
 import { Server } from "socket.io";
 import { Client, LocalAuth } from "whatsapp-web.js";
 import fs from "fs";
-import { BusinessError } from "@helper/handleError";
 import { OrderDto } from "@dto/order.dto";
 import randomatic from "randomatic";
 import { Config } from "@config/index";

@@ -3,7 +3,6 @@ import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
 import { ErrorType, ValidatorType } from "@enum/index";
 import { GameService } from "@serviceInternal/game.service";
-import { GameDto } from "@dto/index";
 import { GameCategoryService } from "@serviceInternal/gameCategory.service";
 import { BusinessError } from "@helper/handleError";
 import { Op } from "sequelize";

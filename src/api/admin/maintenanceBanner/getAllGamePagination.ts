@@ -3,8 +3,6 @@ import { ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { BannerService } from "@serviceInternal/banner.service";
-import { GameService } from "@serviceInternal/game.service";
-import { GameCategoryService } from "@serviceInternal/gameCategory.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/banner";

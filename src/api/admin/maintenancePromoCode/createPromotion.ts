@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { DiscountType, ErrorType, ValidatorType } from "@enum/index";
+import { DiscountType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { v4 as uuid } from "uuid";
 import { PromotionService } from "@serviceInternal/promotion.service";

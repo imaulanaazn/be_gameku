@@ -1,10 +1,7 @@
-import { CustomerDto } from "@dto/customer.dto";
 import { GameDto } from "@dto/game.dto";
-import { CustomerEntity } from "@entity/customer.entity";
 import { ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { CustomerService } from "@serviceInternal/customer.service";
 import { GameService } from "@serviceInternal/game.service";
 import { GameCategoryService } from "@serviceInternal/gameCategory.service";
 import { RequestHandler } from "express";

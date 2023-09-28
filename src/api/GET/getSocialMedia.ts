@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { IApiRouter } from "@interfaces/index";
-import { ErrorStatusCode } from "@enum/index";
 import { SocialMediaService } from "@serviceInternal/socialMedia.service";
 
 const path = "/v1/social-media";

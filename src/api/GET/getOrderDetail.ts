@@ -1,8 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { DiscountType, ErrorType, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
-import { PromotionService } from "@serviceInternal/promotion.service";
+import { ErrorType, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { ProductService } from "@serviceInternal/product.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";

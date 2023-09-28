@@ -1,7 +1,6 @@
 import { MainService } from "./main.service";
 import { GameDto } from "src/dtos/index";
 import { GameEntity } from "@entity/index";
-import { FindOptions } from "sequelize";
 
 export class GameService extends MainService<GameEntity, GameDto> {
     constructor() {

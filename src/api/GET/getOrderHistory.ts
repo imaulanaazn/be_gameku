@@ -1,12 +1,6 @@
 import { Request, Response } from "express";
 import { Validation, IApiRouter } from "@interfaces/index";
-import {
-    CustomerService,
-    GameService,
-    OrderService,
-    PaymentMethodService,
-    ProductService,
-} from "@serviceInternal/index";
+import { CustomerService, GameService, OrderService, ProductService } from "@serviceInternal/index";
 import { ErrorType, OrderStatuses, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { BusinessError } from "@helper/handleError";

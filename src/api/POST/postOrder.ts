@@ -9,7 +9,6 @@ import {
 } from "@serviceInternal/index";
 import { Config } from "@config/index";
 import { DiscountType, ErrorType, FeeType, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
-import moment from "moment";
 import { v4 as uuid } from "uuid";
 import { BusinessError } from "@helper/handleError";
 import { Validation, IApiRouter } from "@interfaces/index";

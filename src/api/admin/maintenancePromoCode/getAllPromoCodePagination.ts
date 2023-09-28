@@ -1,4 +1,3 @@
-import { ProductDto } from "@dto/product.dto";
 import { PromotionDto } from "@dto/promotion.dto";
 import { ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";

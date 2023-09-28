@@ -1,5 +1,4 @@
 import { CustomerDto } from "@dto/customer.dto";
-import { CustomerEntity } from "@entity/customer.entity";
 import { ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";

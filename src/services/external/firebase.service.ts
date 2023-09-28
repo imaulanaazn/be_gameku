@@ -1,17 +1,7 @@
 import { Config } from "@config/index";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import {
-    FirebaseStorage,
-    deleteObject,
-    getDownloadURL,
-    getStorage,
-    ref,
-    uploadBytes,
-    uploadBytesResumable,
-    uploadString,
-} from "firebase/storage";
+import { FirebaseStorage, deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
-import { v4 as uuid } from "uuid";
 import fs from "fs";
 import { BusinessError } from "@helper/handleError";
 import { ErrorType } from "@enum/index";

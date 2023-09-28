@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { IApiRouter, Validation } from "@interfaces/index";
+import { IApiRouter } from "@interfaces/index";
 import { VideoService } from "@serviceInternal/video.service";
 
 const path = "/v1/videos";

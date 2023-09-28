@@ -1,7 +1,6 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler } from "express";
 import { ErrorStatusCode, ErrorType } from "@enum/index";
 import { Config } from "@config/index";
-import { BusinessError } from "@helper/handleError";
 import moment from "moment";
 
 export const regenerateSession = (req: Request) => {
