@@ -8,6 +8,7 @@ export class Config {
 
     roleUser = process.env.ROLE_USER || "asdasdadwqfqwfwqafasd";
     roleAdmin = process.env.ROLE_ADMIN || "asdwqdwqdwhjqbsadwijqbd";
+    roleSuperAdmin = process.env.ROLE_SUPER_ADMIN || "hiewsvdfikweqviwevoufvewauoldfewvo";
     roleGuest = process.env.ROLE_GUEST || "wqbdfpouqwbfpiqbfpndpqn";
 
     feUrl = process.env.FE_URL || "http://localhost:3000";

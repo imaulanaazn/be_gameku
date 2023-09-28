@@ -57,7 +57,20 @@ export const authLoginUser: RequestHandler = (req, res, next) => {
 export const authAdmin: RequestHandler = (req, res, next) => {
     const config = new Config();
     const session = req.session.data;
-    if (!session || session.roleId !== config.roleAdmin) {
+    if (!session || (session.roleId !== config.roleAdmin && session.roleId !== config.roleSuperAdmin)) {
+        return res.status(ErrorStatusCode.Authorization).send({
+            errorCode: ErrorType.Authorization,
+            message: "Cannot access to this resource",
+        });
+    }
+
+    next();
+};
+
+export const authSuperAdmin: RequestHandler = (req, res, next) => {
+    const config = new Config();
+    const session = req.session.data;
+    if (!session || session.roleId !== config.roleSuperAdmin) {
         return res.status(ErrorStatusCode.Authorization).send({
             errorCode: ErrorType.Authorization,
             message: "Cannot access to this resource",

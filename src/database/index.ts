@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import { Config } from "../config";
 import {
+    AdminEntity,
     ArticleEntity,
     BannerEntity,
     CommentEntity,
@@ -45,6 +46,7 @@ const sequelize = new Sequelize({
         ListServerEntity,
         SysConfigEntity,
         SocialMediaEntity,
+        AdminEntity,
     ],
 });
 

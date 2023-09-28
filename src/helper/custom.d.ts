@@ -1,3 +1,4 @@
+import { AdminDto } from "@dto/admin.dto";
 import { CustomerDto } from "@dto/customer.dto";
 import { WhatsAppService } from "@serviceExternal/whatsapp.service";
 import { Session } from "express-session";
@@ -9,7 +10,7 @@ declare module "express-session" {
             roleId: string;
             isLogin: boolean;
             ip: string;
-            userData?: CustomerDto;
+            userData?: CustomerDto | AdminDto;
         };
     }
 }

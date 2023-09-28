@@ -14,3 +14,4 @@ export * from "./gameCategory.dto";
 export * from "./listServer.dto";
 export * from "./sysConfig.dto";
 export * from "./socialMedia.dto";
+export * from "./admin.dto";

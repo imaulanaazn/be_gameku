@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction, Router } from "express";
-import { authAdmin, authLoginUser, authWehbookInternal, authWehbookXendit } from "../middlewares/sessions";
+import {
+    authAdmin,
+    authLoginUser,
+    authSuperAdmin,
+    authWehbookInternal,
+    authWehbookXendit,
+} from "../middlewares/sessions";
 import responseErrorHandler from "@middleware/responseErrorHandler";
 import { IApiRouter } from "src/interfaces";
 import { postOrder } from "./POST/postOrder";
@@ -44,11 +50,22 @@ import { sendWhatsappTest } from "./admin/sendWhatsappTest";
 import { getAllTemplateWhatsapp } from "./admin/maintenanceConfiguration/getAllTemplateWhatsapp";
 import { getSocialMedia } from "./GET/getSocialMedia";
 import { getAllSocialMediaPagination } from "./admin/maintenanceSocialMedia/getAllSocialMediaPagination";
+import { loginAdmin } from "./admin/loginAdmin";
+import { createAdmin } from "./admin/maintenanceAdmin/createAdmin";
+import { getAllAdminPagination } from "./admin/maintenanceAdmin/getAllAdminPagination";
+import { deleteAdmin } from "./admin/maintenanceAdmin/deleteAdmin";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
+    loginAdmin,
+
+    // Maintenance Admin
+    createAdmin,
+    getAllAdminPagination,
+    deleteAdmin,
+
     // getWhatsappStatus,
     sendWhatsappTest,
     getAllTemplateWhatsapp,
@@ -123,6 +140,8 @@ for (const api of apis) {
         authorization = authLoginUser;
     } else if (auth === "admin") {
         authorization = authAdmin;
+    } else if (auth === "super-admin") {
+        authorization = authSuperAdmin;
     }
 
     const main = (req: Request, res: Response) =>

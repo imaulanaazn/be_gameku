@@ -4,7 +4,7 @@ export interface IApiRouter {
     main: (req: Request, res: Response, next?: NextFunction) => any;
     method: "GET" | "POST" | "PUT" | "DELETE";
     path: string;
-    auth: "guess" | "user" | "admin" | "cookie" | "webhook-internal" | "webhook-xendit";
+    auth: "guess" | "user" | "admin" | "cookie" | "webhook-internal" | "webhook-xendit" | "super-admin";
     isUploadImage?: boolean;
     dataImg?: {
         field: string;
