@@ -8,6 +8,7 @@ import {
 } from "@dto/xendit.dto";
 import { ErrorType, PaymentsCategory } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import fetch, { RequestInit } from "node-fetch";
 
 interface IRequest<T> {
@@ -22,8 +23,17 @@ export class XenditService {
 
     constructor() {
         const config = new Config();
-        this.apiKey = config.xenditSecretKey;
         this.baseUrl = config.xenditBaseUrl;
+        this.getConfig();
+    }
+
+    private async getConfig(): Promise<void> {
+        const sysConfig = new SysConfigService();
+        const apiKey = await sysConfig.findOneBy({
+            column: "cd",
+            value: "api_key",
+        });
+        this.apiKey = apiKey.value;
     }
 
     async createRetailPayment(data: XenditCreateRetailDto): Promise<any> {

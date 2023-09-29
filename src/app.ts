@@ -74,6 +74,7 @@ const getApp = async (app: Application, server: HttpServer<typeof IncomingMessag
                     secure: process.env.NODE_ENV.toLowerCase() === "production" ? true : false,
                     httpOnly: true,
                     maxAge: config.maxAgeGuest * 1000,
+                    sameSite: "strict",
                 },
             }),
         );

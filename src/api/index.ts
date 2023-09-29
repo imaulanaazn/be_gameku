@@ -54,6 +54,7 @@ import { loginAdmin } from "./admin/loginAdmin";
 import { createAdmin } from "./admin/maintenanceAdmin/createAdmin";
 import { getAllAdminPagination } from "./admin/maintenanceAdmin/getAllAdminPagination";
 import { deleteAdmin } from "./admin/maintenanceAdmin/deleteAdmin";
+import { putXenditConfig } from "./admin/maintenanceConfiguration/putXenditConfig";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -69,6 +70,9 @@ const apis = [
     // getWhatsappStatus,
     sendWhatsappTest,
     getAllTemplateWhatsapp,
+
+    // Xendit
+    putXenditConfig,
 
     // Maintenance PromoCode
     createPromotion,

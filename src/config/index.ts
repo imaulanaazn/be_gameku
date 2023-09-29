@@ -15,7 +15,7 @@ export class Config {
 
     redisUri = process.env.REDIS_URI;
 
-    xenditSecretKey = process.env.XENDIT_SECRET_KEY;
+    // xenditSecretKey = process.env.XENDIT_SECRET_KEY;
     xenditBaseUrl = process.env.XENDIT_BASE_URL;
     secretSession = process.env.SECRET_SESSION;
     maxAgeGuest = parseInt(process.env.MAX_AGE_GUEST) || 60;

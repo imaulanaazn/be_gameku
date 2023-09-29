@@ -86,3 +86,8 @@ export enum TemplateMessage {
     ORDER_SUCCESS = "order_success",
     ORDER_PENDING = "order_pending",
 }
+
+export enum SysConfigCD {
+    XENDIT_SECRET_KEY = "api_key",
+    XENDIT_WEBHOOK_KEY = "webhook_key",
+}
