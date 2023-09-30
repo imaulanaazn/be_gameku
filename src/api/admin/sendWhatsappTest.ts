@@ -2,6 +2,7 @@ import { ErrorType, TemplateMessage, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
+import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/whatsapp-test";
@@ -16,18 +17,17 @@ const schemaValidation: Validation[] = [
         isMobileNo: true,
     },
     {
-        name: "messageType",
+        name: "messageId",
         type: "string",
-        required: false,
-        enum: ["OTP_LOGIN", "OTP_REGISTER", "ORDER_FAILED", "ORDER_SUCCESS", "ORDER_PENDING"],
-        default: "OTP_LOGIN",
+        required: true,
+        errorMessage: "Template Pesan harus diisi",
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         mobileNumber: string;
-        messageType: "OTP_LOGIN" | "OTP_REGISTER" | "ORDER_FAILED" | "ORDER_SUCCESS" | "ORDER_PENDING";
+        messageId: string;
     }>(schemaValidation, ValidatorType.QUERY);
     const client = req.client;
     const io = req.io;
@@ -37,38 +37,24 @@ const main: RequestHandler = async (req, res) => {
         return res.send("Tidak konek");
     }
 
-    let sendNotify;
-    if (query.messageType.split("_")[0] === "OTP") {
-        sendNotify = await client.sendNotifyOtp({
-            targetNumber: query.mobileNumber,
-            template: TemplateMessage[query.messageType],
-            isTest: true,
-        });
-    } else {
-        sendNotify = await client.sendNotifyOrder({
-            targetNumber: query.mobileNumber,
-            template: TemplateMessage[query.messageType],
-            isTest: true,
-            data: {
-                invoiceId: "INV1693470160749",
-                link: "https://google.com",
-                quantity: 2,
-                mobileNumber: "089123456789",
-                amount: 10000,
-                game: "Mobile Legends",
-                productName: "2976 Diamond",
-                paymentMethod: "QRIS",
-                totalAmt: 20000,
-                feeAmt: 0,
-                discAmt: 0,
-            },
-        });
+    const whatsappTemplateService = new WhatsappTemplateService();
+    const whatsappTemplate = await whatsappTemplateService.findOneBy({
+        column: "id",
+        value: query.messageId,
+    });
+
+    if (!whatsappTemplate) {
+        throw new BusinessError("Template Whatsapp tidak valid", ErrorType.BadRequest);
     }
 
-    console.log(sendNotify);
+    const sendMessage = await client.sendNotifyOtp({
+        targetNumber: query.mobileNumber,
+        message: whatsappTemplate,
+        isTest: true,
+    });
 
-    if (!sendNotify.success) {
-        throw new BusinessError(sendNotify.msg, ErrorType.Internal);
+    if (!sendMessage.success) {
+        throw new BusinessError("Ada kesalahan ketika mencoba mengirim pesan, silahkan coba lagi", ErrorType.Internal);
     }
 
     res.sendStatus(200);

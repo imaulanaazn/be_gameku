@@ -1,4 +1,3 @@
-import { TemplateMessage } from "@enum/index";
 import { Server } from "socket.io";
 import { Client, LocalAuth } from "whatsapp-web.js";
 import fs from "fs";
@@ -6,6 +5,7 @@ import { OrderDto } from "@dto/order.dto";
 import randomatic from "randomatic";
 import { Config } from "@config/index";
 import dayjs from "dayjs";
+import { WhatsappTemplateEntity } from "@entity/whatsappTemplate.entity";
 
 interface IDataSendMessageOrder extends Partial<OrderDto> {
     link: string;
@@ -16,7 +16,7 @@ interface IDataSendMessageOrder extends Partial<OrderDto> {
 
 interface IParamSendMessage {
     targetNumber: string;
-    template: TemplateMessage;
+    message: WhatsappTemplateEntity;
     isTest: boolean;
 }
 
@@ -89,24 +89,9 @@ export class WhatsAppService {
         }
     }
 
-    private getFile(path: string): string {
-        if (!fs.existsSync(path)) {
-            return undefined;
-        }
-
-        return fs.readFileSync(path, "utf-8");
-    }
-
     async sendNotifyOtp(data: IParamSendMessage): Promise<{ success: boolean; msg: string }> {
+        const content = data.message.content;
         const config = new Config();
-        const path = `./template/whatsapp/${data.template}.txt`;
-        const file = this.getFile(path);
-        if (!file) {
-            return {
-                success: false,
-                msg: "File not found",
-            };
-        }
         const numb = "62" + data.targetNumber.slice(1) + "@c.us";
         const checkNumber = await this.client.isRegisteredUser(numb);
         if (!checkNumber) {
@@ -125,14 +110,14 @@ export class WhatsAppService {
             textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
         }
 
-        const replaceTemplate = file
+        const replaceTemplate = content
             .toString()
-            .replace("[otp]", otp)
-            .replace("[expired_time]", expiredTime.toString() + " Menit")
-            .replace("[expired_date]", expiredDate);
+            .replace(/\[otp\]/g, otp)
+            .replace(/\[expired_time\]/g, expiredTime.toString() + " Menit")
+            .replace(/\[expired_date\]/g, expiredDate);
 
         try {
-            await this.client.sendMessage(numb, textMessage + replaceTemplate);
+            await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
             console.log("[WHATSAPP] - SEND MESSAGE OTP TO : " + data.targetNumber);
             return {
                 success: true,
@@ -147,16 +132,8 @@ export class WhatsAppService {
     }
 
     async sendNotifyOrder(data: IParamSendMessageWithData): Promise<{ success: boolean; msg: string }> {
-        const path = `./template/whatsapp/${data.template}.txt`;
-        const file = this.getFile(path);
-        if (!file) {
-            return {
-                success: false,
-                msg: "File not found",
-            };
-        }
+        const content = data.message.content;
 
-        console.log("EXCUTED");
         const numb = "62" + data.targetNumber.slice(1) + "@c.us";
         const checkNumber = await this.client.isRegisteredUser(numb);
         if (!checkNumber) {
@@ -172,7 +149,7 @@ export class WhatsAppService {
         }
 
         try {
-            const replaceTemplate = file
+            const replaceTemplate = content
                 .replace(/\[trx\]/g, data.data.invoiceId)
                 .replace(/\[game\]/g, data.data.game)
                 .replace(/\[denom\]/g, data.data.productName)
@@ -183,7 +160,7 @@ export class WhatsAppService {
                 .replace(/\[fee\]/g, data.data.feeAmt.toString())
                 .replace(/\[total\]/g, data.data.totalAmt.toString())
                 .replace(/\[link\]/g, data.data.link);
-            await this.client.sendMessage(numb, textMessage + replaceTemplate);
+            await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
             console.log("[WHATSAPP] - SEND MESSAGE ORDER TO : " + data.targetNumber);
             return {
                 success: true,

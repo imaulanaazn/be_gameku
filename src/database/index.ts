@@ -17,6 +17,7 @@ import {
     PromotionEntity,
     SocialMediaEntity,
     VideoEntity,
+    WhatsappTemplateEntity,
 } from "@entity/index";
 import { SysConfigEntity } from "@entity/sysConfig.entity";
 
@@ -47,6 +48,7 @@ const sequelize = new Sequelize({
         SysConfigEntity,
         SocialMediaEntity,
         AdminEntity,
+        WhatsappTemplateEntity,
     ],
 });
 
