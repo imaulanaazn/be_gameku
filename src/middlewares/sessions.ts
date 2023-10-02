@@ -2,6 +2,7 @@ import { Request, RequestHandler } from "express";
 import { ErrorStatusCode, ErrorType } from "@enum/index";
 import { Config } from "@config/index";
 import moment from "moment";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
 
 export const regenerateSession = (req: Request) => {
     const config = new Config();
@@ -79,8 +80,23 @@ export const authSuperAdmin: RequestHandler = (req, res, next) => {
     next();
 };
 
-export const authWehbookXendit: RequestHandler = (req, res, next) => {
-    next();
+export const authWehbookXendit: RequestHandler = async (req, res, next) => {
+    const callbackToken = req.headers["x-callback-token"];
+    if (callbackToken) {
+        const sysConfigService = new SysConfigService();
+        const sysConfig = await sysConfigService.findOneBy({
+            column: "cd",
+            value: "webhook_key",
+        });
+
+        if (callbackToken === sysConfig.value) {
+            next();
+        } else {
+            return res.sendStatus(403);
+        }
+    } else {
+        return res.sendStatus(403);
+    }
 };
 
 export const authWehbookInternal: RequestHandler = (req, res, next) => {
