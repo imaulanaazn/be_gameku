@@ -24,6 +24,7 @@ import { SysConfigEntity } from "@entity/sysConfig.entity";
 const config = new Config();
 
 const sequelize = new Sequelize({
+    host: config.databaseHost,
     database: config.databaseName,
     username: config.databaseUsername,
     password: config.databasePassword,
