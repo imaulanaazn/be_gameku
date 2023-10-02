@@ -21,19 +21,10 @@ export class XenditService {
     protected apiKey: string;
     protected baseUrl: string;
 
-    constructor() {
+    constructor(apiKey: string) {
         const config = new Config();
         this.baseUrl = config.xenditBaseUrl;
-        this.getConfig();
-    }
-
-    private async getConfig(): Promise<void> {
-        const sysConfig = new SysConfigService();
-        const apiKey = await sysConfig.findOneBy({
-            column: "cd",
-            value: "api_key",
-        });
-        this.apiKey = apiKey.value;
+        this.apiKey = apiKey;
     }
 
     async createRetailPayment(data: XenditCreateRetailDto): Promise<any> {

@@ -11,6 +11,7 @@ import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { GameService } from "@serviceInternal/game.service";
 import dayjs from "dayjs";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
 
 const path = "/v1/order-detail/:invoice";
 const method = "GET";
@@ -86,7 +87,13 @@ const main: RequestHandler = async (req, res) => {
         only: ["logoUrl"],
     });
 
-    const xenditService = new XenditService();
+    const sysConfigService = new SysConfigService();
+    const sysConfig = await sysConfigService.findOneBy({
+        column: "cd",
+        value: "api_key",
+    });
+
+    const xenditService = new XenditService(sysConfig.value);
     const xendit = await xenditService.getPayment({
         category: paymentMethod.category as PaymentsCategory,
         id: invoice.xenditId,
