@@ -56,12 +56,16 @@ import { getAllAdminPagination } from "./admin/maintenanceAdmin/getAllAdminPagin
 import { deleteAdmin } from "./admin/maintenanceAdmin/deleteAdmin";
 import { putXenditConfig } from "./admin/maintenanceConfiguration/putXenditConfig";
 import { putTemplateWhatsapp } from "./admin/maintenanceConfiguration/putTemplateMessage";
+import { getAllYoutubeVideoPagination } from "./admin/maintenanceYoutubeVideo/getAllYoutubeVideoWithPagination";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
     loginAdmin,
+
+    // Maintenance Youtube Video
+    getAllYoutubeVideoPagination,
 
     // Maintenance Admin
     createAdmin,
