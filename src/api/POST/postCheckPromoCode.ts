@@ -79,7 +79,8 @@ const main: RequestHandler = async (req, res) => {
 
     let totalDiscount = 0;
     if (promoCode.discountType === DiscountType.PERCENTAGE) {
-        totalDiscount = (promoCode.discountValue / 100) * totalPrice;
+        const disc = (promoCode.discountValue / 100) * totalPrice;
+        totalDiscount = disc > promoCode.maxDiscount ? promoCode.maxDiscount : disc;
     } else {
         totalDiscount = promoCode.discountValue;
     }

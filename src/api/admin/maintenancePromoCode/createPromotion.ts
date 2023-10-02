@@ -52,6 +52,12 @@ const schemaValidation: Validation[] = [
         default: 0,
     },
     {
+        name: "maxDiscount",
+        type: "number",
+        required: false,
+        default: 0,
+    },
+    {
         name: "description",
         type: "string",
         required: false,
@@ -78,6 +84,7 @@ const main: RequestHandler = async (req, res) => {
         discType: "PERCENTAGE" | "AMOUNT";
         discValue: number;
         minPurchase?: number;
+        maxDiscount?: number;
         description?: string;
         startAt: string;
         endAt: string;
@@ -92,6 +99,7 @@ const main: RequestHandler = async (req, res) => {
         discountType: DiscountType[body.discType],
         discountValue: body.discValue,
         minPurchase: body.minPurchase || 0,
+        maxDiscount: body.maxDiscount || 0,
         description: body.description || null,
         startAt: dayjs(body.startAt).toDate(),
         endAt: dayjs(body.endAt).toDate(),

@@ -18,6 +18,8 @@ import { InvoiceService } from "@serviceInternal/invoice.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import dayjs from "dayjs";
 import validator from "validator";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 
 const path = "/v1/order";
 const method = "POST";
@@ -78,11 +80,18 @@ const main: RequestHandler = async (req, res) => {
         mobileNumber: string;
         cashtag?: string;
     }>(schemaValidation, ValidatorType.BODY);
+    const client = req.client;
+
+    const sysConfigService = new SysConfigService();
+    const sysConfig = await sysConfigService.findOneBy({
+        column: "cd",
+        value: "api_key",
+    });
 
     const voucherService = new PromotionService();
     const productService = new ProductService();
     const paymentMethodService = new PaymentMethodService();
-    const xenditService = new XenditService();
+    const xenditService = new XenditService(sysConfig.value);
     const orderService = new OrderService();
     const customerService = new CustomerService();
     const invoiceService = new InvoiceService();
@@ -164,7 +173,8 @@ const main: RequestHandler = async (req, res) => {
 
         if (voucher && product.price >= voucher.minPurchase) {
             if (voucher.discountType === DiscountType.PERCENTAGE) {
-                discount = (voucher.discountValue / 100) * product.price;
+                const disc = (voucher.discountValue / 100) * product.price;
+                discount = disc > voucher.maxDiscount ? voucher.maxDiscount : disc;
             } else {
                 discount = voucher.discountValue;
             }
@@ -223,7 +233,7 @@ const main: RequestHandler = async (req, res) => {
         productName: product.name,
         paymentMethod: payment.name,
     });
-    console.log(body.quantity);
+
     await orderDetailService.create({
         id: uuid(),
         orderId: order.id,
@@ -367,6 +377,30 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
+    const whatsappTemplateService = new WhatsappTemplateService();
+    const template = await whatsappTemplateService.findOneBy({
+        column: "cd",
+        value: "order_pending",
+    });
+
+    client.sendNotifyOrder({
+        targetNumber: customer.mobileNumber,
+        message: template,
+        isTest: false,
+        data: {
+            invoiceId,
+            link: `${config.feUrl}/payment/${invoiceId}`,
+            quantity: body.quantity,
+            mobileNumber: customer.mobileNumber,
+            amount: product.price,
+            game: order.game,
+            productName: order.productName,
+            paymentMethod: order.paymentMethod,
+            feeAmt: fee,
+            totalAmt: amount,
+            discAmt: order.discAmt,
+        },
+    });
     return res.send({
         invoice: invoiceId,
         expiredAt,

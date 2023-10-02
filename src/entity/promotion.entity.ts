@@ -48,6 +48,10 @@ export class PromotionEntity extends Model<PromotionEntity> {
     minPurchase!: number;
 
     @AllowNull(true)
+    @Column(DataType.INTEGER)
+    maxDiscount!: number;
+
+    @AllowNull(true)
     @Column(DataType.STRING(255))
     description!: string;
 

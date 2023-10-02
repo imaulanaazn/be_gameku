@@ -8,6 +8,7 @@ export class PromotionDto extends MainDto {
     discountType: DiscountType;
     discountValue: number;
     minPurchase: number;
+    maxDiscount: number;
     description: string;
     startAt: Date;
     endAt: Date;
