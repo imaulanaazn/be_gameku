@@ -45,6 +45,7 @@ export class WhatsAppService {
                     "--no-first-run",
                     "--no-zygote",
                     "--disable-gpu",
+                    "--single-process",
                 ],
             },
         });
@@ -156,10 +157,35 @@ export class WhatsAppService {
                 .replace(/\[quantity\]/g, data.data.quantity.toString())
                 .replace(/\[whatsapp\]/g, data.data.mobileNumber)
                 .replace(/\[payment_method\]/g, data.data.paymentMethod)
-                .replace(/\[price\]/g, data.data.amount.toString())
-                .replace(/\[fee\]/g, data.data.feeAmt.toString())
-                .replace(/\[total\]/g, data.data.totalAmt.toString())
-                .replace(/\[link\]/g, data.data.link);
+                .replace(
+                    /\[price\]/g,
+                    new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }).format(data.data.amount),
+                )
+                .replace(
+                    /\[fee\]/g,
+                    new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }).format(data.data.feeAmt),
+                )
+                .replace(
+                    /\[total\]/g,
+                    new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }).format(data.data.totalAmt),
+                )
+                .replace(/\[link\]/g, data.data.link)
+                .replace(/\[total_discount\]/g, data.data.discAmt.toString());
             await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
             console.log("[WHATSAPP] - SEND MESSAGE ORDER TO : " + data.targetNumber);
             return {
