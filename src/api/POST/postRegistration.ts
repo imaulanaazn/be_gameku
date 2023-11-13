@@ -10,6 +10,8 @@ import { Config } from "@config/index";
 import { v4 as uuid } from "uuid";
 import moment from "moment";
 import { CustomerEntity } from "@entity/customer.entity";
+import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
+import dayjs from "dayjs";
 
 const path = "/v1/customer/registration";
 const method = "POST";
@@ -38,6 +40,11 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: true,
     },
+    {
+        name: "otp",
+        type: "string",
+        required: true,
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
@@ -46,7 +53,31 @@ const main: RequestHandler = async (req, res) => {
         name: string;
         mobileNumber: string;
         password: string;
+        otp: string;
     }>(schemaValidation, ValidatorType.BODY);
+
+    const io = req.io;
+
+    const otpService = new CustomerOtpService();
+    const otp = await otpService.model.findOne({
+        where: {
+            mobileNumber: body.mobileNumber,
+            type: "register",
+        },
+    });
+
+    if (!otp) {
+        throw new BusinessError("Silahkan coba beberapa saat lagi, dan coba lagi", ErrorType.BadRequest);
+    }
+
+    const isExpired = dayjs(dayjs(otp.expiredAt)).isBefore(dayjs());
+    if (isExpired) {
+        throw new BusinessError("Otp sudah kadaluarsa", ErrorType.BadRequest);
+    }
+
+    if (otp.otp !== body.otp) {
+        throw new BusinessError("Otp tidak valid", ErrorType.BadRequest);
+    }
 
     const userService = new CustomerService();
     const config = new Config();
@@ -113,6 +144,8 @@ const main: RequestHandler = async (req, res) => {
             userData: user,
         };
     }
+
+    io.emit("count:register");
 
     return res.send(user);
 };

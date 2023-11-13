@@ -28,4 +28,25 @@ export class PromotionService extends MainService<PromotionEntity, PromotionDto>
             throw error;
         }
     }
+
+    async countAvailablePromoByPromoCode(promoCode: string): Promise<number> {
+        try {
+            const dateNow = new Date();
+            const voucher = await PromotionEntity.count({
+                where: {
+                    code: promoCode,
+                    endAt: {
+                        [Op.gt]: dateNow,
+                    },
+                    startAt: {
+                        [Op.lte]: dateNow,
+                    },
+                    deleted: false,
+                },
+            });
+            return voucher;
+        } catch (error) {
+            throw error;
+        }
+    }
 }

@@ -5,7 +5,7 @@ import { ErrorType, ValidatorType } from "@enum/index";
 import { GameService } from "@serviceInternal/game.service";
 import { GameCategoryService } from "@serviceInternal/gameCategory.service";
 import { BusinessError } from "@helper/handleError";
-import { Op } from "sequelize";
+import { Op, col, fn } from "sequelize";
 
 const path = "/v1/games";
 const method = "GET";
@@ -29,13 +29,19 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: false,
     },
+    {
+        name: "distinct",
+        type: "string",
+        required: false,
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
-        categoryId: string;
-        isPopular: "true" | "false";
-        search: string;
+        categoryId?: string;
+        isPopular?: "true" | "false";
+        search?: string;
+        distinct?: "true" | "false";
     }>(schemaValidation, ValidatorType.QUERY);
 
     const gameService = new GameService();
@@ -109,6 +115,14 @@ const main: RequestHandler = async (req, res) => {
                 },
                 deleted: false,
             },
+        });
+
+        return res.send(games);
+    }
+
+    if (query.distinct) {
+        const games = await gameService.model.findAll({
+            attributes: ["id", "name"],
         });
 
         return res.send(games);

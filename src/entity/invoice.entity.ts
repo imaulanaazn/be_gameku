@@ -1,5 +1,5 @@
 import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, UpdatedAt } from "sequelize-typescript";
-import { OrderStatuses } from "@enum/index";
+import { InvoiceStatuses, OrderStatuses } from "@enum/index";
 
 @Table({
     tableName: "invoices",
@@ -15,7 +15,7 @@ export class InvoiceEntity extends Model<InvoiceEntity> {
     xenditId!: string;
 
     @Column(DataType.STRING(255))
-    status!: OrderStatuses;
+    status!: InvoiceStatuses;
 
     @CreatedAt
     @Column(DataType.DATE)

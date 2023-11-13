@@ -12,20 +12,15 @@ const main: RequestHandler = async (req, res) => {
     if (!sessions.isLogin) {
         return res.sendStatus(ErrorStatusCode.Authorization);
     }
+
     const duplicateData = sessions.userData as any;
     const roleId = duplicateData.role || duplicateData.roleId;
 
     const config = new Config();
 
     let role = "guest";
-    if (roleId === config.roleAdmin) {
-        role = "admin";
-    } else if (roleId === config.roleSuperAdmin) {
-        role = "super-admin";
-    } else if (roleId === config.roleUser) {
+    if (roleId === config.roleUser) {
         role = "user";
-    } else {
-        role = "guest";
     }
 
     res.send({

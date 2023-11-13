@@ -1,9 +1,12 @@
+import { Config } from "@config/index";
 import { ErrorType, TemplateMessage, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
+import dayjs from "dayjs";
 import { RequestHandler } from "express";
+import randomatic from "randomatic";
 
 const path = "/v1/whatsapp-test";
 const method = "GET";
@@ -31,6 +34,7 @@ const main: RequestHandler = async (req, res) => {
     }>(schemaValidation, ValidatorType.QUERY);
     const client = req.client;
     const io = req.io;
+    const config = new Config();
 
     const connection = await client.checkConnection();
     if (!connection) {
@@ -47,10 +51,19 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Template Whatsapp tidak valid", ErrorType.BadRequest);
     }
 
+    const otp = randomatic("0", 6);
+    const expiredTime = config.expiredTimeOtp;
+    const expiredAt = dayjs().add(expiredTime, "m").format("YYYY-MMMM-DD HH:mm:ss");
+
     const sendMessage = await client.sendNotifyOtp({
         targetNumber: query.mobileNumber,
         message: whatsappTemplate,
         isTest: true,
+        data: {
+            otp,
+            expiredAt,
+            expiredTime,
+        },
     });
 
     if (!sendMessage.success) {

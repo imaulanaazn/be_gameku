@@ -58,8 +58,6 @@ const main: RequestHandler = async (req, res) => {
         external: body.external,
         imageUrl: upload,
     });
-
-    console.log(newBanner);
     res.send(newBanner);
 };
 
@@ -70,6 +68,7 @@ export const createBanner: IApiRouter = {
     auth,
     isUploadImage: true,
     dataImg: {
+        single: true,
         field: "bannerImage",
     },
 };

@@ -8,15 +8,26 @@ import {
     BelongsTo,
     CreatedAt,
     UpdatedAt,
+    Scopes,
+    DefaultScope,
+    HasMany,
 } from "sequelize-typescript";
 import { OrderStatuses } from "@enum/index";
-import { CustomerEntity, InvoiceEntity, PaymentMethodEntity } from ".";
+import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, PromotionEntity } from ".";
 
+@DefaultScope(() => ({
+    attributes: { exclude: ["amtBuy"] },
+}))
 @Table({
     tableName: "orders",
     timestamps: true,
     underscored: true,
 })
+@Scopes(() => ({
+    withAmtBuy: {
+        attributes: { include: ["amtBuy"] },
+    },
+}))
 export class OrderEntity extends Model<OrderEntity> {
     @PrimaryKey
     @Column(DataType.STRING(40))
@@ -33,6 +44,10 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.STRING(40))
     paymentMethodId!: string;
 
+    @ForeignKey(() => PromotionEntity)
+    @Column(DataType.STRING(40))
+    promoId!: string;
+
     @Column(DataType.STRING(255))
     game!: string;
 
@@ -41,6 +56,9 @@ export class OrderEntity extends Model<OrderEntity> {
 
     @Column(DataType.STRING(255))
     paymentMethod!: string;
+
+    @Column(DataType.INTEGER)
+    amtBuy!: number;
 
     @Column(DataType.INTEGER)
     totalAmt!: number;
@@ -68,6 +86,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.DATE)
     completedAt!: Date | string;
 
+    @HasMany(() => OrderDetailEntity, "orderId")
+    orderDetail!: OrderDetailEntity;
+
     @BelongsTo(() => InvoiceEntity, "invoiceId")
     invoice!: InvoiceEntity;
 
@@ -76,4 +97,7 @@ export class OrderEntity extends Model<OrderEntity> {
 
     @BelongsTo(() => PaymentMethodEntity, "paymentMethodId")
     payment!: PaymentMethodEntity;
+
+    @BelongsTo(() => PromotionEntity, "promoId")
+    promo!: PromotionEntity;
 }

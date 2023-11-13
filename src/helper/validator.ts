@@ -270,7 +270,11 @@ export class Validator {
         for (const schema of schemas) {
             let value = req[schema.name];
 
-            if (schema.type === "boolean" && typeof value === "undefined") {
+            if (schema.type === "boolean" && schema.required && typeof value !== "boolean") {
+                result.success = false;
+                result.message = schema.errorMessage || `${schema.name} harus diisi`;
+                return result;
+            } else if (schema.type === "boolean") {
                 result.success = true;
                 continue;
             }
@@ -308,6 +312,7 @@ export class Validator {
                 const convertedNumber = mobileNo.replace(/^(\+62|62|0)?(\d+)/, "0$2");
                 const check = validator.isMobilePhone(convertedNumber, "id-ID");
                 if (!check) {
+                    result.success = false;
                     result.message = schema.errorMessage || `Nomor handphone tidak valid`;
                     return result;
                 }

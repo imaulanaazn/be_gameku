@@ -82,7 +82,6 @@ const main = async (req: Request, res: Response) => {
         operator: "in",
         only: ["id", "expiredAt"],
     });
-    console.log(invoices);
     const orderId = orders.rows.map((data) => data.id);
     const ordersDetail = await orderDetailService.findManyBy({
         column: "orderId",
@@ -122,7 +121,7 @@ const main = async (req: Request, res: Response) => {
             logoUrl: game.logoUrl,
             quantity: orderDetail.quantity,
             status:
-                expiredDate.isBefore(dateNow) && order.status === OrderStatuses.UNPAID
+                expiredDate.isBefore(dateNow) && order.status === OrderStatuses.PENDING_PAYMENT
                     ? OrderStatuses.EXPIRED
                     : order.status,
         });

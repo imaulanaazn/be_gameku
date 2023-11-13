@@ -20,11 +20,18 @@ export enum ErrorStatusCode {
     ToManyRequest = 429,
 }
 export enum OrderStatuses {
-    UNPAID = "1",
+    PENDING_PAYMENT = "1",
+    PENDING_ORDER = "2",
+    SUCCESS = "3",
+    FAILED = "4",
+    EXPIRED = "5",
+}
+
+export enum InvoiceStatuses {
+    PENDING = "1",
     PAID = "2",
     EXPIRED = "3",
     FAILED = "4",
-    PARTIAL_PAID = "5",
 }
 
 export enum OrderType {

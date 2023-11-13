@@ -3,12 +3,14 @@ import { ErrorStatusCode, ErrorType } from "@enum/index";
 import { Config } from "@config/index";
 import moment from "moment";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import * as jwt from "jsonwebtoken";
+import { AdminDto } from "@dto/admin.dto";
 
 export const regenerateSession = (req: Request) => {
     const config = new Config();
     req.session.regenerate((err) => {
         if (err) {
-            console.log(err);
+            console.error(err);
         } else {
             req.session.data = {
                 roleId: config.roleUser,
@@ -56,28 +58,49 @@ export const authLoginUser: RequestHandler = (req, res, next) => {
 
 export const authAdmin: RequestHandler = (req, res, next) => {
     const config = new Config();
-    const session = req.session.data;
-    if (!session || (session.roleId !== config.roleAdmin && session.roleId !== config.roleSuperAdmin)) {
+    const session = req.cookies.session_gasskeun_admin;
+    try {
+        const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
+        if (decoded.role === config.roleAdmin || decoded.role === config.roleSuperAdmin) {
+            next();
+        } else {
+            res.clearCookie("session_gasskeun_admin");
+            return res.status(ErrorStatusCode.Authorization).send({
+                errorCode: ErrorType.Authorization,
+                message: "Cannot access to this resource",
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.clearCookie("session_gasskeun_admin");
         return res.status(ErrorStatusCode.Authorization).send({
             errorCode: ErrorType.Authorization,
             message: "Cannot access to this resource",
         });
     }
-
-    next();
 };
 
 export const authSuperAdmin: RequestHandler = (req, res, next) => {
     const config = new Config();
-    const session = req.session.data;
-    if (!session || session.roleId !== config.roleSuperAdmin) {
+    const session = req.cookies.session_gasskeun_admin;
+    try {
+        const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
+        if (decoded.role === config.roleSuperAdmin) {
+            next();
+        } else {
+            res.clearCookie("session_gasskeun_admin");
+            return res.status(ErrorStatusCode.Authorization).send({
+                errorCode: ErrorType.Authorization,
+                message: "Cannot access to this resource",
+            });
+        }
+    } catch (error) {
+        res.clearCookie("session_gasskeun_admin");
         return res.status(ErrorStatusCode.Authorization).send({
             errorCode: ErrorType.Authorization,
             message: "Cannot access to this resource",
         });
     }
-
-    next();
 };
 
 export const authWehbookXendit: RequestHandler = async (req, res, next) => {

@@ -59,7 +59,9 @@ export class GameEntity extends Model<GameEntity> {
     @Column(DataType.STRING(255))
     slug: string;
 
-    @AllowNull(false)
+    @Column(DataType.TEXT)
+    description: string;
+
     @Column(DataType.STRING(255))
     logoDenom: string;
 

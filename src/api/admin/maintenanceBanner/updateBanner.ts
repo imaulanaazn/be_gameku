@@ -19,6 +19,11 @@ const schemaValidation: Validation[] = [
         required: true,
     },
     {
+        name: "name",
+        type: "string",
+        required: true,
+    },
+    {
         name: "eventUrl",
         type: "string",
         required: false,
@@ -27,7 +32,7 @@ const schemaValidation: Validation[] = [
     {
         name: "external",
         type: "string",
-        required: true,
+        required: false,
         enum: ["true", "false"],
     },
 ];
@@ -35,6 +40,7 @@ const schemaValidation: Validation[] = [
 const main: RequestHandler = async (req, res) => {
     const body = new Validator(req, res).process<{
         id: string;
+        name: string;
         eventUrl: string;
         external: boolean;
     }>(schemaValidation, ValidatorType.BODY);
@@ -53,6 +59,7 @@ const main: RequestHandler = async (req, res) => {
     }
 
     let dataUpdate: Partial<BannerDto> = {
+        name: body.name,
         eventUrl: body.eventUrl,
         external: body.external,
         imageUrl: banner.imageUrl,
@@ -65,7 +72,7 @@ const main: RequestHandler = async (req, res) => {
             "banner/" + req.file.filename,
         );
 
-        fs.unlinkSync("uploads/" + req.file.filename);
+        // fs.unlinkSync("uploads/" + req.file.filename);
         dataUpdate.imageUrl = updateImg;
     }
 
@@ -89,6 +96,7 @@ export const updateBanner: IApiRouter = {
     auth,
     isUploadImage: true,
     dataImg: {
+        single: true,
         field: "bannerImage",
     },
 };

@@ -14,8 +14,12 @@ import { Server as HttpServer, IncomingMessage, ServerResponse } from "http";
 import { Server } from "socket.io";
 import { WhatsAppService } from "@serviceExternal/whatsapp.service";
 import routerIo from "./socketIo";
+import rateLimit from "express-rate-limit";
 
 const getApp = async (app: Application, server: HttpServer<typeof IncomingMessage, typeof ServerResponse>) => {
+    const config = new Config();
+    const allowOrigin = config.originCors.split(",");
+
     try {
         const io = new Server(server, {
             cors: {
@@ -31,16 +35,7 @@ const getApp = async (app: Application, server: HttpServer<typeof IncomingMessag
             },
         });
 
-        let client;
-
-        try {
-            client = new WhatsAppService(io);
-        } catch (error) {
-            console.error("Error creating WhatsAppService:", error);
-        }
-
-        const config = new Config();
-        const allowOrigin = config.originCors.split(",");
+        let client = new WhatsAppService(io);
 
         const corsOptions = {
             origin: (origin, callback) => {
@@ -53,7 +48,7 @@ const getApp = async (app: Application, server: HttpServer<typeof IncomingMessag
             credentials: true,
         };
 
-        app.set("trust proxy", true);
+        // app.set("trust proxy", true);
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: false }));
         app.use(cors(corsOptions));

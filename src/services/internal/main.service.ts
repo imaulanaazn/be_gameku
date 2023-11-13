@@ -39,7 +39,7 @@ const operators = {
 
 export interface IBaseService<T extends Model, Dto> {
     create(data: Partial<Dto>): Promise<T>;
-    find(options: FindOptions<T>): Promise<T[]>;
+    find<K>(options: FindOptions<T>): Promise<K>;
     findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T | null>;
     findManyBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T[]>;
     findManyByPagination<K extends ColumnKeys<Dto>>(
@@ -54,7 +54,7 @@ export interface IBaseService<T extends Model, Dto> {
 }
 
 export class MainService<T extends Model, Dto extends CreationAttributes<T>> implements IBaseService<T, Dto> {
-    protected model: ModelCtor<T>;
+    public model: ModelCtor<T>;
 
     constructor(model: ModelCtor<T>) {
         this.model = model;
@@ -64,8 +64,8 @@ export class MainService<T extends Model, Dto extends CreationAttributes<T>> imp
         return await this.model.create({ ...data, createdAt: dayjs().format("YYYY-MM-DD HH:mm:ss") });
     }
 
-    public async find(options: FindOptions<T>): Promise<T[]> {
-        return await this.model.findAll(options);
+    public async find<K>(options: FindOptions<T>): Promise<K> {
+        return (await this.model.findAll(options)) as K;
     }
 
     public async findOneBy<K extends ColumnKeys<Dto>>(filterCriteria: FindDto<K, Dto[K], Dto>): Promise<T | null> {

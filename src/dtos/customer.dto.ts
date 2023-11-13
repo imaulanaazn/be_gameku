@@ -4,6 +4,7 @@ export class CustomerDto extends MainDto {
     roleId: string;
     isRegistered: boolean;
     name?: string;
+    image?: string;
     email?: string;
     mobileNumber: string;
     password?: string;

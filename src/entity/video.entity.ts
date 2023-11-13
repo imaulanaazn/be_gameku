@@ -12,6 +12,18 @@ export class VideoEntity extends Model<VideoEntity> {
 
     @AllowNull(false)
     @Column(DataType.STRING(255))
+    title!: string;
+
+    @AllowNull(false)
+    @Column(DataType.STRING(255))
+    author!: string;
+
+    @AllowNull(false)
+    @Column(DataType.STRING(255))
+    authorUrl!: string;
+
+    @AllowNull(false)
+    @Column(DataType.STRING(255))
     url!: string;
 
     @AllowNull(false)

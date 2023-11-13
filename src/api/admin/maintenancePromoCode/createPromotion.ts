@@ -1,11 +1,13 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { DiscountType, ValidatorType } from "@enum/index";
+import { DiscountType, ErrorType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { v4 as uuid } from "uuid";
 import { PromotionService } from "@serviceInternal/promotion.service";
 import dayjs from "dayjs";
 import { PromotionDto } from "@dto/promotion.dto";
+import { GameService } from "@serviceInternal/index";
+import { BusinessError } from "@helper/handleError";
 
 const path = "/v1/promo-code";
 const method = "POST";
@@ -91,15 +93,29 @@ const main: RequestHandler = async (req, res) => {
     }>(schemaValidation, ValidatorType.BODY);
 
     const promotionService = new PromotionService();
+
+    if (body.gameId) {
+        const gameService = new GameService();
+        const game = await gameService.findOneBy({
+            column: "id",
+            value: body.gameId,
+        });
+
+        if (!game) {
+            throw new BusinessError("Game tidak valid, silahkan refresh dan coba lagi", ErrorType.BadRequest);
+        }
+    }
+
     const data: PromotionDto = {
         id: uuid(),
         code: body.code,
+        stock: body.stock,
         name: body.name,
         gameId: body.gameId || null,
         discountType: DiscountType[body.discType],
         discountValue: body.discValue,
         minPurchase: body.minPurchase || 0,
-        maxDiscount: body.maxDiscount || 0,
+        maxDiscount: (DiscountType[body.discType] === DiscountType.AMOUNT ? body.discValue : body.maxDiscount) || 0,
         description: body.description || null,
         startAt: dayjs(body.startAt).toDate(),
         endAt: dayjs(body.endAt).toDate(),

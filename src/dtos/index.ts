@@ -16,3 +16,7 @@ export * from "./sysConfig.dto";
 export * from "./socialMedia.dto";
 export * from "./admin.dto";
 export * from "./whatsappTemplate.dto";
+export * from "./gameVoucher.dto";
+export * from "./customerOtp.dto";
+export * from "./meta.dto";
+export * from "./ipAddress.dto";

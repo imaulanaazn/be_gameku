@@ -8,6 +8,16 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import advanced from "dayjs/plugin/advancedFormat";
 import http from "http";
+import process from "node:process";
+
+// Menambahkan kode untuk memantau penggunaan memori
+function logMemoryUsage() {
+    const used = process.memoryUsage();
+    console.log("Memory usage:");
+    for (let key in used) {
+        console.log(`${key}: ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`);
+    }
+}
 
 (async () => {
     try {
@@ -26,8 +36,21 @@ import http from "http";
 
         app.listen(port, () => {
             console.log(`⚡️[${process.env.NODE_ENV}]: Server is running at ${port}`);
+            logMemoryUsage();
+        });
+
+        app.on("error", (err) => {
+            console.error(err);
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 })();
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("uncaughtException", err);
+});

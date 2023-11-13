@@ -10,7 +10,7 @@ const main: RequestHandler = async (req, res) => {
     const config = new Config();
     req.session.regenerate((err) => {
         if (err) {
-            console.log(err);
+            console.error(err);
         } else {
             req.session.data = {
                 roleId: config.roleUser,

@@ -6,6 +6,8 @@ import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import { Config } from "@config/index";
 import { AdminService } from "@serviceInternal/admin.service";
+import session from "express-session";
+import * as jwt from "jsonwebtoken";
 
 const path = "/v1/admin/login";
 const method = "POST";
@@ -43,17 +45,19 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Username atau Password tidak valid", ErrorType.Validation);
     }
 
-    req.session.cookie.maxAge = config.maxAgeLogin * 1000;
-    delete req.session.data;
+    const token = jwt.sign(
+        {
+            ...admin.dataValues,
+            password: undefined,
+        },
+        config.secretSessionAdmin,
+        { expiresIn: "24h" },
+    );
 
-    if (!req.session.data) {
-        req.session.data = {
-            roleId: admin.role || config.roleAdmin,
-            isLogin: true,
-            ip: req.clientIp,
-            userData: { ...admin.dataValues, password: undefined },
-        };
-    }
+    res.cookie("session_gasskeun_admin", token, {
+        httpOnly: true,
+        maxAge: config.maxAgeLogin * 1000,
+    });
 
     return res.send({
         ...admin.dataValues,

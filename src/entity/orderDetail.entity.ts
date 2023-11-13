@@ -25,7 +25,7 @@ export class OrderDetailEntity extends Model<OrderDetailEntity> {
     @Column(DataType.STRING(255))
     serverId!: string;
 
-    @Column(DataType.STRING(255))
+    @Column(DataType.TEXT)
     gameVoucher!: string;
 
     @Column(DataType.INTEGER)

@@ -14,14 +14,41 @@ interface IDataSendMessageOrder extends Partial<OrderDto> {
     amount: number;
 }
 
+interface IDataSendMessageVoucher {
+    gameName: string;
+    voucher: string[];
+    productName: string;
+}
+
+interface IDataSendMessageOtp {
+    otp: string;
+    expiredAt: string;
+    expiredTime: number;
+}
+
 interface IParamSendMessage {
     targetNumber: string;
     message: WhatsappTemplateEntity;
     isTest: boolean;
 }
 
+interface IParamsSendNotifyAdmin {
+    invoiceId: string;
+}
+
+interface IParamSendMessageOtp extends IParamSendMessage {
+    data: IDataSendMessageOtp;
+}
 interface IParamSendMessageWithData extends IParamSendMessage {
     data?: IDataSendMessageOrder;
+}
+
+interface IParamSendMessageVoucher extends IParamSendMessage {
+    data: IDataSendMessageVoucher;
+}
+
+interface IParamSendMessageNotifyAdmin extends IParamSendMessage {
+    data: IParamsSendNotifyAdmin;
 }
 
 export class WhatsAppService {
@@ -84,40 +111,40 @@ export class WhatsAppService {
                 io.emit("qrcode:get", qr);
                 io.emit("qrcode:status", { status: "SCANQR", args: "Scan QR Telebih dahulu" });
             });
+
+            this.client.on("auth_failure", (msg) => {
+                console.error(msg);
+            });
         } catch (error) {
             console.log("[WHATSAPP] - Error during WhatsApp client initialization:");
             console.error(error);
         }
     }
 
-    async sendNotifyOtp(data: IParamSendMessage): Promise<{ success: boolean; msg: string }> {
+    async sendNotifyOtp(data: IParamSendMessageOtp): Promise<{ success: boolean; msg: string }> {
         const content = data.message.content;
         const config = new Config();
-        const numb = "62" + data.targetNumber.slice(1) + "@c.us";
-        const checkNumber = await this.client.isRegisteredUser(numb);
-        if (!checkNumber) {
-            return {
-                success: false,
-                msg: "User Belum Terdaftar Whatsapp",
-            };
-        }
-
-        const otp = randomatic("0", 6);
-        const expiredTime = config.expiredTimeOtp;
-        const expiredDate = dayjs().add(expiredTime, "m").format("YYYY-MMMM-DD HH:mm:ss");
-
-        let textMessage = "";
-        if (data.isTest) {
-            textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
-        }
-
-        const replaceTemplate = content
-            .toString()
-            .replace(/\[otp\]/g, otp)
-            .replace(/\[expired_time\]/g, expiredTime.toString() + " Menit")
-            .replace(/\[expired_date\]/g, expiredDate);
-
         try {
+            const numb = "62" + data.targetNumber.slice(1) + "@c.us";
+            const checkNumber = await this.client.isRegisteredUser(numb);
+            if (!checkNumber) {
+                return {
+                    success: false,
+                    msg: "User Belum Terdaftar Whatsapp",
+                };
+            }
+
+            let textMessage = "";
+            if (data.isTest) {
+                textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
+            }
+
+            const replaceTemplate = content
+                .toString()
+                .replace(/\[otp\]/g, data.data.otp)
+                .replace(/\[expired_time\]/g, data.data.expiredTime.toString() + " Menit")
+                .replace(/\[expired_date\]/g, data.data.expiredAt);
+
             await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
             console.log("[WHATSAPP] - SEND MESSAGE OTP TO : " + data.targetNumber);
             return {
@@ -136,20 +163,20 @@ export class WhatsAppService {
         const content = data.message.content;
 
         const numb = "62" + data.targetNumber.slice(1) + "@c.us";
-        const checkNumber = await this.client.isRegisteredUser(numb);
-        if (!checkNumber) {
-            return {
-                success: false,
-                msg: "User Belum Terdaftar Whatsapp",
-            };
-        }
-
-        let textMessage = "";
-        if (data.isTest) {
-            textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
-        }
-
         try {
+            const checkNumber = await this.client.isRegisteredUser(numb);
+            if (!checkNumber) {
+                return {
+                    success: false,
+                    msg: "User Belum Terdaftar Whatsapp",
+                };
+            }
+
+            let textMessage = "";
+            if (data.isTest) {
+                textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
+            }
+
             const replaceTemplate = content
                 .replace(/\[trx\]/g, data.data.invoiceId)
                 .replace(/\[game\]/g, data.data.game)
@@ -193,7 +220,86 @@ export class WhatsAppService {
                 msg: "",
             };
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            return {
+                success: false,
+                msg: error.message,
+            };
+        }
+    }
+
+    async sendNotifyVoucher(data: IParamSendMessageVoucher): Promise<{ success: boolean; msg: string }> {
+        const content = data.message.content;
+
+        const numb = "62" + data.targetNumber.slice(1) + "@c.us";
+        try {
+            const checkNumber = await this.client.isRegisteredUser(numb);
+            if (!checkNumber) {
+                return {
+                    success: false,
+                    msg: "User Belum Terdaftar Whatsapp",
+                };
+            }
+
+            let textMessage = "";
+            if (data.isTest) {
+                textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
+            }
+
+            let newDataVoucher = [];
+
+            for (const voucher of data.data.voucher) {
+                if (voucher) {
+                    newDataVoucher.push(`-. ${voucher}`);
+                }
+            }
+
+            const formattedText = newDataVoucher.join("\n");
+            const replaceTemplate = content
+                .replace(/\[game\]/g, data.data.gameName)
+                .replace(/\[denom\]/g, data.data.productName)
+                .replace(/\[list_voucher\]/g, formattedText);
+            await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
+            console.log("[WHATSAPP] - SEND MESSAGE VOUCHER TO : " + data.targetNumber);
+            return {
+                success: true,
+                msg: "",
+            };
+        } catch (error) {
+            console.error(error);
+            return {
+                success: false,
+                msg: error.message,
+            };
+        }
+    }
+
+    async sendNotifyAdmin(data: IParamSendMessageNotifyAdmin) {
+        const content = data.message.content;
+        const numb = "62" + data.targetNumber.slice(1) + "@c.us";
+        try {
+            const checkNumber = await this.client.isRegisteredUser(numb);
+            if (!checkNumber) {
+                return {
+                    success: false,
+                    msg: "User Belum Terdaftar Whatsapp",
+                };
+            }
+
+            let textMessage = "";
+            if (data.isTest) {
+                textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
+            }
+
+            const replaceTemplate = content.replace(/\[invoiceId\]/g, data.data.invoiceId);
+            await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
+            console.log("[WHATSAPP] - SEND MESSAGE VOUCHER TO : " + data.targetNumber);
+            return {
+                success: true,
+                msg: "",
+            };
+        } catch (error) {
+            console.error(error);
             return {
                 success: false,
                 msg: error.message,

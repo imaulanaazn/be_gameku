@@ -21,7 +21,6 @@ const handleConnectionStatus = async (io: Server, client: WhatsAppService) => {
 };
 
 const routerIo = async (io: Server, socket: Socket, client: WhatsAppService) => {
-    await handleConnectionStatus(io, client);
     socket.on("whatsapp:logout", async () => {
         await client.client.logout();
         io.emit("qrcode:status", {
@@ -29,6 +28,10 @@ const routerIo = async (io: Server, socket: Socket, client: WhatsAppService) => 
             args: "Memproses logout whatsapp",
         });
         await client.client.initialize();
+    });
+
+    socket.on("qrcode:check", () => {
+        handleConnectionStatus(io, client);
     });
 };
 

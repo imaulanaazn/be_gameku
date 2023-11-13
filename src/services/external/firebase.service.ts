@@ -35,8 +35,6 @@ export class FirebaseService {
                 cacheControl: "public, max-age=31536000",
             });
 
-            console.log(upload);
-
             const downloadUrl = await getDownloadURL(upload.ref);
             fs.unlinkSync(localFilePath);
             return downloadUrl;
@@ -50,12 +48,16 @@ export class FirebaseService {
     }
 
     async deleteImg(currentUrlImg: string): Promise<any> {
-        const parsedUrl = new URL(currentUrlImg);
-        const path = parsedUrl.pathname.split("/o/")[1].split("?")[0];
-        const decodedPath = decodeURIComponent(path);
-        const storageRef = ref(this.storage, decodedPath);
-        const del = await deleteObject(storageRef);
-        return del;
+        try {
+            const parsedUrl = new URL(currentUrlImg);
+            const path = parsedUrl.pathname.split("/o/")[1].split("?")[0];
+            const decodedPath = decodeURIComponent(path);
+            const storageRef = ref(this.storage, decodedPath);
+            const del = await deleteObject(storageRef);
+            return del;
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     async updateImg(localFilePath: string, currentUrlImg: string, newDestinationPath: string): Promise<any> {

@@ -8,7 +8,16 @@ import {
     PromotionService,
 } from "@serviceInternal/index";
 import { Config } from "@config/index";
-import { DiscountType, ErrorType, FeeType, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
+import {
+    DiscountType,
+    ErrorType,
+    FeeType,
+    InvoiceStatuses,
+    OrderStatuses,
+    PaymentsCategory,
+    ServerIdType,
+    ValidatorType,
+} from "@enum/index";
 import { v4 as uuid } from "uuid";
 import { BusinessError } from "@helper/handleError";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -20,6 +29,10 @@ import dayjs from "dayjs";
 import validator from "validator";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
+import { PromotionEntity } from "@entity/promotion.entity";
+import { ListServerService } from "@serviceInternal/listServer.service";
+import { Op } from "sequelize";
+import { OrderEntity } from "@entity/index";
 
 const path = "/v1/order";
 const method = "POST";
@@ -68,8 +81,14 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: false,
     },
+    {
+        name: "customerId",
+        type: "string",
+        required: false,
+    },
 ];
 const main: RequestHandler = async (req, res) => {
+    const ip = req.ip;
     const body = new Validator(req, res).process<{
         userId?: string;
         serverId?: string;
@@ -79,8 +98,12 @@ const main: RequestHandler = async (req, res) => {
         promoCode?: string;
         mobileNumber: string;
         cashtag?: string;
+        customerId?: string;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log("REQUEST BODY ORDER");
+    console.log(body);
     const client = req.client;
+    const io = req.io;
 
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findOneBy({
@@ -99,16 +122,6 @@ const main: RequestHandler = async (req, res) => {
     const gameService = new GameService();
     const config = new Config();
 
-    // let customer: CustomerEntity;
-    // if (body.customerId) {
-    //     customer = await customerService.findOneBy({
-    //         column: "id",
-    //         value: body.customerId,
-    //     });
-    //     if (!customer) {
-    //         throw new BusinessError(`Customer dengan id ${body.customerId} tidak valid`, ErrorType.NotFound);
-    //     }
-    // }
     const convertedNumber = body.mobileNumber.replace(/^(\+62|62|0)?(\d+)/, "0$2");
     const check = validator.isMobilePhone(convertedNumber, "id-ID");
     if (!check) {
@@ -156,11 +169,92 @@ const main: RequestHandler = async (req, res) => {
         value: product.gameId,
     });
 
+    let serverName = body.serverId;
+    if (game.typeServerId === ServerIdType.LIST) {
+        const serverIdService = new ListServerService();
+        const serverId = await serverIdService.findOneBy({
+            column: "value",
+            value: body.serverId,
+        });
+
+        if (serverId) {
+            serverName = serverId.label;
+        }
+    }
     let discount = 0;
+    let voucher: PromotionEntity;
     if (body.promoCode) {
-        const voucher = await voucherService.findAvailablePromoBypromoCode(body.promoCode);
+        if (body.userId || body.serverId) {
+            const conditions = [];
+
+            if (body.userId) {
+                conditions.push({ userId: body.userId });
+            }
+            if (body.serverId) {
+                conditions.push({ serverId: body.serverId });
+            }
+            const orderDetail = await orderDetailService.model.findAll({
+                where: {
+                    [Op.or]: conditions,
+                },
+                include: [
+                    {
+                        model: OrderEntity,
+                        required: true,
+                        where: {
+                            promoCd: body.promoCode,
+                            status: {
+                                [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS],
+                            },
+                        },
+                    },
+                ],
+            });
+
+            if (orderDetail.length > 0) {
+                throw new BusinessError("Kode promo pernah sudah digunakan", ErrorType.BadRequest);
+            }
+        }
+
+        let customerId = [];
+        const customer = await customerService.findOneBy({
+            column: "mobileNumber",
+            value: convertedNumber,
+        });
+
+        if (customer) {
+            customerId.push(customer.id);
+        }
+
+        if (body.customerId) {
+            customerId.push(body.customerId);
+        }
+        const order = await orderService.model.findAll({
+            where: {
+                customerId: {
+                    [Op.in]: customerId,
+                },
+                promoCd: body.promoCode,
+            },
+        });
+
+        if (order.length > 0) {
+            throw new BusinessError("Kode promo sudah pernah digunakan", ErrorType.BadRequest);
+        }
+
+        voucher = await voucherService.findAvailablePromoBypromoCode(body.promoCode);
         if (!voucher) {
             throw new BusinessError(`Kode Promo tidak valid atau kadaluarsa`, ErrorType.NotFound);
+        }
+
+        const usedVoucher = await orderService.model.count({
+            where: {
+                promoCd: body.promoCode,
+            },
+        });
+
+        if (usedVoucher > voucher.stock) {
+            throw new BusinessError("Kode promo telah habis", ErrorType.BadRequest);
         }
 
         if (voucher.gameId && !product.gameId) {
@@ -171,9 +265,9 @@ const main: RequestHandler = async (req, res) => {
             throw new BusinessError("Kode Promo tidak valid untuk game ini", ErrorType.BadRequest);
         }
 
-        if (voucher && product.price >= voucher.minPurchase) {
+        if (voucher && product.price * body.quantity >= voucher.minPurchase) {
             if (voucher.discountType === DiscountType.PERCENTAGE) {
-                const disc = (voucher.discountValue / 100) * product.price;
+                const disc = (voucher.discountValue / 100) * (product.price * body.quantity);
                 discount = disc > voucher.maxDiscount ? voucher.maxDiscount : disc;
             } else {
                 discount = voucher.discountValue;
@@ -184,18 +278,28 @@ const main: RequestHandler = async (req, res) => {
                 ErrorType.BadRequest,
             );
         }
+
+        const totalUsedPromotion = await orderService.model.count({
+            where: {
+                promoId: voucher.id,
+            },
+        });
+
+        if (voucher.stock <= totalUsedPromotion) {
+            throw new BusinessError("Stok voucher telah habis", ErrorType.BadRequest);
+        }
     }
 
     let fee = 0;
     if (payment.feeType === FeeType.AMOUNT) {
         fee = payment.fee;
     } else if (payment.feeType === FeeType.PERCENTAGE) {
-        fee = Math.ceil((product.price * payment.fee) / 100);
+        fee = Math.ceil((product.price * body.quantity * payment.fee) / 100);
     } else {
         throw new BusinessError("Sepertinya ada kesalahan, silahkan coba beberapa saat lagi [FEE]", ErrorType.Internal);
     }
 
-    const amount = product.price * body.quantity - discount + fee;
+    const amount = Math.ceil(product.price * body.quantity - discount + fee);
 
     if (amount < payment.minAmount || amount > payment.maxAmount) {
         throw new BusinessError(
@@ -215,31 +319,33 @@ const main: RequestHandler = async (req, res) => {
 
     await invoiceService.create({
         id: invoiceId,
-        status: OrderStatuses.UNPAID,
+        status: InvoiceStatuses.PENDING,
         expiredAt,
     });
 
     const order = await orderService.create({
         id: uuid(),
+        promoId: (body.promoCode && voucher && voucher.id) || null,
         customerId: customer.id,
         invoiceId,
         paymentMethodId: payment.id,
         totalAmt: amount,
         feeAmt: fee,
         discAmt: discount,
-        status: OrderStatuses.UNPAID,
+        status: OrderStatuses.PENDING_PAYMENT,
         promoCd: body.promoCode ? body.promoCode : "",
         game: game.name,
         productName: product.name,
         paymentMethod: payment.name,
+        amtBuy: Math.ceil(product.price * body.quantity),
     });
 
-    await orderDetailService.create({
+    const orderDetail = await orderDetailService.create({
         id: uuid(),
         orderId: order.id,
         productId: product.id,
         userId: body.userId || "",
-        serverId: body.serverId || "",
+        serverId: serverName || "",
         amount: product.price,
         quantity: body.quantity,
     });
@@ -258,10 +364,33 @@ const main: RequestHandler = async (req, res) => {
         promoCode: body.promoCode,
         mobileNumber: body.mobileNumber,
         userId: body.userId,
-        serverId: body.serverId,
+        serverId: serverName,
         isExpired: false,
         category: payment.category,
     };
+
+    io.emit("order:new", {
+        id: order.id,
+        invoiceId: invoiceId,
+        customerId: order.customerId,
+        paymentMethodId: order.paymentMethodId,
+        game: order.game,
+        productName: order.productName,
+        paymentMethod: order.paymentMethod,
+        totalAmt: order.totalAmt,
+        feeAmt: order.feeAmt,
+        discAmt: order.discAmt,
+        promoCd: order.promoCd,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        completedAt: order.completedAt,
+        productId: product.id,
+        amount: orderDetail.amount,
+        quantity: orderDetail.quantity,
+        logoUrl: game.logoUrl,
+        mobileNumber: customer.mobileNumber,
+    });
 
     if (payment.category === PaymentsCategory.EWALLET) {
         const redirectUrl = config.feUrl + "/payment/" + invoiceId;
@@ -341,6 +470,21 @@ const main: RequestHandler = async (req, res) => {
 
         response.paymentCode = charge.payment_code;
     } else {
+        await orderService.updateBy({
+            by: "id",
+            value: order.id,
+            data: {
+                status: OrderStatuses.FAILED,
+            },
+        });
+
+        await invoiceService.updateBy({
+            by: "id",
+            value: invoiceId,
+            data: {
+                status: InvoiceStatuses.FAILED,
+            },
+        });
         throw new BusinessError(
             "Ada kesalahan di category pembayaran, silahkan coba beberapa saat lagi",
             ErrorType.Internal,
@@ -360,7 +504,7 @@ const main: RequestHandler = async (req, res) => {
             by: "id",
             value: invoiceId,
             data: {
-                status: OrderStatuses.FAILED,
+                status: InvoiceStatuses.FAILED,
             },
         });
         throw new BusinessError(

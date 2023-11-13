@@ -15,16 +15,33 @@ const schemaValidation: Validation[] = [
         required: false,
         default: "id,name",
     },
+    {
+        name: "conditional",
+        type: "string",
+        required: false,
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         only?: string;
+        conditional?: string;
     }>(schemaValidation, ValidatorType.QUERY);
 
     const only = query.only.split(",");
     const gameService = new GameService();
+    let where = {
+        deleted: false,
+    };
+    if (query.conditional) {
+        const data = query.conditional.split(":");
+        where = {
+            ...where,
+            [data[0]]: data[1],
+        };
+    }
     const games = await gameService.find({
+        where,
         attributes: only,
     });
     return res.send(games);

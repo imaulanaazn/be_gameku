@@ -28,7 +28,6 @@ const main: RequestHandler = async (req, res) => {
     });
 
     const countArticles = await articleService.countArticles();
-    console.log(countArticles);
 
     res.send({ data: getLastarticle, totalData: countArticles });
 };

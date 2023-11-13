@@ -10,8 +10,10 @@ import {
     UpdatedAt,
     AllowNull,
     ForeignKey,
+    HasMany,
 } from "sequelize-typescript";
 import { GameEntity } from "./game.entity";
+import { OrderEntity } from "./order.entity";
 
 @Table({
     tableName: "promotions",
@@ -55,6 +57,10 @@ export class PromotionEntity extends Model<PromotionEntity> {
     @Column(DataType.STRING(255))
     description!: string;
 
+    @AllowNull(false)
+    @Column(DataType.INTEGER)
+    stock!: number;
+
     @AllowNull(true)
     @Column(DataType.DATE)
     startAt!: Date;
@@ -75,4 +81,7 @@ export class PromotionEntity extends Model<PromotionEntity> {
     @UpdatedAt
     @Column(DataType.DATE)
     updatedAt!: Date;
+
+    @HasMany(() => OrderEntity, "promoId")
+    orders!: OrderEntity;
 }

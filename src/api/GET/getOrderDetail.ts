@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
+import { ErrorType, InvoiceStatuses, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { ProductService } from "@serviceInternal/product.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
@@ -147,13 +147,14 @@ const main: RequestHandler = async (req, res) => {
         logoPaymentMethod: paymentMethod.logo,
         payment: xenditData,
         status:
-            dayjs(invoice.expiredAt).isBefore(dayjs()) && order.status === OrderStatuses.UNPAID
-                ? OrderStatuses.EXPIRED
-                : order.status,
+            dayjs(invoice.expiredAt).isBefore(dayjs()) && invoice.status === InvoiceStatuses.PENDING
+                ? InvoiceStatuses.EXPIRED
+                : invoice.status,
         expiredAt: dayjs(invoice.expiredAt),
         category: paymentMethod.category,
         createdAt: order.createdAt,
         cd: paymentMethod.cd,
+        detail: orderDetail,
     });
 };
 

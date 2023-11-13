@@ -16,3 +16,7 @@ export * from "./sysConfig.entity";
 export * from "./socialMedia.entity";
 export * from "./admin.entity";
 export * from "./whatsappTemplate.entity";
+export * from "./gameVoucher.entity";
+export * from "./customerOtp.entity";
+export * from "./meta.entity";
+export * from "./ipAddress.entity";

@@ -17,7 +17,7 @@ import { deleteBanner } from "./admin/maintenanceBanner/deleteBanner";
 import { getBannerById } from "./admin/maintenanceBanner/getBannerById";
 import { putActivationPaymentMethod } from "./admin/maintenancePayment/putActivationPaymentMethod";
 import { getGameByCategory } from "./GET/getGameByCategory";
-import { postArticle } from "./admin/maintenanceArticle/postArticle";
+// import { postArticle } from "./admin/maintenanceArticle/postArticle";
 import { getLastArticels } from "./GET/getArticles";
 import { getVideos } from "./GET/getVideos";
 import { postRegistration } from "./POST/postRegistration";
@@ -57,15 +57,61 @@ import { deleteAdmin } from "./admin/maintenanceAdmin/deleteAdmin";
 import { putXenditConfig } from "./admin/maintenanceConfiguration/putXenditConfig";
 import { putTemplateWhatsapp } from "./admin/maintenanceConfiguration/putTemplateMessage";
 import { getAllYoutubeVideoPagination } from "./admin/maintenanceYoutubeVideo/getAllYoutubeVideoWithPagination";
+import { getAllVoucherGamePagination } from "./admin/maintenanceVoucherGame/getAllVoucherGamePagination";
+import { getOrderAnalytics } from "./admin/getOrderAnalytics";
+import { getMeAdmin } from "./admin/getMe";
+import { getConfig } from "./GET/getConfig";
+import { putConfig } from "./admin/maintenanceConfiguration/putConfig";
+import { deleteLogoutAdmin } from "./admin/logoutAdmin";
+import { createYoutubeVideo } from "./admin/maintenanceYoutubeVideo/createYoutubeVideo";
+import { putYoutubeVideo } from "./admin/maintenanceYoutubeVideo/putYoutubeVideo";
+import { deleteYoutubeVideo } from "./admin/maintenanceYoutubeVideo/deleteYoutubeVideo";
+import { createSocialMedia } from "./admin/maintenanceSocialMedia/createSocialMedia";
+import { deleteSocialMedia } from "./admin/maintenanceSocialMedia/deleteSocialMedia";
+import { putSocialMedia } from "./admin/maintenanceSocialMedia/putSocialMedia";
+import { getAllDenomOnlyAttr } from "./admin/maintenanceProduct/getAllDenomOnlyAttr";
+import { createVoucherGame } from "./admin/maintenanceVoucherGame/createVoucherGame";
+import { getOtp } from "./GET/getOtp";
+import { getAllOrdersPagination } from "./admin/maintenanceOrders/getAllOrdersPagination";
+import { putCustomer } from "./PUT/putCustomer";
+import { putStatusOrder } from "./admin/maintenanceOrders/putStatusOrder";
+import { createGame } from "./admin/maintenanceGame/createGame";
+import { putGame } from "./admin/maintenanceGame/putGame";
+import { deleteProduct } from "./admin/maintenanceProduct/deleteDenom";
+import { createDenom } from "./admin/maintenanceProduct/createDenom";
+import { putDenom } from "./admin/maintenanceProduct/putDenom";
+import { getMetaByPath } from "./GET/getMeta";
+import { putVoucherGame } from "./admin/maintenanceVoucherGame/putGameVoucher";
+import { deleteVoucherGame } from "./admin/maintenanceVoucherGame/deleteVoucherGame";
+import { putPromotion } from "./admin/maintenancePromoCode/putPromotion";
+import { putCustomerImage } from "./PUT/putUploadImage";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
     loginAdmin,
+    deleteLogoutAdmin,
+    getOrderAnalytics,
+    getMeAdmin,
+
+    putConfig,
+
+    // Maintenance Order
+    getAllOrdersPagination,
+    putStatusOrder,
+
+    // Maintenance Game Voucher
+    getAllVoucherGamePagination,
+    createVoucherGame,
+    putVoucherGame,
+    deleteVoucherGame,
 
     // Maintenance Youtube Video
     getAllYoutubeVideoPagination,
+    createYoutubeVideo,
+    putYoutubeVideo,
+    deleteYoutubeVideo,
 
     // Maintenance Admin
     createAdmin,
@@ -84,14 +130,21 @@ const apis = [
     createPromotion,
     getAllPromoCodePagination,
     deletePromotion,
+    putPromotion,
 
     // Maintenance Product
+    createDenom,
+    putDenom,
     getAllDenomPagination,
+    getAllDenomOnlyAttr,
+    deleteProduct,
 
     // Maintenance User
     getAllUserPagination,
 
     // Maintenance Game
+    createGame,
+    putGame,
     getAllGameOnlyName,
     getAllGamePagination,
     putPopularBulk,
@@ -100,7 +153,6 @@ const apis = [
     // Maintenance Banner
     getAllBannerPagination,
     createBanner,
-    // listBannerPagination,
     updateBanner,
     deleteBanner,
     getBannerById,
@@ -110,10 +162,13 @@ const apis = [
     getAllPaymentMethodPagination,
 
     // Maintenance Article
-    postArticle,
+    // postArticle,
 
     // Maintenance Sosmed
     getAllSocialMediaPagination,
+    createSocialMedia,
+    deleteSocialMedia,
+    putSocialMedia,
 
     // POST
     postOrder,
@@ -134,9 +189,16 @@ const apis = [
     getOrderHistory,
     getOrderDetail,
     getSocialMedia,
+    getConfig,
+    getOtp,
+    getMetaByPath,
 
     // DELETE
     deleteLogout,
+
+    // PUT
+    putCustomer,
+    putCustomerImage,
 ];
 
 for (const api of apis) {
@@ -160,16 +222,26 @@ for (const api of apis) {
         });
 
     if (isUploadImage) {
-        if (auth === "guess") {
-            router[method.toLowerCase()](path, upload.single(dataImg.field), main);
+        let fieldImages: any = [];
+        if (!dataImg.single) {
+            for (const field of dataImg.field) {
+                fieldImages.push({
+                    name: field,
+                });
+            }
+        }
+        const uploadMiddleware = dataImg.single ? upload.single(dataImg.field) : upload.fields(fieldImages);
+
+        if (auth !== "guess") {
+            router[method.toLowerCase()](path, authorization, uploadMiddleware, main);
         } else {
-            router[method.toLowerCase()](path, upload.single(dataImg.field), authorization, main);
+            router[method.toLowerCase()](path, uploadMiddleware, main);
         }
     } else {
-        if (auth === "guess") {
-            router[method.toLowerCase()](path, main);
-        } else {
+        if (auth !== "guess") {
             router[method.toLowerCase()](path, authorization, main);
+        } else {
+            router[method.toLowerCase()](path, main);
         }
     }
 }

@@ -10,9 +10,20 @@ import {
     BelongsTo,
     AllowNull,
     ForeignKey,
+    Scopes,
+    DefaultScope,
+    HasMany,
 } from "sequelize-typescript";
 import { GameEntity } from "./game.entity";
 
+@DefaultScope(() => ({
+    attributes: { exclude: ["priceBuy"] },
+}))
+@Scopes(() => ({
+    withPriceBuy: {
+        attributes: { include: ["priceBuy"] },
+    },
+}))
 @Table({
     tableName: "products",
     timestamps: true,
@@ -23,25 +34,17 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
-    @AllowNull(false)
     @Column(DataType.STRING(255))
     name!: string;
 
-    @AllowNull(false)
+    @Column(DataType.STRING(255))
+    code!: string;
+
     @Column(DataType.INTEGER)
     price!: number;
 
-    @AllowNull(false)
     @Column(DataType.INTEGER)
-    unit!: number;
-
-    @AllowNull(true)
-    @Column(DataType.INTEGER)
-    unitBonus!: number;
-
-    @AllowNull(false)
-    @Column(DataType.STRING(255))
-    cd: string;
+    priceBuy!: number;
 
     @AllowNull(true)
     @Column(DataType.STRING(255))

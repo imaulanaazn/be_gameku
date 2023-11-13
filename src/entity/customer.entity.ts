@@ -44,6 +44,9 @@ export class CustomerEntity extends Model<CustomerEntity> {
     name!: string;
 
     @Column(DataType.STRING(255))
+    image!: string;
+
+    @Column(DataType.STRING(255))
     email!: string;
 
     @Unique(true)

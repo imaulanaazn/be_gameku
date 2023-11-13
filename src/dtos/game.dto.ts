@@ -8,10 +8,11 @@ export class GameDto extends MainDto {
     isPopular: boolean;
     popSequence?: number;
     slug: string;
-    logoDenom: string;
+    logoDenom?: string;
     deleted: boolean;
-    needServerId: boolean;
-    typeServerId: ServerIdType;
+    needServerId?: boolean;
+    typeServerId?: ServerIdType;
     type: string;
-    voucherType: VoucherType;
+    voucherType?: VoucherType;
+    description: string;
 }

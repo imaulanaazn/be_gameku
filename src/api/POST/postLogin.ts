@@ -8,6 +8,8 @@ import bcrypt from "bcrypt";
 import { Config } from "@config/index";
 import { CustomerEntity } from "@entity/customer.entity";
 import validator from "validator";
+import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
+import dayjs from "dayjs";
 
 const path = "/v1/customer/login";
 const method = "POST";
@@ -25,14 +27,19 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: true,
     },
+    {
+        name: "otp",
+        type: "string",
+        required: true,
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const body = new Validator(req, res).process<{
         username: string;
         password: string;
+        otp: string;
     }>(schemaValidation, ValidatorType.BODY);
-
     const convertedNumber = body.username.replace(/^(\+62|62|0)?(\d+)/, "0$2");
     const isMobileNo = validator.isMobilePhone(convertedNumber, "id-ID");
     const isEmail = validator.isEmail(body.username);
@@ -56,12 +63,33 @@ const main: RequestHandler = async (req, res) => {
     }
 
     if (user.roleId !== config.roleUser) {
-        throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid Role", ErrorType.Validation);
+        throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
     }
 
     const comparePassword = bcrypt.compareSync(body.password, user.password);
     if (!comparePassword) {
         throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
+    }
+
+    const otpService = new CustomerOtpService();
+    const otp = await otpService.model.findOne({
+        where: {
+            mobileNumber: user.mobileNumber,
+            type: "login",
+        },
+    });
+
+    if (!otp) {
+        throw new BusinessError("Silahkan coba beberapa saat lagi, dan coba lagi", ErrorType.BadRequest);
+    }
+
+    const isExpired = dayjs(dayjs(otp.expiredAt)).isBefore(dayjs());
+    if (isExpired) {
+        throw new BusinessError("Otp sudah kadaluarsa", ErrorType.BadRequest);
+    }
+
+    if (otp.otp !== body.otp) {
+        throw new BusinessError("Otp tidak valid", ErrorType.BadRequest);
     }
 
     req.session.cookie.maxAge = config.maxAgeLogin * 1000;

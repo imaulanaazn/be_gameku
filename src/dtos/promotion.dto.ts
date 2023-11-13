@@ -5,6 +5,7 @@ export class PromotionDto extends MainDto {
     code: string;
     gameId?: string;
     name: string;
+    stock: number;
     discountType: DiscountType;
     discountValue: number;
     minPurchase: number;

@@ -5,6 +5,7 @@ import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 import { RequestHandler } from "express";
+import { Op } from "sequelize";
 
 const path = "/v1/payment-method";
 const method = "GET";
@@ -14,16 +15,64 @@ const schemaValidation: Validation[] = [
     {
         name: "name",
         type: "string",
+        required: false,
+    },
+    {
+        name: "is_active",
+        type: "string",
+        required: false,
+        enum: ["true", "false"],
+    },
+    {
+        name: "category",
+        type: "string",
+        required: false,
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         name?: string;
+        is_active?: "true" | "false";
+        category?: string;
     }>(schemaValidation, ValidatorType.QUERY, true);
+    const clearQuery = JSON.parse(JSON.stringify(query));
+    delete clearQuery.is_active;
+    delete clearQuery.page;
+    delete clearQuery.sort;
+    delete clearQuery.order;
+    delete clearQuery.limit;
 
     const paymentMethodService = new PaymentMethodService();
     const column = Object.keys(query);
+
+    let where: any = {};
+    if (column.length > 4) {
+        if (query.is_active) {
+            where.is_active = query.is_active === "true";
+        }
+
+        for (const key of Object.keys(clearQuery)) {
+            where[key] = { [Op.like]: `%${clearQuery[key]}%` };
+        }
+    }
+
+    const datas = await paymentMethodService.model.findAndCountAll({
+        limit: query.limit,
+        offset: (query.page - 1) * query.limit,
+        order: [[query.sort, query.order]],
+        where,
+    });
+
+    return res.send({
+        data: datas.rows,
+        page: query.page,
+        total: datas.count,
+        totalPage: Math.ceil(datas.count / query.limit),
+        order: query.order,
+        sort: query.sort,
+        limit: query.limit,
+    });
 
     let paymentsMethod: {
         data: PaymentMethodEntity[];
