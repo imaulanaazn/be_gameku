@@ -3,6 +3,7 @@ import {
     authAdmin,
     authLoginUser,
     authSuperAdmin,
+    authWehbookAPIGames,
     authWehbookInternal,
     authWehbookXendit,
 } from "../middlewares/sessions";
@@ -29,12 +30,12 @@ import { getGameDetailById } from "./GET/getGameDetail";
 import { getListPaymentsMethod } from "./GET/getListPaymentMethod";
 import { getGameCategory } from "./GET/getGameCategory";
 import { postCheckPromoCode } from "./POST/postCheckPromoCode";
-import { webhookQris } from "./webhook/qris.callback";
+import { webhookQris } from "./webhook/xendit/qris.callback";
 import { getOrderHistory } from "./GET/getOrderHistory";
 import { getOrderDetail } from "./GET/getOrderDetail";
-import { webhookEwallet } from "./webhook/ewallet.callback";
-import { webhookRetail } from "./webhook/retail.callback";
-import { webhookVirtualAccount } from "./webhook/va.callback";
+import { webhookEwallet } from "./webhook/xendit/ewallet.callback";
+import { webhookRetail } from "./webhook/xendit/retail.callback";
+import { webhookVirtualAccount } from "./webhook/xendit/va.callback";
 import { getAllUserPagination } from "./admin/maintenanceUser/getAllUserPagination";
 import { getAllGamePagination } from "./admin/maintenanceGame/getAllGamePagination";
 import { putPopularBulk } from "./admin/maintenanceGame/putPopularBulk";
@@ -85,6 +86,8 @@ import { putVoucherGame } from "./admin/maintenanceVoucherGame/putGameVoucher";
 import { deleteVoucherGame } from "./admin/maintenanceVoucherGame/deleteVoucherGame";
 import { putPromotion } from "./admin/maintenancePromoCode/putPromotion";
 import { putCustomerImage } from "./PUT/putUploadImage";
+import { webhookApiGames } from "./webhook/apigames";
+import { cronjobSetExpiredPayment } from "./cronjob/setExpiredPayment";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -199,6 +202,9 @@ const apis = [
     // PUT
     putCustomer,
     putCustomerImage,
+
+    // CRONJOB
+    cronjobSetExpiredPayment,
 ];
 
 for (const api of apis) {
@@ -248,7 +254,16 @@ for (const api of apis) {
 
 let webhook = Router();
 
-const apisWebhook = [webhookQris, webhookEwallet, webhookRetail, webhookVirtualAccount];
+const apisWebhook = [
+    // XENDIT
+    webhookQris,
+    webhookEwallet,
+    webhookRetail,
+    webhookVirtualAccount,
+
+    // API GAMES
+    webhookApiGames,
+];
 
 for (const api of apisWebhook) {
     let { path, method, auth } = api as IApiRouter;
@@ -261,6 +276,8 @@ for (const api of apisWebhook) {
         authorization = authWehbookInternal;
     } else if (auth === "webhook-xendit") {
         authorization = authWehbookXendit;
+    } else if (auth === "webhook-apigames") {
+        authorization = authWehbookAPIGames;
     }
 
     const main = (req: Request, res: Response, next: NextFunction) =>

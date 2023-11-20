@@ -46,18 +46,7 @@ const main: RequestHandler = async (req, res) => {
         column: "orderId",
         value: order.id,
     });
-    const productService = new ProductService();
-    const product = await productService.findOneBy({
-        column: "id",
-        value: orderDetail.productId,
-        only: ["id", "gameId"],
-    });
 
-    const gameService = new GameService();
-    const game = await gameService.findOneBy({
-        column: "id",
-        value: product.gameId,
-    });
     io.emit("order:success", order.id);
     const customerService = new CustomerService();
     const customer = await customerService.findOneBy({

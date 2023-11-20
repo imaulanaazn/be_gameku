@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import { Request, RequestHandler } from "express";
 import { ErrorStatusCode, ErrorType } from "@enum/index";
 import { Config } from "@config/index";
@@ -113,6 +114,31 @@ export const authWehbookXendit: RequestHandler = async (req, res, next) => {
         });
 
         if (callbackToken === sysConfig.value) {
+            next();
+        } else {
+            return res.sendStatus(403);
+        }
+    } else {
+        return res.sendStatus(403);
+    }
+};
+
+export const authWehbookAPIGames: RequestHandler = async (req, res, next) => {
+    const callbackToken = req.headers["X-Apigames-Authorization"];
+    if (callbackToken) {
+        const sysConfigService = new SysConfigService();
+        const configApiGames = await sysConfigService.findManyBy({
+            column: "cd",
+            value: ["api_games_merchant_id", "api_games_secret_key"],
+            operator: "in",
+        });
+        const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
+        const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
+        const signature = crypto
+            .createHash("md5")
+            .update(`${merchantId}:${secretKey}:${req.body.ref_id}`)
+            .digest("hex");
+        if (callbackToken === signature) {
             next();
         } else {
             return res.sendStatus(403);

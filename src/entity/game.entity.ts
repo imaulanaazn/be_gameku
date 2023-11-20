@@ -33,10 +33,19 @@ export class GameEntity extends Model<GameEntity> {
     name!: string;
 
     @Column(DataType.STRING(255))
+    cd!: string;
+
+    @Column(DataType.BOOLEAN)
+    automatically!: boolean;
+
+    @Column(DataType.STRING(255))
     type!: string;
 
     @Column(DataType.STRING(255))
     voucherType!: VoucherType;
+
+    @Column(DataType.BOOLEAN)
+    needCheckId!: boolean;
 
     @Column(DataType.BOOLEAN)
     needServerId!: boolean;

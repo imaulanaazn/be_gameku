@@ -7,13 +7,16 @@ import { ErrorType, InvoiceStatuses, OrderStatuses, VoucherType } from "@enum/in
 import { ProductService } from "@serviceInternal/product.service";
 import dayjs from "dayjs";
 import { InvoiceService } from "@serviceInternal/invoice.service";
-import { CustomerService } from "@serviceInternal/customer.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { GameService } from "@serviceInternal/game.service";
 import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
+import { CustomerService } from "@serviceInternal/customer.service";
+import APIGamesService from "@serviceExternal/apiGames.service";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { sleep } from "@helper/index";
 
-const path = "/v1/webhook/va";
+const path = "/v1/webhook/ewallet";
 const method = "POST";
 const auth = "webhook-xendit";
 
@@ -21,43 +24,71 @@ const main: RequestHandler = async (req, res) => {
     const client = req.client;
     const io = req.io;
     const body: {
-        id: string;
-        payment_id: string;
-        callback_virtual_account_id: string;
-        owner_id: string;
-        external_id: string;
-        account_number: string;
-        bank_code: string;
-        transaction_timestamp: string;
-        amount: number;
-        merchant_code: string;
-        currency: string;
-        country: string;
-        sender_name: string;
-        payment_detail: {
-            payment_interface: string;
-            remark: string;
-            reference: string;
-            sender_account_number: string;
-            sender_channel_code: string;
-            sender_name: string;
-            transfer_method: string;
+        event: string;
+        business_id: string;
+        created: string;
+        data: {
+            id: string;
+            business_id: string;
+            reference_id: string;
+            status: string;
+            currency: string;
+            charge_amount: number;
+            capture_amount: number;
+            checkout_method: string;
+            channel_code: string;
+            channel_properties: {
+                success_redirect_url: string;
+            };
+            actions: {
+                desktop_web_checkout_url: string | null;
+                mobile_web_checkout_url: string | null;
+                mobile_deeplink_checkout_url: string | null;
+                qr_checkout_string: string;
+            };
+            is_redirect_required: boolean;
+            callback_url: string;
+            created: string;
+            updated: string;
+            voided_at: string | null;
+            capture_now: boolean;
+            customer_id: string | null;
+            payment_method_id: string | null;
+            failure_code: string | null;
+            basket: null;
+            metadata: {
+                branch_code: string;
+            };
         };
     } = req.body;
-    console.log(`Webhook VA diterima [${body.external_id}]`);
+    console.log(`Webhook VA diterima [${body.data.reference_id}]`);
     console.log(JSON.stringify(body));
 
     const orderService = new OrderService();
-    const productService = new ProductService();
     const invoiceService = new InvoiceService();
+    const sysConfigService = new SysConfigService();
+    const configApiGames = await sysConfigService.findManyBy({
+        column: "cd",
+        value: ["api_games_merchant_id", "api_games_secret_key"],
+        operator: "in",
+    });
+    const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
+    const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
+    const apiGamesService = new APIGamesService({
+        merchantId: merchantId.value,
+        secretKey: secretKey.value,
+    });
 
     const invoice = await invoiceService.findOneBy({
         column: "id",
-        value: body.external_id,
+        value: body.data.reference_id,
     });
 
     if (!invoice) {
-        throw new BusinessError(`Order tidak ditemukan dengan invoice: ${body.external_id}`, ErrorType.Internal);
+        throw new BusinessError(
+            `Invoice tidak ditemukan dengan invoice: ${body.data.reference_id}`,
+            ErrorType.Internal,
+        );
     }
 
     const order = await orderService.findOneBy({
@@ -65,13 +96,15 @@ const main: RequestHandler = async (req, res) => {
         value: invoice.id,
     });
 
+    res.sendStatus(200);
+
     const customerService = new CustomerService();
     const customer = await customerService.findOneBy({
         column: "id",
         value: order.customerId,
     });
 
-    if (body.amount === order.totalAmt && invoice.status !== InvoiceStatuses.PAID) {
+    if (body.data.status === "SUCCEEDED" && invoice.status !== InvoiceStatuses.PAID) {
         await invoiceService.updateBy({
             by: "id",
             value: invoice.id,
@@ -176,12 +209,33 @@ const main: RequestHandler = async (req, res) => {
             return;
         }
 
+        if (game.automatically) {
+            console.log(`@@@ GAME ORDER OTOMATIS ${order.game} ${order.productName} total ${orderDetail.quantity}`);
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.PROCESSING,
+                },
+            });
+            for (let i = 0; i < orderDetail.quantity; i++) {
+                const createTrxApiGames = await apiGamesService.createTransaction({
+                    invoiceId: `${order.invoiceId}_${i}`,
+                    productCode: product.code,
+                    userId: orderDetail.userId,
+                });
+                console.log(createTrxApiGames);
+                await sleep(500);
+            }
+            return;
+        }
+
         // TODO ORDER SESUAI GAME
         // .....
         // TODO ORDER SESUAI GAME
 
         io.emit("order:success", order.id);
-    } else if (body.amount !== order.totalAmt) {
+    } else {
         await invoiceService.updateBy({
             by: "id",
             value: invoice.id,
@@ -202,7 +256,7 @@ const main: RequestHandler = async (req, res) => {
     }
 };
 
-export const webhookVirtualAccount: IApiRouter = {
+export const webhookEwallet: IApiRouter = {
     path,
     method,
     main,

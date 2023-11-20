@@ -132,6 +132,8 @@ const main: RequestHandler = async (req, res) => {
         type: body.type,
         voucherType: body.voucherType ? VoucherType[body.voucherType.toUpperCase()] : null,
         description: body.desc,
+        automatically: false,
+        cd: "",
     });
 
     let dataBulk: ListServerDto[] = [];

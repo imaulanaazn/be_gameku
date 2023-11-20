@@ -4,6 +4,8 @@ import { MainDto } from "./main.dto";
 export class GameDto extends MainDto {
     categoryId: string;
     name: string;
+    automatically: boolean;
+    cd: string;
     logoUrl: string;
     isPopular: boolean;
     popSequence?: number;
@@ -11,6 +13,7 @@ export class GameDto extends MainDto {
     logoDenom?: string;
     deleted: boolean;
     needServerId?: boolean;
+    needCheckId?: boolean;
     typeServerId?: ServerIdType;
     type: string;
     voucherType?: VoucherType;

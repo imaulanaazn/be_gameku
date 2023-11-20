@@ -25,6 +25,16 @@ export enum OrderStatuses {
     SUCCESS = "3",
     FAILED = "4",
     EXPIRED = "5",
+    PROCESSING = "6",
+}
+
+export enum APIGamesStatuses {
+    PENDING = "Pending",
+    SUCCESS = "Sukses",
+    FAILED = "Gagal",
+    PROCESSING = "Proses",
+    PARTIAL = "Sukses Sebagian",
+    ERROR = "Validasi Provider",
 }
 
 export enum InvoiceStatuses {

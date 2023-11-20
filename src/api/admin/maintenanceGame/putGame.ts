@@ -125,7 +125,7 @@ const main: RequestHandler = async (req, res) => {
             );
         }
         if (file["logoDenom"] && file["logoDenom"].length > 0) {
-            uploadLogoUrl = await firebaseService.uploadImg(
+            uploadLogoDenom = await firebaseService.uploadImg(
                 file["logoDenom"][0].path,
                 "banner/" + file["logoDenom"][0].filename,
             );

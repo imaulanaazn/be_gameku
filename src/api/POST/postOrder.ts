@@ -33,6 +33,7 @@ import { PromotionEntity } from "@entity/promotion.entity";
 import { ListServerService } from "@serviceInternal/listServer.service";
 import { Op } from "sequelize";
 import { OrderEntity } from "@entity/index";
+import APIGamesService from "@serviceExternal/apiGames.service";
 
 const path = "/v1/order";
 const method = "POST";
@@ -308,10 +309,35 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
-    // TODOOOOOOOOOOOO
-    // CHECK USERNAME GAME
-    // ......
-    // CHECK USERNAME GAME
+    let checkUsername;
+    if (game.needCheckId) {
+        const configApiGames = await sysConfigService.findManyBy({
+            column: "cd",
+            value: ["api_games_merchant_id", "api_games_secret_key"],
+            operator: "in",
+        });
+        const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
+        const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
+        const apiGameService = new APIGamesService({
+            merchantId: merchantId.value,
+            secretKey: secretKey.value,
+        });
+
+        checkUsername = await apiGameService.checkUsernameGame({
+            gameCode: game.cd,
+            userId: body.userId + (body.serverId || ""),
+        });
+
+        if (checkUsername.status === 0) {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        }
+
+        if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        } else if (!checkUsername.data.username) {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        }
+    }
 
     const invoiceId = `INV${new Date().getTime()}`;
     const expiredAt = dayjs().tz("Asia/Jakarta").add(payment.durationExpired, payment.durationCd).toDate();
@@ -348,6 +374,8 @@ const main: RequestHandler = async (req, res) => {
         serverId: serverName || "",
         amount: product.price,
         quantity: body.quantity,
+        webhookCount: 0,
+        username: checkUsername?.data?.username || null,
     });
 
     const response: any = {

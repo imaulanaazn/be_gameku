@@ -327,6 +327,7 @@ const main: RequestHandler = async (req, res) => {
             productId: detail.productId,
             logoUrl: game.logoUrl,
             quantity: detail.quantity,
+            username: detail.username,
             status,
             detail,
         };

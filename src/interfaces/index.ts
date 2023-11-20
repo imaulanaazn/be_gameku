@@ -16,7 +16,15 @@ export interface IApiRouterWithImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
     method: "GET" | "POST" | "PUT" | "DELETE";
     path: string;
-    auth: "guess" | "user" | "admin" | "cookie" | "webhook-internal" | "webhook-xendit" | "super-admin";
+    auth:
+        | "guess"
+        | "user"
+        | "admin"
+        | "cookie"
+        | "webhook-internal"
+        | "webhook-xendit"
+        | "super-admin"
+        | "webhook-apigames";
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
 }
@@ -24,7 +32,15 @@ export interface IApiRouterWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
     method: "GET" | "POST" | "PUT" | "DELETE";
     path: string;
-    auth: "guess" | "user" | "admin" | "cookie" | "webhook-internal" | "webhook-xendit" | "super-admin";
+    auth:
+        | "guess"
+        | "user"
+        | "admin"
+        | "cookie"
+        | "webhook-internal"
+        | "webhook-xendit"
+        | "super-admin"
+        | "webhook-apigames";
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
 }
@@ -44,8 +60,4 @@ export interface Validation {
     properties?: Array<Validation>;
     enum?: Array<string | number | boolean>;
     errorMessage?: string;
-}
-
-interface ReqWithWhatsappService extends Request {
-    whatsappService;
 }

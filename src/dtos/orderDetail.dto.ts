@@ -7,4 +7,6 @@ export class OrderDetailDto {
     gameVoucher?: string;
     amount: number;
     quantity: number;
+    webhookCount: number;
+    username?: string;
 }

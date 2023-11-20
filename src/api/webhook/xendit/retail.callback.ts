@@ -5,15 +5,18 @@ import { OrderService } from "@serviceInternal/order.service";
 import { BusinessError } from "@helper/handleError";
 import { ErrorType, InvoiceStatuses, OrderStatuses, VoucherType } from "@enum/index";
 import { ProductService } from "@serviceInternal/product.service";
-import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
-import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
+import { InvoiceService } from "@serviceInternal/invoice.service";
+import { CustomerService } from "@serviceInternal/customer.service";
+import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { GameService } from "@serviceInternal/game.service";
 import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
-import { OrderDetailService } from "@serviceInternal/orderDetail.service";
-import { CustomerService } from "@serviceInternal/customer.service";
+import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
+import APIGamesService from "@serviceExternal/apiGames.service";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { sleep } from "@helper/index";
 
-const path = "/v1/webhook/qris";
+const path = "/v1/webhook/retail";
 const method = "POST";
 const auth = "webhook-xendit";
 
@@ -21,47 +24,46 @@ const main: RequestHandler = async (req, res) => {
     const client = req.client;
     const io = req.io;
     const body: {
-        created: string;
-        business_id: string;
-        event: string;
-        api_version: string;
-        data: {
-            amount: number;
-            basket: string;
-            business_id: string;
-            channel_code: string;
-            created: string;
-            currency: string;
-            expires_at: string;
-            id: string;
-            metadata: string;
-            payment_detail: {
-                account_details: string;
-                name: string;
-                receipt_id: string;
-                source: string;
-            };
-            qr_id: string;
-            qr_string: string;
-            reference_id: string;
-            status: string;
-            type: string;
-        };
+        id: string;
+        external_id: string;
+        prefix: string;
+        payment_code: string;
+        retail_outlet_name: string;
+        name: string;
+        amount: number;
+        status: string;
+        transaction_timestamp: string;
+        payment_id: string;
+        fixed_payment_code_payment_id: string;
+        fixed_payment_code_id: string;
+        owner_id: string;
     } = req.body;
-    console.log(`Webhook QRIS diterima [${body.data.reference_id}]`);
-    console.log("Request Body", body);
+    console.log(`Webhook VA diterima [${body.external_id}]`);
+    console.log(JSON.stringify(body));
 
     const orderService = new OrderService();
     const productService = new ProductService();
     const invoiceService = new InvoiceService();
+    const sysConfigService = new SysConfigService();
+    const configApiGames = await sysConfigService.findManyBy({
+        column: "cd",
+        value: ["api_games_merchant_id", "api_games_secret_key"],
+        operator: "in",
+    });
+    const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
+    const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
+    const apiGamesService = new APIGamesService({
+        merchantId: merchantId.value,
+        secretKey: secretKey.value,
+    });
 
     const invoice = await invoiceService.findOneBy({
         column: "id",
-        value: body.data.reference_id,
+        value: body.external_id,
     });
 
     if (!invoice) {
-        throw new BusinessError(`Order tidak ditemukan dengan invoice: ${body.data.reference_id}`, ErrorType.Internal);
+        throw new BusinessError(`Order tidak ditemukan dengan invoice: ${body.external_id}`, ErrorType.Internal);
     }
 
     const order = await orderService.findOneBy({
@@ -75,7 +77,7 @@ const main: RequestHandler = async (req, res) => {
         value: order.customerId,
     });
 
-    if (body.data.status === "SUCCEEDED" && invoice.status !== InvoiceStatuses.PAID) {
+    if (body.status === "COMPLETED" && invoice.status !== InvoiceStatuses.PAID) {
         await invoiceService.updateBy({
             by: "id",
             value: invoice.id,
@@ -180,12 +182,29 @@ const main: RequestHandler = async (req, res) => {
             return;
         }
 
-        // TODO ORDER SESUAI GAME
-        // .....
-        // TODO ORDER SESUAI GAME
+        if (game.automatically) {
+            console.log(`@@@ GAME ORDER OTOMATIS ${order.game} ${order.productName} total ${orderDetail.quantity}`);
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.PROCESSING,
+                },
+            });
+            for (let i = 0; i < orderDetail.quantity; i++) {
+                const createTrxApiGames = await apiGamesService.createTransaction({
+                    invoiceId: `${order.invoiceId}_${i}`,
+                    productCode: product.code,
+                    userId: orderDetail.userId,
+                });
+                console.log(createTrxApiGames);
+                await sleep(500);
+            }
+            return;
+        }
 
         io.emit("order:success", order.id);
-    } else if (body.data.status === "FAILED") {
+    } else if (body.status === "FAILED") {
         await invoiceService.updateBy({
             by: "id",
             value: invoice.id,
@@ -206,7 +225,7 @@ const main: RequestHandler = async (req, res) => {
     }
 };
 
-export const webhookQris: IApiRouter = {
+export const webhookRetail: IApiRouter = {
     path,
     method,
     main,

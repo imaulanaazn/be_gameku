@@ -34,6 +34,12 @@ export class OrderDetailEntity extends Model<OrderDetailEntity> {
     @Column(DataType.INTEGER)
     quantity!: number;
 
+    @Column(DataType.INTEGER)
+    webhookCount!: number;
+
+    @Column(DataType.STRING(255))
+    username!: string;
+
     @BelongsTo(() => OrderEntity, "orderId")
     order!: OrderEntity;
 

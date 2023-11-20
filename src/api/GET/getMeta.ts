@@ -5,6 +5,7 @@ import { Validator } from "@helper/validator";
 import { ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { MetaDto } from "@dto/meta.dto";
 
 const path = "/v1/meta";
 const method = "GET";
@@ -14,15 +15,29 @@ const schemaValidation: Validation[] = [
     {
         name: "path",
         type: "string",
-        required: true,
+        required: false,
+    },
+    {
+        name: "only",
+        type: "string",
+        required: false,
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         path: string;
+        only: string;
     }>(schemaValidation, ValidatorType.QUERY);
     const metaService = new MetaService();
+    if (!query.path) {
+        const meta = await metaService.model.findAll({
+            ...(query.only && { attributes: ["id", ...query.only.split(",")] }),
+        });
+
+        return res.send(meta);
+    }
+
     const meta = await metaService.findOneBy({
         column: "path",
         value: query.path,
@@ -35,7 +50,6 @@ const main: RequestHandler = async (req, res) => {
         column: "cd",
         value: "logo",
     });
-    console.log(sysConfig);
     return res.send({
         ...meta.dataValues,
         icon: sysConfig.value,
