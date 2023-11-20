@@ -79,12 +79,14 @@ const main: RequestHandler = async (req, res) => {
     }
 
     let uploadLogoDenom = null;
-    if (file && file["logoDenom"]) {
-        const firebaseService = new FirebaseService();
-        uploadLogoDenom = await firebaseService.uploadImg(
-            file["logoDenom"].path,
-            "banner/" + file["logoDenom"].filename,
-        );
+    const firebaseService = new FirebaseService();
+    if (file && product.logoDenom) {
+        uploadLogoDenom = await firebaseService.updateImg(file.path, product.logoDenom, "denom/" + file.filename);
+        if (!uploadLogoDenom) {
+            throw new BusinessError("Coba lagi beberapa saat lagi", ErrorType.Internal);
+        }
+    } else if (file) {
+        uploadLogoDenom = await firebaseService.uploadImg(file.path, "denom/" + file.filename);
         if (!uploadLogoDenom) {
             throw new BusinessError("Coba lagi beberapa saat lagi", ErrorType.Internal);
         }

@@ -121,13 +121,13 @@ const main: RequestHandler = async (req, res) => {
         if (file["logoUrl"] && file["logoUrl"].length > 0) {
             uploadLogoUrl = await firebaseService.uploadImg(
                 file["logoUrl"][0].path,
-                "banner/" + file["logoUrl"][0].filename,
+                "game/" + file["logoUrl"][0].filename,
             );
         }
         if (file["logoDenom"] && file["logoDenom"].length > 0) {
             uploadLogoDenom = await firebaseService.uploadImg(
                 file["logoDenom"][0].path,
-                "banner/" + file["logoDenom"][0].filename,
+                "denom/" + file["logoDenom"][0].filename,
             );
         }
     }
@@ -167,8 +167,8 @@ const main: RequestHandler = async (req, res) => {
             dataBulk.push({
                 id: uuid(),
                 gameId: game.id,
-                label: data.name,
-                value: data.code,
+                label: data.label,
+                value: data.value,
             });
         }
         await listServerService.model.bulkCreate(dataBulk);

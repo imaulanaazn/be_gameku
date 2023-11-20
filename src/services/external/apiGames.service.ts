@@ -49,11 +49,16 @@ class APIGamesService {
                 method: "GET",
             });
 
-            const res = await req.json();
-
-            console.log(res);
-            console.log("FINISH CHECK USERNAME TO API GAMES");
-            return res;
+            if (req.ok) {
+                const res = await req.json();
+                console.log(JSON.stringify(res));
+                console.log("FINISH CHECK USERNAME TO API GAMES");
+                return res;
+            } else {
+                console.log(req);
+                console.log("FINISH CHECK USERNAME TO API GAMES");
+                throw new BusinessError("Something wrong, please wait and try again", ErrorType.Internal);
+            }
         } catch (error) {
             console.error(error);
             throw new BusinessError("Something wrong, please wait and try again", ErrorType.Internal);

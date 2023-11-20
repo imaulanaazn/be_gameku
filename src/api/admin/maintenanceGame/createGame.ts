@@ -100,7 +100,7 @@ const main: RequestHandler = async (req, res) => {
     const firebaseService = new FirebaseService();
     const uploadLogoUrl = await firebaseService.uploadImg(
         file["logoUrl"][0].path,
-        "banner/" + file["logoUrl"][0].filename,
+        "game/" + file["logoUrl"][0].filename,
     );
     if (!uploadLogoUrl) {
         throw new BusinessError("Coba lagi beberapa saat lagi", ErrorType.Internal);
@@ -110,7 +110,7 @@ const main: RequestHandler = async (req, res) => {
     if (file["logoDenom"] && file["logoDenom"].length !== 0) {
         uploadLogoDenom = await firebaseService.uploadImg(
             file["logoDenom"][0].path,
-            "banner/" + file["logoDenom"][0].filename,
+            "denom/" + file["logoDenom"][0].filename,
         );
         if (!uploadLogoDenom) {
             throw new BusinessError("Coba lagi beberapa saat lagi", ErrorType.Internal);
@@ -142,8 +142,8 @@ const main: RequestHandler = async (req, res) => {
             dataBulk.push({
                 id: uuid(),
                 gameId: newGame.id,
-                label: data.name,
-                value: data.code,
+                label: data.label,
+                value: data.value,
             });
         }
         const listServerService = new ListServerService();
