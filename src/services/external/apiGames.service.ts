@@ -80,6 +80,7 @@ class APIGamesService {
                 merchant_id: this.merchantId,
                 produk: data.productCode,
                 tujuan: data.userId,
+                server_id: data.serverId,
                 signature,
             });
             const req = await fetch(url, {
@@ -89,6 +90,7 @@ class APIGamesService {
                     merchant_id: this.merchantId,
                     produk: data.productCode,
                     tujuan: data.userId,
+                    server_id: data.serverId,
                     signature,
                 }),
             });

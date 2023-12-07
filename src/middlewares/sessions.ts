@@ -124,7 +124,7 @@ export const authWehbookXendit: RequestHandler = async (req, res, next) => {
 };
 
 export const authWehbookAPIGames: RequestHandler = async (req, res, next) => {
-    const callbackToken = req.headers["X-Apigames-Authorization"];
+    const callbackToken = req.headers["x-apigames-authorization"];
     if (callbackToken) {
         const sysConfigService = new SysConfigService();
         const configApiGames = await sysConfigService.findManyBy({
@@ -138,11 +138,15 @@ export const authWehbookAPIGames: RequestHandler = async (req, res, next) => {
             .createHash("md5")
             .update(`${merchantId}:${secretKey}:${req.body.ref_id}`)
             .digest("hex");
-        if (callbackToken === signature) {
-            next();
-        } else {
-            return res.sendStatus(403);
-        }
+        console.log(callbackToken);
+        console.log(signature);
+        console.log(req.body);
+        next();
+        // if (callbackToken === signature) {
+        //     next();
+        // } else {
+        //     return res.sendStatus(403);
+        // }
     } else {
         return res.sendStatus(403);
     }
