@@ -48,9 +48,11 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const productService = new ProductService();
-    const products = await productService.findManyBy({
-        column: "gameId",
-        value: game.id,
+    const products = await productService.model.findAll({
+        where: {
+            gameId: game.id,
+            isActive: true,
+        },
     });
 
     const listServerService = new ListServerService();

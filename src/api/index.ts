@@ -88,6 +88,7 @@ import { putPromotion } from "./admin/maintenancePromoCode/putPromotion";
 import { putCustomerImage } from "./PUT/putUploadImage";
 import { webhookApiGames } from "./webhook/apigames";
 import { cronjobSetExpiredPayment } from "./cronjob/setExpiredPayment";
+import { putArchiveProduct } from "./admin/maintenanceProduct/putChangeStatusProduct";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -141,6 +142,7 @@ const apis = [
     getAllDenomPagination,
     getAllDenomOnlyAttr,
     deleteProduct,
+    putArchiveProduct,
 
     // Maintenance User
     getAllUserPagination,

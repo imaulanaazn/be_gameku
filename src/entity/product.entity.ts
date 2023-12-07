@@ -34,6 +34,11 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @AllowNull(false)
+    @ForeignKey(() => GameEntity)
+    @Column(DataType.STRING(40))
+    gameId!: string;
+
     @Column(DataType.STRING(255))
     name!: string;
 
@@ -53,10 +58,9 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.STRING(255))
     logoDenom: string;
 
-    @AllowNull(false)
-    @ForeignKey(() => GameEntity)
-    @Column(DataType.STRING(40))
-    gameId!: string;
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    isActive!: boolean;
 
     @AllowNull(false)
     @Default(false)

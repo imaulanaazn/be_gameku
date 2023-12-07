@@ -40,18 +40,22 @@ const main: RequestHandler = async (req, res) => {
 
     let products: ProductEntity | ProductEntity[];
     if (query.gameId) {
-        products = await productService.findManyBy({
-            column: "gameId",
-            value: query.gameId,
+        products = await productService.model.findAll({
+            where: {
+                gameId: query.gameId,
+                isActive: true,
+            },
         });
 
         if (!products.length) {
             throw new BusinessError(`Produk dengan game ID: ${query.gameId} tidak ditemukan`, ErrorType.NotFound);
         }
     } else {
-        products = await productService.findOneBy({
-            column: "id",
-            value: query.productId,
+        products = await productService.model.findOne({
+            where: {
+                id: query.productId,
+                isActive: true,
+            },
         });
 
         if (!products) {

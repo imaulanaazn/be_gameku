@@ -39,6 +39,12 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: false,
     },
+    {
+        name: "status",
+        type: "string",
+        required: false,
+        enum: ["active", "archive"],
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
@@ -48,6 +54,7 @@ const main: RequestHandler = async (req, res) => {
         code: string;
         price: VoucherType;
         gameId: "true" | "false";
+        status: "active" | "archive";
     }>(schemaValidation, ValidatorType.BODY);
     const file = req.file;
     console.log(body);
@@ -81,6 +88,7 @@ const main: RequestHandler = async (req, res) => {
         priceBuy: parseInt(body.priceBuy),
         logoDenom: uploadLogoDenom,
         gameId: game.id,
+        isActive: body.status === "active",
         deleted: false,
     });
 
