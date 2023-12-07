@@ -30,6 +30,12 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: false,
     },
+    {
+        name: "status",
+        type: "string",
+        required: false,
+        enum: ["active", "archive"],
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
@@ -37,8 +43,10 @@ const main: RequestHandler = async (req, res) => {
         name?: string;
         code?: string;
         gameId?: string;
+        status?: "active" | "archive";
     }>(schemaValidation, ValidatorType.QUERY, true);
     const clearQuery = JSON.parse(JSON.stringify(query));
+    delete clearQuery.status;
     delete clearQuery.page;
     delete clearQuery.sort;
     delete clearQuery.order;
@@ -51,6 +59,13 @@ const main: RequestHandler = async (req, res) => {
 
     let where: any = {};
     if (column.length > 4) {
+        if (query.status) {
+            where = {
+                ...where,
+                isActive: query.status === "active",
+            };
+        }
+
         for (const key of Object.keys(clearQuery)) {
             where[key] = { [Op.like]: `%${clearQuery[key]}%` };
         }
