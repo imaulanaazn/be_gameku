@@ -37,6 +37,9 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.STRING(255))
     name!: string;
 
+    @Column(DataType.BOOLEAN)
+    automatically!: boolean;
+
     @Column(DataType.STRING(255))
     code!: string;
 

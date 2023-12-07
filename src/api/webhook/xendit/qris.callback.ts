@@ -195,7 +195,7 @@ const main: RequestHandler = async (req, res) => {
             return;
         }
 
-        if (game.automatically) {
+        if (product.automatically) {
             console.log(`@@@ GAME ORDER OTOMATIS ${order.game} ${order.productName} total ${orderDetail.quantity}`);
             await orderService.updateBy({
                 by: "id",
@@ -209,6 +209,7 @@ const main: RequestHandler = async (req, res) => {
                     invoiceId: `${order.invoiceId}_${i}`,
                     productCode: product.code,
                     userId: orderDetail.userId,
+                    serverId: orderDetail.serverId || "",
                 });
                 console.log(createTrxApiGames);
                 await sleep(500);
