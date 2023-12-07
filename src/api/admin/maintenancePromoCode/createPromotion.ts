@@ -91,6 +91,7 @@ const main: RequestHandler = async (req, res) => {
         startAt: string;
         endAt: string;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
 
     const promotionService = new PromotionService();
 

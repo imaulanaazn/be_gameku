@@ -22,7 +22,7 @@ const main: RequestHandler = async (req, res) => {
     const body = new Validator(req, res).process<{
         urlVideo: string;
     }>(schemaValidation, ValidatorType.BODY);
-
+    console.log(body);
     const youtubeService = new VideoService();
     const getData = await youtubeService.getData(body.urlVideo);
     if (!getData) {

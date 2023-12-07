@@ -56,6 +56,8 @@ const main: RequestHandler = async (req, res) => {
         gameId: "true" | "false";
     }>(schemaValidation, ValidatorType.BODY);
     const file = req.file;
+    console.log(body);
+    console.log(file);
     const productService = new ProductService();
     const product = await productService.findOneBy({
         column: "id",

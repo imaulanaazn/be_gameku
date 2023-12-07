@@ -29,6 +29,8 @@ const main: RequestHandler = async (req, res) => {
         type: "logo" | "bg_login" | "bg_register" | "bg_checkorder" | "website_status" | "bg_profile" | "logo_footer";
         value: string;
     }>(schemaValidation, ValidatorType.QUERY);
+    console.log(query)
+    console.log(req.file)
 
     const sysConfigService = new SysConfigService();
     const config = await sysConfigService.findOneBy({

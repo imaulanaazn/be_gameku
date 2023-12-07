@@ -103,6 +103,7 @@ const main: RequestHandler = async (req, res) => {
     }>(schemaValidation, ValidatorType.BODY);
     console.log("REQUEST BODY ORDER");
     console.log(body);
+    console.log(req.headers["x-forwarded-for"]);
     const client = req.client;
     const io = req.io;
 
@@ -205,7 +206,11 @@ const main: RequestHandler = async (req, res) => {
                         where: {
                             promoCd: body.promoCode,
                             status: {
-                                [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS],
+                                [Op.in]: [
+                                    OrderStatuses.PENDING_ORDER,
+                                    OrderStatuses.SUCCESS,
+                                    OrderStatuses.PENDING_PAYMENT,
+                                ],
                             },
                         },
                     },
@@ -236,6 +241,9 @@ const main: RequestHandler = async (req, res) => {
                     [Op.in]: customerId,
                 },
                 promoCd: body.promoCode,
+                status: {
+                    [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS, OrderStatuses.PENDING_PAYMENT],
+                },
             },
         });
 

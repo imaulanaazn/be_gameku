@@ -44,7 +44,7 @@ const main: RequestHandler = async (req, res) => {
         productId: string;
         code: string;
     }>(schemaValidation, ValidatorType.BODY);
-
+    console.log(body);
     const gameVoucherService = new GameVoucherService();
     const voucher = await gameVoucherService.findOneBy({
         column: "id",

@@ -75,6 +75,8 @@ const main: RequestHandler = async (req, res) => {
         userId?: string;
         serverId?: string;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
+    console.log(req.headers["x-forwarded-for"]);
     if (body.userId || body.serverId) {
         const orderDetailService = new OrderDetailService();
         const conditions = [];
@@ -96,7 +98,11 @@ const main: RequestHandler = async (req, res) => {
                     where: {
                         promoCd: body.promoCode,
                         status: {
-                            [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS],
+                            [Op.in]: [
+                                OrderStatuses.PENDING_ORDER,
+                                OrderStatuses.SUCCESS,
+                                OrderStatuses.PENDING_PAYMENT,
+                            ],
                         },
                     },
                 },
@@ -130,6 +136,9 @@ const main: RequestHandler = async (req, res) => {
                 [Op.in]: customerId,
             },
             promoCd: body.promoCode,
+            status: {
+                [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS, OrderStatuses.PENDING_PAYMENT],
+            },
         },
     });
 

@@ -29,6 +29,7 @@ const main: RequestHandler = async (req, res) => {
         id: string;
         content: string;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
 
     const whatsappTemplateService = new WhatsappTemplateService();
     const whatsappTemplate = await whatsappTemplateService.findOneBy({

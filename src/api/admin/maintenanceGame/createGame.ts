@@ -83,6 +83,8 @@ const main: RequestHandler = async (req, res) => {
         listServerId: string;
     }>(schemaValidation, ValidatorType.BODY);
     const file = req.files;
+    console.log(body);
+    console.log(file);
     if (!file || !file["logoUrl"] || file["logoUrl"].length === 0) {
         throw new BusinessError("File gambar tidak valid", ErrorType.BadRequest);
     }

@@ -39,7 +39,7 @@ const main: RequestHandler = async (req, res) => {
         icon: string;
         url: string;
     }>(schemaValidation, ValidatorType.BODY);
-
+    console.log(body);
     const sosmedService = new SocialMediaService();
     const checkData = await sosmedService.findOneBy({
         column: "id",

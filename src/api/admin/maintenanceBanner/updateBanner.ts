@@ -44,6 +44,8 @@ const main: RequestHandler = async (req, res) => {
         eventUrl: string;
         external: boolean;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
+    console.log(req.file);
     body["external"] = (body.external as any) === "true";
 
     const firebaseService = new FirebaseService();

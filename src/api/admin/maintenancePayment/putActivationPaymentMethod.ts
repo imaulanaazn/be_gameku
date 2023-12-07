@@ -31,6 +31,7 @@ const main: RequestHandler = async (req, res) => {
         id: string[];
         isActive: boolean;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
 
     const paymentMethodService = new PaymentMethodService();
     await paymentMethodService.updateBy({

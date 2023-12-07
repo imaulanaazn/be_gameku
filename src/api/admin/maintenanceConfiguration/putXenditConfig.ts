@@ -13,6 +13,7 @@ const main: RequestHandler = async (req, res) => {
         cd: string;
         value: string;
     }[] = req.body;
+    console.log(body);
 
     if (body.length === 0) {
         throw new BusinessError("Data harus diisi", ErrorType.Validation);

@@ -55,7 +55,8 @@ const main: RequestHandler = async (req, res) => {
         password: string;
         otp: string;
     }>(schemaValidation, ValidatorType.BODY);
-
+    console.log(body);
+    console.log(req.headers["x-forwarded-for"]);
     const io = req.io;
 
     const otpService = new CustomerOtpService();

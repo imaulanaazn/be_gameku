@@ -90,6 +90,8 @@ const main: RequestHandler = async (req, res) => {
         listServerId: string;
     }>(schemaValidation, ValidatorType.BODY);
     const file = req.files;
+    console.log(body);
+    console.log(file);
 
     const gameService = new GameService();
     const firebaseService = new FirebaseService();
@@ -180,7 +182,7 @@ const main: RequestHandler = async (req, res) => {
         data: dataUpdate,
     });
 
-    const clearDesc = body.desc.replace(/<[^>]+>/g, "");
+    const clearDesc = body.desc.replace(/<[^>]+>/g, " ");
     const metaService = new MetaService();
     await metaService.updateBy({
         by: "slug",

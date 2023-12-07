@@ -31,7 +31,7 @@ const main: RequestHandler = async (req, res) => {
         username: string;
         password: string;
     }>(schemaValidation, ValidatorType.BODY);
-
+    console.log(body);
     const adminService = new AdminService();
     const config = new Config();
     const admin = await adminService.findUserWithAllAttr("username", body.username);

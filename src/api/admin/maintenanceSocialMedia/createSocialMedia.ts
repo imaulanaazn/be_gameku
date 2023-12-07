@@ -33,6 +33,7 @@ const main: RequestHandler = async (req, res) => {
         icon: string;
         url: string;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
 
     const socialMediaService = new SocialMediaService();
     const socialMedia = await socialMediaService.create({

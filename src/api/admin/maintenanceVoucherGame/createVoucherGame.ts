@@ -38,7 +38,7 @@ const main: RequestHandler = async (req, res) => {
         productId: string;
         code: string;
     }>(schemaValidation, ValidatorType.BODY);
-
+    console.log(body);
     const gameService = new GameService();
     const game = await gameService.findOneBy({
         column: "id",

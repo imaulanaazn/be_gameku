@@ -30,6 +30,7 @@ const main: RequestHandler = async (req, res) => {
     const params = new Validator(req, res).process<{
         id: string;
     }>(schemaValidation, ValidatorType.PARAMS);
+    console.log(params);
 
     const config = new Config();
     const orderService = new OrderService();

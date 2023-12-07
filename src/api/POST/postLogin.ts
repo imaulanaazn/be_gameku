@@ -40,6 +40,8 @@ const main: RequestHandler = async (req, res) => {
         password: string;
         otp: string;
     }>(schemaValidation, ValidatorType.BODY);
+    console.log(body);
+    console.log(req.headers["x-forwarded-for"]);
     const convertedNumber = body.username.replace(/^(\+62|62|0)?(\d+)/, "0$2");
     const isMobileNo = validator.isMobilePhone(convertedNumber, "id-ID");
     const isEmail = validator.isEmail(body.username);
