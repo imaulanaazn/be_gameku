@@ -6,7 +6,7 @@ const transport = new DailyRotateFile({
     filename: "logs/logger-management-gasskeuntopup %DATE%.log",
     datePattern: "YYYY-MM-DD",
     maxSize: "100m",
-    maxFiles: "5d",
+    maxFiles: "120d",
 });
 
 const logger = winston.createLogger({
