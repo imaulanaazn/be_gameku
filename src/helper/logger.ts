@@ -36,6 +36,90 @@ const logger = winston.createLogger({
     ],
 });
 
+const webhookTransport = new DailyRotateFile({
+    filename: "logs/webhook/logger-webhook-%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    maxSize: "100m",
+    maxFiles: "120d",
+});
+
+const loggerWebhookLapakGaming = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:sss" }),
+        winston.format.printf(({ timestamp, level, message }) => {
+            if (typeof message === "object") {
+                return `[${timestamp}] ${util.inspect(message, { depth: null })}`;
+            }
+
+            return `[${timestamp}] ${message}`;
+        }),
+    ),
+    transports: [
+        webhookTransport,
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.printf(({ timestamp, level, message }) => {
+                    if (typeof message === "object") {
+                        return `[${timestamp}] ${util.inspect(message, { depth: null, colors: true })}`;
+                    }
+
+                    return `[${timestamp}] ${message}`;
+                }),
+            ),
+        }),
+    ],
+});
+
+const cronjobTransport = new DailyRotateFile({
+    filename: "logs/cronjob/logger-cronjob-%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    maxSize: "100m",
+    maxFiles: "120d",
+});
+
+const loggerCronjob = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:sss" }),
+        winston.format.printf(({ timestamp, level, message }) => {
+            if (typeof message === "object") {
+                return `[${timestamp}] ${util.inspect(message, { depth: null })}`;
+            }
+
+            return `[${timestamp}] ${message}`;
+        }),
+    ),
+    transports: [
+        cronjobTransport,
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.printf(({ timestamp, level, message }) => {
+                    if (typeof message === "object") {
+                        return `[${timestamp}] ${util.inspect(message, { depth: null, colors: true })}`;
+                    }
+
+                    return `[${timestamp}] ${message}`;
+                }),
+            ),
+        }),
+    ],
+});
+
+export const createLogCronjob = () => {
+    return {
+        log: loggerCronjob.info.bind(loggerCronjob),
+        warn: loggerCronjob.warn.bind(loggerCronjob),
+        error: loggerCronjob.error.bind(loggerCronjob),
+    };
+};
+
+export const createLogWebhook = () => {
+    return {
+        log: loggerWebhookLapakGaming.info.bind(loggerWebhookLapakGaming),
+        warn: loggerWebhookLapakGaming.warn.bind(loggerWebhookLapakGaming),
+        error: loggerWebhookLapakGaming.error.bind(loggerWebhookLapakGaming),
+    };
+};
+
 console.log = function (...msg) {
     if (msg.length > 1) {
         for (const log of msg) {

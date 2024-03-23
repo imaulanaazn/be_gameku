@@ -1,5 +1,6 @@
 import { Config } from "@config/index";
 import { ProductDto } from "@dto/product.dto";
+import { createLogCronjob } from "@helper/logger";
 
 interface IRequest<T> {
     method: "POST" | "GET" | "PATCH" | "DELETE";
@@ -154,7 +155,7 @@ export class LapakGamingService {
         };
 
         if (data.method === "POST" || data.method === "PATCH") {
-            console.log("Request Body to Lapak Gaming : " + JSON.stringify(data.data));
+            createLogCronjob().log("Request Body to Lapak Gaming : " + JSON.stringify(data.data));
             config["body"] = JSON.stringify(data.data);
             config["headers"]["Content-Type"] = "application/json";
         }
@@ -162,10 +163,10 @@ export class LapakGamingService {
         try {
             const response = await fetch(`${this.baseUrl}/${data.endpoint}`, config);
             const res = await response.json();
-            console.log("Response Body from Lapak Gaming : " + JSON.stringify(res));
+            createLogCronjob().log("Response Body from Lapak Gaming : " + JSON.stringify(res));
             return res;
         } catch (error) {
-            console.log(error);
+            createLogCronjob().log(error);
             const message = `An error occurred: ${error.message}`;
             throw new Error(message);
         }

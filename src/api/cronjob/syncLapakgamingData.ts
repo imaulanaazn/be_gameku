@@ -23,9 +23,12 @@ const main: RequestHandler = async (req, res) => {
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findManyBy({
         column: "cd",
-        value: ["api_key_lapakgaming"],
+        value: ["api_key_lapakgaming", "percentage_prices", "percentage_prices_reseller"],
         operator: "in",
     });
+
+    const percentageUser = sysConfig.find((item) => item.cd === "percentage_prices");
+    const percentageReseller = sysConfig.find((item) => item.cd === "percentage_prices_reseller");
 
     const providerService = new ProviderService();
     const provider = await providerService.findOneBy({
@@ -41,15 +44,12 @@ const main: RequestHandler = async (req, res) => {
     const apiKey = sysConfig.find((item) => item.cd === "api_key_lapakgaming");
     const lapakgamingService = new LapakGamingService(apiKey.value);
     const lapakgamingGames = await lapakgamingService.getGames();
+    const allProductsFromLapakGaming = await lapakgamingService.getAllProducts();
     const dataGamesLapakGaming = lapakgamingGames.data.categories;
 
     let count = 0;
     for (const gameLapakGaming of dataGamesLapakGaming) {
         count++;
-        const productsLapakGaming = await lapakgamingService.getProductByGamesCode({
-            gameCd: gameLapakGaming.code,
-        });
-
         const gameDb = games.find((item) => item.cd === gameLapakGaming.code);
         const serverId = gameLapakGaming.forms.find((item) => item.name === "additional_id");
         const needServerId = serverId ? true : false;
@@ -91,6 +91,9 @@ const main: RequestHandler = async (req, res) => {
                 await listServerService.model.bulkCreate(savedData);
             }
 
+            const productsLapakGaming = await lapakgamingService.getProductByGamesCode({
+                gameCd: gameLapakGaming.code,
+            });
             const productService = new ProductService();
             const productData = productsLapakGaming.data.products.map((item) => {
                 return {
@@ -99,8 +102,8 @@ const main: RequestHandler = async (req, res) => {
                     name: item.name,
                     automatically: true,
                     code: item.code,
-                    price: item.price + (item.price * 3) / 100,
-                    resellerPrice: item.price + (item.price * 1) / 100,
+                    price: item.price + (item.price * parseInt(percentageUser.value)) / 100,
+                    resellerPrice: item.price + (item.price * parseInt(percentageReseller.value)) / 100,
                     priceBuy: item.price,
                     logoDenom: "",
                     gameId: gameId,
@@ -108,8 +111,6 @@ const main: RequestHandler = async (req, res) => {
                     isActive: item.status === "available" ? true : false,
                 };
             });
-            console.log(productData);
-
             await productService.model.bulkCreate(productData);
         } else {
             const productService = new ProductService();
@@ -119,14 +120,15 @@ const main: RequestHandler = async (req, res) => {
             });
 
             for (const prod of prodsDb) {
-                const prodLapak = productsLapakGaming.data.products.find((item) => item.code === prod.code);
+                const prodLapak = allProductsFromLapakGaming.data.products.find((item) => item.code === prod.code);
                 if (prodLapak) {
                     await productService.updateBy({
                         by: "id",
                         value: prod.id,
                         data: {
-                            price: prodLapak.price + (prodLapak.price * 3) / 100,
-                            resellerPrice: prodLapak.price + (prodLapak.price * 1) / 100,
+                            price: prodLapak.price + (prodLapak.price * parseInt(percentageUser.value)) / 100,
+                            resellerPrice:
+                                prodLapak.price + (prodLapak.price * parseInt(percentageReseller.value)) / 100,
                             priceBuy: prodLapak.price,
                             isActive: prodLapak.status === "available" ? true : false,
                         },
@@ -135,9 +137,9 @@ const main: RequestHandler = async (req, res) => {
             }
         }
 
-        await sleep(1000);
+        await sleep(500);
     }
-    return res.send(lapakgamingGames);
+    return res.sendStatus(200);
 };
 
 export const syncLapakgamingData: IApiRouter = {

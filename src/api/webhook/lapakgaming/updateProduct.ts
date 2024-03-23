@@ -8,6 +8,8 @@ import { CustomerService } from "@serviceInternal/customer.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import { Config } from "@config/index";
 import { ProductService } from "@serviceInternal/product.service";
+import { createLogWebhook } from "@helper/logger";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
 
 const path = "/v1/webhook/lapakgaming-product";
 const method = "POST";
@@ -29,9 +31,20 @@ const main: RequestHandler = async (req, res) => {
         };
     } = req.body;
 
-    console.log("@@@ START TRIGGER WEBHOOK FOR UPDATE DATA PRODUCT LAPAK GAMING");
-    console.log(body);
+    createLogWebhook().log("@@@ START TRIGGER WEBHOOK FOR UPDATE DATA PRODUCT LAPAK GAMING");
+    createLogWebhook().log(body);
     res.sendStatus(200);
+
+    const sysConfigService = new SysConfigService();
+    const sysConfig = await sysConfigService.findManyBy({
+        column: "cd",
+        value: ["percentage_prices", "percentage_prices_reseller"],
+        operator: "in",
+    });
+
+    const percentageUser = sysConfig.find((item) => item.cd === "percentage_prices");
+    const percentageReseller = sysConfig.find((item) => item.cd === "percentage_prices_reseller");
+
     const productService = new ProductService();
     const product = await productService.findOneBy({
         column: "code",
@@ -39,7 +52,7 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (!product) {
-        console.log(`Product dengan code ${body.data.code} tidak kita simpan`);
+        createLogWebhook().log(`Product dengan code ${body.data.code} tidak kita simpan`);
         return;
     }
 
@@ -47,14 +60,14 @@ const main: RequestHandler = async (req, res) => {
         by: "id",
         value: product.id,
         data: {
-            price: body.data.price + (body.data.price * 3) / 100,
-            resellerPrice: body.data.price + (body.data.price * 1) / 100,
+            price: body.data.price + (body.data.price * parseInt(percentageUser.value)) / 100,
+            resellerPrice: body.data.price + (body.data.price * parseInt(percentageReseller.value)) / 100,
             priceBuy: body.data.price,
             isActive: body.data.status === "available" ? true : false,
         },
     });
 
-    console.log("@@@ END TRIGGER WEBHOOK FOR UPDATE DATA PRODUCT LAPAK GAMING");
+    createLogWebhook().log("@@@ END TRIGGER WEBHOOK FOR UPDATE DATA PRODUCT LAPAK GAMING");
 };
 
 export const webhookLapakGamingUpdateProduct: IApiRouter = {
