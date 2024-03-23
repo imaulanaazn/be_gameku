@@ -11,8 +11,9 @@ import {
     Scopes,
     DefaultScope,
     HasMany,
+    HasOne,
 } from "sequelize-typescript";
-import { OrderStatuses } from "@enum/index";
+import { OrderStatuses, OrderType } from "@enum/index";
 import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, PromotionEntity } from ".";
 
 @DefaultScope(() => ({
@@ -36,6 +37,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.STRING(40))
     invoiceId!: string;
 
+    @Column(DataType.STRING(255))
+    extTrxId?: string;
+
     @ForeignKey(() => CustomerEntity)
     @Column(DataType.STRING(40))
     customerId!: string;
@@ -47,6 +51,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @ForeignKey(() => PromotionEntity)
     @Column(DataType.STRING(40))
     promoId!: string;
+
+    @Column(DataType.STRING(10))
+    type: OrderType;
 
     @Column(DataType.STRING(255))
     game!: string;
@@ -86,7 +93,7 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.DATE)
     completedAt!: Date | string;
 
-    @HasMany(() => OrderDetailEntity, "orderId")
+    @HasOne(() => OrderDetailEntity, "orderId")
     orderDetail!: OrderDetailEntity;
 
     @BelongsTo(() => InvoiceEntity, "invoiceId")

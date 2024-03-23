@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { CustomerService, GameService, OrderService, ProductService } from "@serviceInternal/index";
-import { ErrorType, OrderStatuses, ValidatorType } from "@enum/index";
+import { ErrorType, OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { BusinessError } from "@helper/handleError";
 import { CustomerEntity } from "@entity/customer.entity";
@@ -67,6 +67,20 @@ const main = async (req: Request, res: Response) => {
         {
             column: query.mobileNumber ? "customerId" : "invoiceId",
             value: query.mobileNumber ? customer.id : query.invoice,
+            only: [
+                "id",
+                "invoiceId",
+                "game",
+                "paymentMethod",
+                "paymentMethodId",
+                "productName",
+                "totalAmt",
+                "feeAmt",
+                "discAmt",
+                "promoCd",
+                "status",
+                "createdAt",
+            ],
         },
         {
             page: query.page,
@@ -74,6 +88,11 @@ const main = async (req: Request, res: Response) => {
             order: query.order,
             limit: query.limit,
         },
+        // {
+        //     column: "type",
+        //     // @ts-ignore
+        //     value: [OrderType.TOPUP, null],
+        // },
     );
     const invoiceId = orders.rows.map((data) => data.invoiceId);
     const invoices = await invoiceService.findManyBy({

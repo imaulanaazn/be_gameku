@@ -14,6 +14,7 @@ import {
     FeeType,
     InvoiceStatuses,
     OrderStatuses,
+    OrderType,
     PaymentsCategory,
     ServerIdType,
     ValidatorType,
@@ -34,6 +35,7 @@ import { ListServerService } from "@serviceInternal/listServer.service";
 import { Op } from "sequelize";
 import { OrderEntity } from "@entity/index";
 import APIGamesService from "@serviceExternal/apiGames.service";
+import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
 
 const path = "/v1/order";
 const method = "POST";
@@ -319,6 +321,24 @@ const main: RequestHandler = async (req, res) => {
 
     let checkUsername;
     if (game.needCheckId) {
+        // const checkingGameService = new CheckingGameIdService();
+        // const checkGameId = await checkingGameService.checking({
+        //     gameCd: game.cd,
+        //     userId: body.userId,
+        //     ...(body.serverId && { serverId: body.serverId }),
+        // });
+
+        // if (!checkGameId) {
+        //     throw new BusinessError(
+        //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
+        //         ErrorType.BadRequest,
+        //     );
+        // }
+        // if (game.cd === "VALORANT") {
+        //     username = body.userId?.split("#")[0] || body.userId;
+        // } else {
+        //     username = checkGameId;
+        // }
         const configApiGames = await sysConfigService.findManyBy({
             column: "cd",
             value: ["api_games_merchant_id", "api_games_secret_key"],
@@ -372,6 +392,7 @@ const main: RequestHandler = async (req, res) => {
         productName: product.name,
         paymentMethod: payment.name,
         amtBuy: Math.ceil(product.price * body.quantity),
+        type: OrderType.TOPUP,
     });
 
     const orderDetail = await orderDetailService.create({
@@ -383,6 +404,7 @@ const main: RequestHandler = async (req, res) => {
         amount: product.price,
         quantity: body.quantity,
         webhookCount: 0,
+        // username: username || null,
         username: checkUsername?.data?.username || null,
     });
 

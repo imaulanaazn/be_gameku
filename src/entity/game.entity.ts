@@ -25,6 +25,9 @@ export class GameEntity extends Model<GameEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @Column(DataType.STRING(40))
+    provider!: string;
+
     @ForeignKey(() => GameCategoryEntity)
     @Column(DataType.STRING(40))
     categoryId!: string;

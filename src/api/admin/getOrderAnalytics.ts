@@ -1,5 +1,5 @@
 import { OrderEntity } from "@entity/order.entity";
-import { ErrorType, OrderStatuses, ValidatorType } from "@enum/index";
+import { ErrorType, OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
@@ -59,6 +59,7 @@ const main: RequestHandler = async (req, res) => {
                     [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
                 },
                 status: OrderStatuses.SUCCESS,
+                // type: { [Op.in]: [OrderType.TOPUP, null] },
             },
         });
 
@@ -91,6 +92,7 @@ const main: RequestHandler = async (req, res) => {
                 createdAt: {
                     [Op.between]: [_30daysAgo, endDate],
                 },
+                // type: { [Op.in]: [OrderType.TOPUP, null] },
             },
             group: [fn("DATE", literal("CONVERT_TZ(created_at, '+00:00', '+07:00')"))],
             order: [fn("DATE", literal("CONVERT_TZ(created_at, '+00:00', '+07:00')"))],
@@ -148,6 +150,7 @@ const main: RequestHandler = async (req, res) => {
                 createdAt: {
                     [Op.between]: [_30daysAgo, endDate],
                 },
+                // type: { [Op.in]: [OrderType.TOPUP, null] },
             },
         });
 
@@ -163,6 +166,7 @@ const main: RequestHandler = async (req, res) => {
                 createdAt: {
                     [Op.between]: [_60daysAgo, _30daysAgo],
                 },
+                // type: { [Op.in]: [OrderType.TOPUP, null] },
             },
         });
 
@@ -173,6 +177,9 @@ const main: RequestHandler = async (req, res) => {
         });
     } else if (query.type === "latestOrder") {
         const orders = await orderService.find<OrderEntity[]>({
+            // where: {
+            //     type: { [Op.in]: [OrderType.TOPUP, null] },
+            // },
             offset: 0,
             limit: 5,
             order: [["createdAt", "DESC"]],
@@ -249,6 +256,7 @@ const main: RequestHandler = async (req, res) => {
                 createdAt: {
                     [Op.between]: [_30daysAgo, dateNow],
                 },
+                // type: { [Op.in]: [OrderType.TOPUP, null] },
             },
             attributes: ["game"],
         });

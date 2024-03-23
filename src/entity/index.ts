@@ -20,3 +20,6 @@ export * from "./gameVoucher.entity";
 export * from "./customerOtp.entity";
 export * from "./meta.entity";
 export * from "./ipAddress.entity";
+export * from "./fund.entity";
+export * from "./productCategory.entity";
+export * from "./provider.entity";

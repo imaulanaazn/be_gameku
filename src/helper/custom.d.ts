@@ -19,5 +19,12 @@ declare module "express-serve-static-core" {
     interface Request {
         io?: Server;
         client?: WhatsAppService;
+        isReseller?: boolean;
+        reseller?: {
+            isExpired: boolean;
+            data: CustomerDto;
+            expiredAt: string;
+            createdAt: string;
+        };
     }
 }

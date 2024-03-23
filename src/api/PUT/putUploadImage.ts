@@ -48,7 +48,6 @@ const main: RequestHandler = async (req, res) => {
         }
 
         upload = await firebaseService.uploadImg(file.path, "user/" + file.filename);
-        console.log(upload);
     }
 
     const updateData = {
@@ -75,6 +74,7 @@ const main: RequestHandler = async (req, res) => {
 
     return res.send({
         ...customer.dataValues,
+        password: undefined,
         ...updateData,
     });
 };

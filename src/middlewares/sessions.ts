@@ -1,14 +1,17 @@
 import * as crypto from "crypto";
-import { Request, RequestHandler } from "express";
+import { NextFunction, Request, Response, RequestHandler } from "express";
 import { ErrorStatusCode, ErrorType } from "@enum/index";
 import { Config } from "@config/index";
 import moment from "moment";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import * as jwt from "jsonwebtoken";
 import { AdminDto } from "@dto/admin.dto";
+import { EncryptionService } from "@serviceInternal/jose.service";
+import { CustomerDto } from "@dto/customer.dto";
+
+const config = new Config();
 
 export const regenerateSession = (req: Request) => {
-    const config = new Config();
     req.session.regenerate((err) => {
         if (err) {
             console.error(err);
@@ -23,7 +26,6 @@ export const regenerateSession = (req: Request) => {
 };
 
 export const createSessions: RequestHandler = (req, res, next) => {
-    const config = new Config();
     const session = req.session?.data;
     if (!session) {
         req.session.data = {
@@ -58,8 +60,8 @@ export const authLoginUser: RequestHandler = (req, res, next) => {
 };
 
 export const authAdmin: RequestHandler = (req, res, next) => {
-    const config = new Config();
     const session = req.cookies.session_gasskeun_admin;
+    console.log(session);
     try {
         const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
         if (decoded.role === config.roleAdmin || decoded.role === config.roleSuperAdmin) {
@@ -81,8 +83,34 @@ export const authAdmin: RequestHandler = (req, res, next) => {
     }
 };
 
+export const authReseller: RequestHandler = async (req, res, next) => {
+    const encryptService = new EncryptionService();
+    const session = req.cookies.session_gasskeun_reseller;
+    console.log(session);
+    try {
+        const decode = await encryptService.decryptData<CustomerDto>(session);
+        if (decode.isExpired) {
+            res.clearCookie("session_gasskeun_reseller");
+            return res.status(ErrorStatusCode.Authorization).send({
+                errorCode: ErrorType.Authorization,
+                message: "Cannot access to this resource",
+            });
+        }
+
+        req.reseller = decode;
+
+        next();
+    } catch (error) {
+        console.error(error);
+        res.clearCookie("session_gasskeun_reseller");
+        return res.status(ErrorStatusCode.Authorization).send({
+            errorCode: ErrorType.Authorization,
+            message: "Cannot access to this resource",
+        });
+    }
+};
+
 export const authSuperAdmin: RequestHandler = (req, res, next) => {
-    const config = new Config();
     const session = req.cookies.session_gasskeun_admin;
     try {
         const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
@@ -152,6 +180,49 @@ export const authWehbookAPIGames: RequestHandler = async (req, res, next) => {
     }
 };
 
-export const authWehbookInternal: RequestHandler = (req, res, next) => {
-    next();
+export const authWehbookInternal = (req: Request, res: Response, next: NextFunction) => (xApiKey: string) => {
+    const headerApiKey = req.headers["x-gasskeun-key"];
+    if (xApiKey === headerApiKey) {
+        next();
+        return;
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+};
+
+export const authWebhookDigiflazz: RequestHandler = (req, res, next) => {
+    const remoteAddr = req.headers["x-forwarded-for"] || req.connection.remoteAddress || req.socket.remoteAddress;
+    const config = new Config();
+    if (remoteAddr === config.digiflazzIp) {
+        next();
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+};
+
+export const authWebhookLapakgaming: RequestHandler = (req, res, next) => {
+    const remoteAddr = req.headers["x-forwarded-for"] || req.connection.remoteAddress || req.socket.remoteAddress;
+    const config = new Config();
+    if (remoteAddr === config.lapakGamingIP) {
+        next();
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+};
+
+export const resellerChecking: RequestHandler = async (req, res, next) => {
+    const encryptService = new EncryptionService();
+    const session = req.cookies.session_gasskeun_reseller;
+    try {
+        const decode = await encryptService.decryptData(session);
+        req.isReseller = true;
+        next();
+    } catch (error) {
+        console.log(error);
+        req.isReseller = false;
+        next();
+    }
 };

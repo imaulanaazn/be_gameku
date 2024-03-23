@@ -1,4 +1,4 @@
-import { DiscountType } from "@enum/index";
+import { DiscountType, PromotionType } from "@enum/index";
 import {
     Table,
     Column,
@@ -35,6 +35,10 @@ export class PromotionEntity extends Model<PromotionEntity> {
     @AllowNull(true)
     @Column(DataType.STRING(255))
     name!: string;
+
+    @AllowNull(true)
+    @Column(DataType.STRING(255))
+    type!: PromotionType;
 
     @AllowNull(true)
     @Column(DataType.STRING(100))

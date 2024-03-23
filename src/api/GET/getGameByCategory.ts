@@ -57,7 +57,6 @@ const main: RequestHandler = async (req, res) => {
                     },
                     deleted: false,
                 },
-                order: [["popSequence", "ASC"]],
             });
 
             return res.send(games);
@@ -68,7 +67,7 @@ const main: RequestHandler = async (req, res) => {
             value: true,
         });
 
-        const games = gamesPopular.sort((a, b) => a.popSequence - b.popSequence);
+        const games = gamesPopular.sort((a, b) => a.name.localeCompare(b.name));
 
         return res.send(games);
     }
@@ -84,7 +83,7 @@ const main: RequestHandler = async (req, res) => {
         }
 
         if (query.search) {
-            const games = await gameService.find({
+            const games = await gameService.model.findAll({
                 where: {
                     categoryId: query.categoryId,
                     name: {
@@ -94,21 +93,23 @@ const main: RequestHandler = async (req, res) => {
                 },
             });
 
-            return res.send(games);
+            const newGames = games.sort((a, b) => a.name.localeCompare(b.name));
+            return res.send(newGames);
         }
 
-        const games = await gameService.find({
+        const games = await gameService.model.findAll({
             where: {
                 categoryId: query.categoryId,
                 deleted: false,
             },
         });
 
-        return res.send(games);
+        const newGames = games.sort((a, b) => a.name.localeCompare(b.name));
+        return res.send(newGames);
     }
 
     if (query.search) {
-        const games = await gameService.find({
+        const games = await gameService.model.findAll({
             where: {
                 name: {
                     [Op.like]: query.search + "%",
@@ -117,20 +118,29 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
-        return res.send(games);
+        const newGames = games.sort((a, b) => a.name.localeCompare(b.name));
+        return res.send(newGames);
     }
 
     if (query.distinct) {
         const games = await gameService.model.findAll({
             attributes: ["id", "name"],
+            where: {
+                deleted: false,
+            },
         });
 
-        return res.send(games);
+        const newGames = games.sort((a, b) => a.name.localeCompare(b.name));
+        return res.send(newGames);
     }
 
-    const games = await gameService.findAll();
-    const filteredGame = games.filter((game) => !game.deleted);
-    return res.send(filteredGame);
+    const games = await gameService.model.findAll({
+        where: {
+            deleted: false,
+        },
+    });
+    const newGames = games.sort((a, b) => a.name.localeCompare(b.name));
+    return res.send(newGames);
 };
 
 export const getGameByCategory: IApiRouter = {

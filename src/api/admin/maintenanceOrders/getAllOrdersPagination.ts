@@ -1,7 +1,7 @@
 import { ProductDto } from "@dto/product.dto";
 import { CustomerEntity } from "@entity/customer.entity";
 import { OrderDetailEntity } from "@entity/orderDetail.entity";
-import { OrderStatuses, ValidatorType } from "@enum/index";
+import { OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -190,11 +190,12 @@ const main: RequestHandler = async (req, res) => {
     let order: any = [[query.sort, query.order]];
 
     const data = await orderService.model.findAndCountAll({
-        ...(where && {
-            where: {
-                ...where,
-            },
-        }),
+        where: {
+            ...(where && where),
+            // type: {
+            //     [Op.in]: [OrderType.TOPUP, null],
+            // },
+        },
         order,
         offset: (query.page - 1) * query.limit,
         limit: query.limit,
@@ -239,6 +240,9 @@ const main: RequestHandler = async (req, res) => {
                         [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
                     },
                 }),
+            // type: {
+            //     [Op.in]: [OrderType.TOPUP, null],
+            // },
             status: OrderStatuses.SUCCESS,
         },
     });
@@ -251,6 +255,9 @@ const main: RequestHandler = async (req, res) => {
                         [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
                     },
                 }),
+            // type: {
+            //     [Op.in]: [OrderType.TOPUP, null],
+            // },
         },
     });
 
@@ -263,6 +270,9 @@ const main: RequestHandler = async (req, res) => {
                     },
                 }),
             status: OrderStatuses.PENDING_PAYMENT,
+            // type: {
+            //     [Op.in]: [OrderType.TOPUP, null],
+            // },
         },
     });
 
@@ -275,6 +285,9 @@ const main: RequestHandler = async (req, res) => {
                     },
                 }),
             status: OrderStatuses.SUCCESS,
+            // type: {
+            //     [Op.in]: [OrderType.TOPUP, null],
+            // },
         },
     });
 

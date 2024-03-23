@@ -37,6 +37,12 @@ export enum APIGamesStatuses {
     ERROR = "Validasi Provider",
 }
 
+export enum DigiflazzStatuses {
+    PENDING = "Pending",
+    SUCCESS = "Sukses",
+    FAILED = "Gagal",
+}
+
 export enum InvoiceStatuses {
     PENDING = "1",
     PAID = "2",
@@ -46,6 +52,8 @@ export enum InvoiceStatuses {
 
 export enum OrderType {
     BUY = "1",
+    SELL = "2",
+    TOPUP = "3",
 }
 
 export enum OTPType {
@@ -84,6 +92,14 @@ export enum PaymentsCategory {
     QRIS = "2",
     VIRTUAL_ACCOUNT = "3",
     RETAIL = "4",
+    INTERNAL = "5",
+}
+
+export enum TypeOverview {
+    DAYLY = 1,
+    WEEKLY = 7,
+    MONTHLY = 30,
+    YEARLY = 365,
 }
 
 export enum VoucherType {
@@ -107,4 +123,15 @@ export enum TemplateMessage {
 export enum SysConfigCD {
     XENDIT_SECRET_KEY = "api_key",
     XENDIT_WEBHOOK_KEY = "webhook_key",
+}
+
+export enum PromotionType {
+    USER = "user",
+    RESELLER = "reseller",
+    ALL = "all",
+}
+
+export enum GameProvider {
+    MANUAL = "MANUAL",
+    APIGAMES = "API_GAMES",
 }

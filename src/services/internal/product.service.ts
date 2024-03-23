@@ -6,4 +6,35 @@ export class ProductService extends MainService<ProductEntity, ProductDto> {
     constructor() {
         super(ProductEntity);
     }
+
+    async findDenomResellerPriceById({ productId }: { productId?: string }): Promise<ProductEntity> {
+        const denom = await this.model.scope("reseller").findOne({
+            where: {
+                id: productId,
+            },
+            attributes: { exclude: ["priceBuy"] },
+        });
+        return denom;
+    }
+
+    async findDenomResellerPricesByGameId({ gameId }: { gameId?: string }): Promise<ProductEntity[]> {
+        const denoms = await this.model.scope("reseller").findAll({
+            where: {
+                gameId: gameId,
+            },
+            attributes: { exclude: ["priceBuy"] },
+        });
+        return denoms;
+    }
+
+    async findOneDenomResellerById(productId: string): Promise<ProductEntity> {
+        const denoms = await this.model.scope("reseller").findOne({
+            where: {
+                id: productId,
+            },
+            attributes: { exclude: ["priceBuy"] },
+        });
+
+        return denoms;
+    }
 }

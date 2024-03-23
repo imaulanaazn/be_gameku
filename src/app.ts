@@ -25,7 +25,7 @@ const getApp = async (app: Application, server: HttpServer<typeof IncomingMessag
             cors: {
                 methods: ["GET", "POST"],
                 origin(requestOrigin, callback) {
-                    if (allowOrigin.includes(requestOrigin) || !requestOrigin) {
+                    if (!requestOrigin || allowOrigin.includes(requestOrigin)) {
                         callback(null, true);
                     } else {
                         callback(new Error("Origin not allowed by CORS"));
@@ -39,7 +39,7 @@ const getApp = async (app: Application, server: HttpServer<typeof IncomingMessag
 
         const corsOptions = {
             origin: (origin, callback) => {
-                if (allowOrigin.includes(origin) || !origin) {
+                if (!origin || allowOrigin.includes(origin)) {
                     callback(null, true);
                 } else {
                     callback(new Error("Origin not allowed by CORS"));

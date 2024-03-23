@@ -17,11 +17,14 @@ import {
 import { GameEntity } from "./game.entity";
 
 @DefaultScope(() => ({
-    attributes: { exclude: ["priceBuy"] },
+    attributes: { exclude: ["priceBuy", "resellerPrice"] },
 }))
 @Scopes(() => ({
     withPriceBuy: {
         attributes: { include: ["priceBuy"] },
+    },
+    reseller: {
+        attributes: { include: ["resellerPrice"] },
     },
 }))
 @Table({
@@ -34,6 +37,9 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @Column(DataType.STRING(40))
+    categoryId!: string;
+
     @Column(DataType.STRING(255))
     name!: string;
 
@@ -45,6 +51,9 @@ export class ProductEntity extends Model<ProductEntity> {
 
     @Column(DataType.INTEGER)
     price!: number;
+
+    @Column(DataType.INTEGER)
+    resellerPrice: number;
 
     @Column(DataType.INTEGER)
     priceBuy!: number;
@@ -70,6 +79,9 @@ export class ProductEntity extends Model<ProductEntity> {
     @UpdatedAt
     @Column(DataType.DATE)
     updatedAt!: Date;
+
+    @Column(DataType.BOOLEAN)
+    isActive!: boolean;
 
     @BelongsTo(() => GameEntity, "gameId")
     game!: GameEntity;
