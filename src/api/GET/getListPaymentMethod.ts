@@ -29,7 +29,7 @@ const main: RequestHandler = async (req, res) => {
             where: {
                 isActive: true,
                 cd: {
-                    [Op.notIn]: ["GASSKEUN"],
+                    [Op.notIn]: ["GASSKEUN", "GASSKEUN_DEPOSIT"],
                 },
             },
         });

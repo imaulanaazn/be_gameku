@@ -85,6 +85,7 @@ const main: RequestHandler = async (req, res) => {
         isGrouped = true;
     }
 
+    products.sort((a, b) => a.price - b.price);
     const newData = productCategories.map((category) => {
         const prods = products.filter((product) => product.categoryId === category.id);
 
@@ -93,7 +94,7 @@ const main: RequestHandler = async (req, res) => {
             denoms: prods,
         };
     });
-    products.sort((a, b) => a.price - b.price);
+
     return res.send({
         ...game.dataValues,
         denoms: products,

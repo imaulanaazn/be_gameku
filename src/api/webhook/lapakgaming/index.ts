@@ -129,6 +129,14 @@ const main: RequestHandler = async (req, res) => {
                     },
                 });
             }
+
+            await orderDetailService.updateBy({
+                by: "id",
+                value: orderDetail.id,
+                data: {
+                    gameVoucher: JSON.stringify(vouchers),
+                },
+            });
         }
 
         return;

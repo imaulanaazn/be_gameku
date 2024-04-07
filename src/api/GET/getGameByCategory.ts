@@ -62,9 +62,11 @@ const main: RequestHandler = async (req, res) => {
             return res.send(games);
         }
 
-        const gamesPopular = await gameService.findManyBy({
-            column: "isPopular",
-            value: true,
+        const gamesPopular = await gameService.model.findAll({
+            where: {
+                isPopular: true,
+                deleted: false,
+            },
         });
 
         const games = gamesPopular.sort((a, b) => a.name.localeCompare(b.name));

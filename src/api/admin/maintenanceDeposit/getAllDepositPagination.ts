@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import { Op, col, fn, literal } from "sequelize";
 
-const path = "/v1/orders";
+const path = "/v1/deposits";
 const method = "GET";
 const auth = "admin";
 
@@ -193,7 +193,7 @@ const main: RequestHandler = async (req, res) => {
         where: {
             ...(where && where),
             type: {
-                [Op.in]: [OrderType.TOPUP, null],
+                [Op.in]: [OrderType.BUY],
             },
         },
         order,
@@ -210,14 +210,6 @@ const main: RequestHandler = async (req, res) => {
             order: query.order,
             sort: query.sort,
             limit: query.limit,
-            analytics: {
-                reveneu: 0,
-                fee: 0,
-                discount: 0,
-                orders: data.count,
-                countPaid: 0,
-                countUnpaid: 0,
-            },
         });
     }
 
@@ -227,91 +219,12 @@ const main: RequestHandler = async (req, res) => {
         operator: "in",
     });
 
-    let analytics = await orderService.model.findOne({
-        attributes: [
-            [literal("CAST(SUM(total_amt) AS SIGNED)"), "revenue"],
-            [literal("CAST(SUM(fee_amt) AS SIGNED)"), "fee"],
-            [literal("CAST(SUM(disc_amt) AS SIGNED)"), "discount"],
-        ],
-        where: {
-            ...(query.start &&
-                query.end && {
-                    createdAt: {
-                        [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
-                    },
-                }),
-            type: {
-                [Op.in]: [OrderType.TOPUP, null],
-            },
-            status: OrderStatuses.SUCCESS,
-        },
-    });
-
-    const countAll = await orderService.model.count({
-        where: {
-            ...(query.start &&
-                query.end && {
-                    createdAt: {
-                        [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
-                    },
-                }),
-            type: {
-                [Op.in]: [OrderType.TOPUP, null],
-            },
-        },
-    });
-
-    const countUnpaid = await orderService.model.count({
-        where: {
-            ...(query.start &&
-                query.end && {
-                    createdAt: {
-                        [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
-                    },
-                }),
-            status: OrderStatuses.PENDING_PAYMENT,
-            type: {
-                [Op.in]: [OrderType.TOPUP, null],
-            },
-        },
-    });
-
-    const countPaid = await orderService.model.count({
-        where: {
-            ...(query.start &&
-                query.end && {
-                    createdAt: {
-                        [Op.and]: [{ [Op.gte]: dayjs(query.start).toDate() }, { [Op.lte]: dayjs(query.end).toDate() }],
-                    },
-                }),
-            status: OrderStatuses.SUCCESS,
-            type: {
-                [Op.in]: [OrderType.TOPUP, null],
-            },
-        },
-    });
-
     const orderId = data.rows.map((data) => data.id);
 
     const orderDetailService = new OrderDetailService();
     const orderDetail = await orderDetailService.findManyBy({
         column: "orderId",
         value: orderId,
-        operator: "in",
-    });
-
-    const productService = new ProductService();
-    const products = await productService.findManyBy({
-        column: "id",
-        value: orderDetail.map((item) => item.productId),
-        operator: "in",
-        only: ["id", "gameId"],
-    });
-
-    const gameService = new GameService();
-    const games = await gameService.findManyBy({
-        column: "id",
-        value: products.map((item) => item.gameId),
         operator: "in",
     });
 
@@ -325,8 +238,6 @@ const main: RequestHandler = async (req, res) => {
     const newData = data.rows.map((item) => {
         const detail = orderDetail.find((detail) => item.id === detail.orderId);
         const customer = customers.find((cust) => cust.id === item.customerId);
-        const product = products.find((prod) => prod.id === detail.productId);
-        const game = games.find((game) => game.id === product.gameId);
         const invoice = invoices.find((inv) => inv.id === item.invoiceId);
         let status = item.status;
 
@@ -338,7 +249,6 @@ const main: RequestHandler = async (req, res) => {
             mobileNumber: customer.mobileNumber,
             custName: customer.isRegistered ? customer.name : "Guest",
             productId: detail.productId,
-            logoUrl: game.logoUrl,
             quantity: detail.quantity,
             username: detail.username,
             status,
@@ -354,16 +264,10 @@ const main: RequestHandler = async (req, res) => {
         order: query.order,
         sort: query.sort,
         limit: query.limit,
-        analytics: {
-            ...analytics.dataValues,
-            orders: countAll,
-            countPaid,
-            countUnpaid,
-        },
     });
 };
 
-export const getAllOrdersPagination: IApiRouter = {
+export const getAllDepositPagination: IApiRouter = {
     main,
     path,
     method,

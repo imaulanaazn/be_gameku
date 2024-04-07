@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { Op } from "sequelize";
 
-const path = "/v1/reseller/order-detail/:invoice";
+const path = "/v2/reseller/order-detail/:invoice";
 const method = "GET";
 const auth = "reseller";
 
@@ -41,6 +41,7 @@ const main: RequestHandler = async (req, res) => {
     if (!invoice) {
         throw new BusinessError("Nomor Invoice Tidak Valid", ErrorType.NotFound);
     }
+
     const orderService = new OrderService();
     const order = await orderService.model.findOne({
         where: {
@@ -50,7 +51,6 @@ const main: RequestHandler = async (req, res) => {
         attributes: [
             "id",
             "invoiceId",
-            "customerId",
             "game",
             "type",
             "paymentMethod",
@@ -85,42 +85,6 @@ const main: RequestHandler = async (req, res) => {
     const productService = new ProductService();
     const gameService = new GameService();
     let product, game;
-
-    const sysConfigService = new SysConfigService();
-    const sysConfig = await sysConfigService.findManyBy({
-        column: "cd",
-        value: ["logo", "rekening_name", "rekening_number"],
-        operator: "in",
-    });
-    const logo = sysConfig.find((item) => item.cd === "logo");
-    const rekeningName = sysConfig.find((item) => item.cd === "rekening_name");
-    const rekeningNumber = sysConfig.find((item) => item.cd === "rekening_number");
-    if (order.type === OrderType.BUY) {
-        res.send({
-            ...order.dataValues,
-            amt: orderDetail?.amount || 0,
-            quantity: orderDetail.quantity,
-            logoGame: game?.logoUrl || logo?.value,
-            logoPaymentMethod: paymentMethod.logo,
-            payment: {
-                accountNumber: rekeningNumber.value,
-                bankCode: "",
-                merchantCode: "",
-                name: rekeningName.value,
-            },
-            status:
-                dayjs(invoice.expiredAt).isBefore(dayjs()) && invoice.status === InvoiceStatuses.PENDING
-                    ? OrderStatuses.EXPIRED
-                    : order.status,
-            expiredAt: dayjs(invoice.expiredAt),
-            category: paymentMethod.category,
-            createdAt: order.createdAt,
-            cd: paymentMethod.cd,
-            paymentMethod,
-            detail: orderDetail,
-        });
-        return;
-    }
 
     if (order.type === OrderType.TOPUP) {
         product = await productService.findOneBy({
@@ -187,6 +151,12 @@ const main: RequestHandler = async (req, res) => {
         }
     }
 
+    const sysConfigService = new SysConfigService();
+    const logo = await sysConfigService.findOneBy({
+        column: "cd",
+        value: "logo",
+    });
+
     res.send({
         ...order.dataValues,
         amt: orderDetail.amount,
@@ -207,7 +177,7 @@ const main: RequestHandler = async (req, res) => {
     });
 };
 
-export const getOrderDetailReseller: IApiRouter = {
+export const getOrderDetailResellerV2: IApiRouter = {
     path,
     method,
     main,

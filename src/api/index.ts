@@ -105,7 +105,7 @@ import { getBalance } from "./reseller/GET/getBalance";
 import { getStatistic } from "./reseller/GET/getStatistic";
 import { getChartOverview } from "./reseller/GET/getChartOverview";
 import { getSalesOverview } from "./reseller/GET/getSalesOverview";
-import { getOrderDetailReseller } from "./reseller/GET/getOrderByInvoiceId";
+import { getOrderDetailResellerV2 } from "./reseller/GET/getOrderByInvoiceIdV2";
 import { getChangePasswordOtp } from "./reseller/GET/getOtpReseller";
 import { putChangePassword } from "./reseller/PUT/putChangePassword";
 import { putProfileImage } from "./reseller/PUT/putProfileImage";
@@ -126,11 +126,17 @@ import { putProductCategory } from "./admin/maintenanceProductCategory/putDenom"
 import { deleteProductCategory } from "./admin/maintenanceProductCategory/delete";
 import { syncLapakgamingDataDesc } from "./cronjob/syncDescProduct";
 import { putProductPrices } from "./admin/maintenanceConfiguration/syncPrices";
+import { getSyncSpreadsheets } from "./GET/getSyncSpreadsheet";
+import { getOrderDetailReseller } from "./reseller/GET/getOrderByInvoiceId";
+import { getAllDepositPagination } from "./admin/maintenanceDeposit/getAllDepositPagination";
+import { approvalDeposit } from "./admin/maintenanceDeposit/approvalDeposit";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
+    getSyncSpreadsheets,
+
     loginAdmin,
     deleteLogoutAdmin,
     getOrderAnalytics,
@@ -138,6 +144,10 @@ const apis = [
 
     putConfig,
     putProductPrices,
+
+    // Maintenance Deposit
+    getAllDepositPagination,
+    approvalDeposit,
 
     // Maintenance Order
     getAllOrdersPagination,
@@ -276,6 +286,7 @@ const apis = [
     getChartOverview,
     getSalesOverview,
     getOrderDetailReseller,
+    getOrderDetailResellerV2,
     getChangePasswordOtp,
     getDenomResellerByCategory,
 

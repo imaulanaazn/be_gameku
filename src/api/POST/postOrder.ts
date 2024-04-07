@@ -108,6 +108,8 @@ const main: RequestHandler = async (req, res) => {
     console.log(req.headers["x-forwarded-for"]);
     const client = req.client;
     const io = req.io;
+    body.userId = body.userId.trimEnd();
+    body.serverId = body.serverId?.trimEnd();
 
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findOneBy({

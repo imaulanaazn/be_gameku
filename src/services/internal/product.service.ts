@@ -12,7 +12,7 @@ export class ProductService extends MainService<ProductEntity, ProductDto> {
             where: {
                 id: productId,
             },
-            attributes: { exclude: ["priceBuy"] },
+            attributes: { include: ["priceBuy"] },
         });
         return denom;
     }
@@ -21,8 +21,10 @@ export class ProductService extends MainService<ProductEntity, ProductDto> {
         const denoms = await this.model.scope("reseller").findAll({
             where: {
                 gameId: gameId,
+                isActive: true,
+                deleted: false,
             },
-            attributes: { exclude: ["priceBuy"] },
+            attributes: { include: ["priceBuy"] },
         });
         return denoms;
     }
@@ -31,8 +33,10 @@ export class ProductService extends MainService<ProductEntity, ProductDto> {
         const denoms = await this.model.scope("reseller").findOne({
             where: {
                 id: productId,
+                deleted: false,
+                isActive: true,
             },
-            attributes: { exclude: ["priceBuy"] },
+            attributes: { include: ["priceBuy"] },
         });
 
         return denoms;

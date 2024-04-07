@@ -38,7 +38,18 @@ class APIGamesService {
 
     async checkUsernameGame(data: ICheckGameAccount): Promise<CheckGameAccount> {
         console.log("START CHECK USERNAME TO API GAMES");
-        let gameCd = data.gameCode === "FF" ? "freefire" : data.gameCode === "ML" ? "mobilelegends" : undefined;
+        const ff = ["FF", "freefire"];
+        const ml = ["ML", "mobilelegends"];
+
+        let gameCd = undefined;
+        if (ff.includes(data.gameCode)) {
+            gameCd = "freefire";
+        } else if (ml.includes(data.gameCode)) {
+            gameCd = "mobilelegends";
+        } else {
+            gameCd = undefined;
+        }
+
         if (!gameCd) {
             throw new BusinessError("Silahkan coba beberapa saat lagi", ErrorType.Internal);
         }

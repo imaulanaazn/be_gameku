@@ -46,7 +46,7 @@ const main: RequestHandler = async (req, res) => {
     const lapakgamingGames = await lapakgamingService.getGames();
     const allProductsFromLapakGaming = await lapakgamingService.getAllProducts();
     const dataGamesLapakGaming = lapakgamingGames.data.categories;
-
+    res.sendStatus(200);
     let count = 0;
     for (const gameLapakGaming of dataGamesLapakGaming) {
         count++;
@@ -119,6 +119,38 @@ const main: RequestHandler = async (req, res) => {
                 value: gameDb.id,
             });
 
+            // for(const prodLapak of allProductsFromLapakGaming.data.products) {
+            //     const prodDb = prodsDb.find(item => item.code === prodLapak.code)
+            //     if(prodDb) {
+            //         await productService.updateBy({
+            //             by: "id",
+            //             value: prodDb.id,
+            //             data: {
+            //                 price: prodLapak.price + (prodLapak.price * parseInt(percentageUser.value)) / 100,
+            //                 resellerPrice:
+            //                     prodLapak.price + (prodLapak.price * parseInt(percentageReseller.value)) / 100,
+            //                 priceBuy: prodLapak.price,
+            //                 isActive: prodLapak.status === "available" ? true : false,
+            //             },
+            //         });
+            //     } else {
+            //         await productService.create({
+            //             id: uuid(),
+            //             categoryId: "",
+            //             name: prodLapak.name,
+            //             automatically: true,
+            //             code: prodLapak.code,
+            //             price: prodLapak.price + (prodLapak.price * parseInt(percentageUser.value)) / 100,
+            //             resellerPrice: prodLapak.price + (prodLapak.price * parseInt(percentageReseller.value)) / 100,
+            //             priceBuy: prodLapak.price,
+            //             logoDenom: "",
+            //             gameId: gameId,
+            //             deleted: true,
+            //             isActive: item.status === "available" ? true : false,
+            //         })
+            //     }
+            // }
+
             for (const prod of prodsDb) {
                 const prodLapak = allProductsFromLapakGaming.data.products.find((item) => item.code === prod.code);
                 if (prodLapak) {
@@ -139,7 +171,7 @@ const main: RequestHandler = async (req, res) => {
 
         await sleep(500);
     }
-    return res.sendStatus(200);
+    return;
 };
 
 export const syncLapakgamingData: IApiRouter = {

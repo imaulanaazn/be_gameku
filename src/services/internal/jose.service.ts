@@ -4,6 +4,7 @@ import * as jose from "jose";
 import { BusinessError } from "@helper/handleError";
 import { ErrorType } from "@enum/index";
 import dayjs from "dayjs";
+import path from "path";
 
 type DateExpired = "day" | "hour" | "minute" | "second" | "millisecond" | "month" | "week" | "year";
 
@@ -12,9 +13,10 @@ export class EncryptionService {
     private publicKey: string;
 
     constructor() {
-        const relPath = process.env.NODE_ENV.toLowerCase() === "production" ? "dist/key/" : "src/key/";
-        this.privateKey = fs.readFileSync(relPath + "private.pem", "utf8");
-        this.publicKey = fs.readFileSync(relPath + "public.pem", "utf8");
+        const runningFolder = process.env.NODE_ENV.toLowerCase() === "production" ? "dist" : "src";
+        const keyPath = path.join(process.cwd(), runningFolder, "key");
+        this.privateKey = fs.readFileSync(path.join(keyPath, "private.pem"), "utf8");
+        this.publicKey = fs.readFileSync(path.join(keyPath, "public.pem"), "utf8");
     }
 
     private async getSecretKey(): Promise<{ privateKey: KeyLike; publicKey: KeyLike }> {

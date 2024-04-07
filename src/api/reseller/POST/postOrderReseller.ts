@@ -141,6 +141,10 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Cashtag harus di isi jika memilih pembayaran via Jenius pay", ErrorType.Validation);
     }
 
+    if (payment.cd !== "GASSKEUN") {
+        throw new BusinessError("Metode Pembayaran tidak valid", ErrorType.BadRequest);
+    }
+
     let balance;
     if (payment.cd === "GASSKEUN") {
         const cookie = req.cookies.session_gasskeun_reseller;
@@ -194,7 +198,7 @@ const main: RequestHandler = async (req, res) => {
     let voucher: PromotionEntity;
     if (body.promoCode) {
         const cookie = req.cookies.session_gasskeun_reseller;
-        const reqCheckPromotion = await fetch("http://localhost:3001/api/v1/reseller/check-promotion", {
+        const reqCheckPromotion = await fetch(`http://localhost:${config.port}/api/v1/reseller/check-promotion`, {
             headers: {
                 cookie: "session_gasskeun_reseller=" + cookie,
                 "content-type": "application/json",
@@ -243,51 +247,51 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Saldo kamu tidak mencukupi untuk melakukan transaksi", ErrorType.BadRequest);
     }
 
-    let username;
+    let checkUsername;
     if (game.needCheckId) {
-        const checkingGameService = new CheckingGameIdService();
-        const checkGameId = await checkingGameService.checking({
-            gameCd: game.cd,
-            userId: body.userId,
-            ...(body.serverId && { serverId: body.serverId }),
+        // const checkingGameService = new CheckingGameIdService();
+        // const checkGameId = await checkingGameService.checking({
+        //     gameCd: game.cd,
+        //     userId: body.userId,
+        //     ...(body.serverId && { serverId: body.serverId }),
+        // });
+
+        // console.log(checkGameId);
+
+        // if (!checkGameId) {
+        //     throw new BusinessError(
+        //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
+        //         ErrorType.BadRequest,
+        //     );
+        // }
+
+        // username = checkGameId;
+        const configApiGames = await sysConfigService.findManyBy({
+            column: "cd",
+            value: ["api_games_merchant_id", "api_games_secret_key"],
+            operator: "in",
+        });
+        const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
+        const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
+        const apiGameService = new APIGamesService({
+            merchantId: merchantId.value,
+            secretKey: secretKey.value,
         });
 
-        console.log(checkGameId);
+        checkUsername = await apiGameService.checkUsernameGame({
+            gameCode: game.cd,
+            userId: body.userId + (body.serverId || ""),
+        });
 
-        if (!checkGameId) {
-            throw new BusinessError(
-                `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
-                ErrorType.BadRequest,
-            );
+        if (checkUsername.status === 0) {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
         }
 
-        username = checkGameId;
-        // const configApiGames = await sysConfigService.findManyBy({
-        //     column: "cd",
-        //     value: ["api_games_merchant_id", "api_games_secret_key"],
-        //     operator: "in",
-        // });
-        // const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
-        // const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
-        // const apiGameService = new APIGamesService({
-        //     merchantId: merchantId.value,
-        //     secretKey: secretKey.value,
-        // });
-
-        // checkUsername = await apiGameService.checkUsernameGame({
-        //     gameCode: game.cd,
-        //     userId: body.userId + (body.serverId || ""),
-        // });
-
-        // if (checkUsername.status === 0) {
-        //     throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-        // }
-
-        // if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
-        //     throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-        // } else if (!checkUsername.data.username) {
-        //     throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-        // }
+        if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        } else if (!checkUsername.data.username) {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        }
     }
 
     const invoiceId = `INV${new Date().getTime()}`;
@@ -327,7 +331,7 @@ const main: RequestHandler = async (req, res) => {
         amount: prices,
         quantity: body.quantity,
         webhookCount: 0,
-        username: username || null,
+        username: checkUsername?.data?.username || null,
     });
 
     const response: any = {
@@ -375,14 +379,18 @@ const main: RequestHandler = async (req, res) => {
     if (payment.category === PaymentsCategory.EWALLET) {
         const redirectUrl = config.domainReseller + "/payment/" + invoiceId;
         let channel_properties = {};
+
+        //@ts-ignore
         if (payment.cd === "ID_ASTRAPAY") {
             channel_properties = {
                 success_redirect_url: redirectUrl,
                 failure_redirect_url: redirectUrl,
             };
+            //@ts-ignore
         } else if (payment.cd === "ID_OVO") {
             const mobile_number = `+62${customer.mobileNumber.slice(1)}`;
             channel_properties = { mobile_number };
+            //@ts-ignore
         } else if (payment.cd === "ID_JENIUSPAY") {
             const cashtag = body.cashtag.startsWith("$") ? body.cashtag : "$" + body.cashtag;
             channel_properties = { cashtag };

@@ -60,7 +60,11 @@ export class WhatsAppService {
 
     private async initializeClient(io: Server) {
         this.client = new Client({
-            authStrategy: new LocalAuth(),
+            authStrategy: new LocalAuth({ dataPath: "sessions" }),
+            webVersionCache: {
+                type: "remote",
+                remotePath: "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html",
+            },
             restartOnAuthFail: true,
             puppeteer: {
                 headless: true,
@@ -148,7 +152,7 @@ export class WhatsAppService {
                 .replace(/\[expired_date\]/g, data.data.expiredAt);
 
             const message = await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
-            console.log(message)
+            console.log(message);
             console.log("[WHATSAPP] - SEND MESSAGE OTP TO : " + data.targetNumber);
             return {
                 success: true,

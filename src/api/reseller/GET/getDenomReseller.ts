@@ -61,17 +61,17 @@ const main: RequestHandler = async (req, res) => {
         const sysConfigService = new SysConfigService();
         const discRessellerPermanent = await sysConfigService.findOneBy({
             column: "cd",
-            value: "disc_reseller",
+            value: "percentage_prices_reseller",
         });
         const discReseller = parseInt(discRessellerPermanent.value);
 
         const denom = products.map((item) => {
             const { resellerPrice, ...rest } = item.dataValues;
             if (!resellerPrice) {
-                const disc = (rest.price * discReseller) / 100;
+                const disc = (rest.priceBuy * discReseller) / 100;
                 return {
                     ...rest,
-                    price: rest.price - disc,
+                    price: rest.priceBuy + disc,
                 };
             } else {
                 return { ...rest, price: resellerPrice };
@@ -91,22 +91,24 @@ const main: RequestHandler = async (req, res) => {
         const sysConfigService = new SysConfigService();
         const discRessellerPermanent = await sysConfigService.findOneBy({
             column: "cd",
-            value: "disc_reseller",
+            value: "percentage_prices_reseller",
         });
         const discReseller = parseInt(discRessellerPermanent.value);
 
         let prices = products.resellerPrice;
         if (!products.resellerPrice) {
-            const disc = (products.resellerPrice * discReseller) / 100;
-            prices = products.resellerPrice - disc;
+            const disc = (products.priceBuy * discReseller) / 100;
+            prices = products.priceBuy + disc;
         }
 
         return res.send({ ...products.dataValues, price: prices });
     } else {
         const gameService = new GameService();
-        const game = await gameService.findOneBy({
-            column: "slug",
-            value: query.slug,
+        const game = await gameService.model.findOne({
+            where: {
+                slug: query.slug,
+                deleted: false,
+            },
         });
 
         if (!game) {
@@ -125,17 +127,17 @@ const main: RequestHandler = async (req, res) => {
         const sysConfigService = new SysConfigService();
         const discRessellerPermanent = await sysConfigService.findOneBy({
             column: "cd",
-            value: "disc_reseller",
+            value: "percentage_prices_reseller",
         });
         const discReseller = parseInt(discRessellerPermanent.value);
 
         const denom = products.map((item) => {
             const { resellerPrice, ...rest } = item.dataValues;
             if (!resellerPrice) {
-                const disc = (rest.price * discReseller) / 100;
+                const disc = (rest.priceBuy * discReseller) / 100;
                 return {
                     ...rest,
-                    price: rest.price - disc,
+                    price: rest.priceBuy + disc,
                 };
             } else {
                 return { ...rest, price: resellerPrice };

@@ -61,7 +61,6 @@ export const authLoginUser: RequestHandler = (req, res, next) => {
 
 export const authAdmin: RequestHandler = (req, res, next) => {
     const session = req.cookies.session_gasskeun_admin;
-    console.log(session);
     try {
         const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
         if (decoded.role === config.roleAdmin || decoded.role === config.roleSuperAdmin) {
@@ -86,7 +85,6 @@ export const authAdmin: RequestHandler = (req, res, next) => {
 export const authReseller: RequestHandler = async (req, res, next) => {
     const encryptService = new EncryptionService();
     const session = req.cookies.session_gasskeun_reseller;
-    console.log(session);
     try {
         const decode = await encryptService.decryptData<CustomerDto>(session);
         if (decode.isExpired) {
