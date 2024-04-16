@@ -134,9 +134,13 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Nomor Whatsapp tidak valid", ErrorType.BadRequest);
     }
 
-    let customer = await customerService.findOneBy({
-        column: "mobileNumber",
-        value: convertedNumber,
+    let customer = await customerService.model.findOne({
+        where: {
+            mobileNumber: convertedNumber,
+            roleId: {
+                [Op.in]: [config.roleGuest, config.roleUser],
+            },
+        },
     });
 
     if (!customer) {

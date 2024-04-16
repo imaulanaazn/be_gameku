@@ -21,6 +21,7 @@ import {
     ProductEntity,
     PromotionEntity,
     ProviderEntity,
+    ResellerConfigEntity,
     SocialMediaEntity,
     SysConfigEntity,
     VideoEntity,
@@ -63,6 +64,7 @@ const sequelize = new Sequelize({
         FundEntity,
         ProductCategoryEntity,
         ProviderEntity,
+        ResellerConfigEntity,
     ],
 });
 

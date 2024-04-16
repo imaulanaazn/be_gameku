@@ -45,9 +45,9 @@ const main: RequestHandler = async (req, res) => {
     const order = await orderService.model.findOne({
         where: {
             invoiceId: invoice.id,
-            // type: {
-            //     [Op.in]: [OrderType.TOPUP, null],
-            // },
+            type: {
+                [Op.in]: [OrderType.TOPUP, null],
+            },
         },
         attributes: [
             "id",

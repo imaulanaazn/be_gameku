@@ -13,6 +13,7 @@ import { CustomerEntity } from "@entity/customer.entity";
 import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
 import dayjs from "dayjs";
 import { EncryptionService } from "@serviceInternal/jose.service";
+import { ResellerConfigService } from "@serviceInternal/resellerConfig.service";
 
 const path = "/v1/reseller/registration";
 const method = "POST";
@@ -158,6 +159,16 @@ const main: RequestHandler = async (req, res) => {
         data: {
             expiredAt: expiredAtOneYearAgo,
         },
+    });
+
+    const resellerConfigService = new ResellerConfigService();
+    await resellerConfigService.create({
+        id: uuid(),
+        resellerId: dataReseller.id,
+        percentageMargin: 0,
+        apiKey: uuid(),
+        webhookApiKey: uuid(),
+        webhookCallbackUrl: "",
     });
 
     res.sendStatus(200);

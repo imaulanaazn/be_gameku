@@ -102,9 +102,13 @@ const main: RequestHandler = async (req, res) => {
                     name: item.name,
                     automatically: true,
                     code: item.code,
-                    price: item.price + (item.price * parseInt(percentageUser.value)) / 100,
-                    resellerPrice: item.price + (item.price * parseInt(percentageReseller.value)) / 100,
-                    priceBuy: item.price,
+                    price:
+                        parseInt(item.price.toString()) +
+                        (parseInt(item.price.toString()) * parseInt(percentageUser.value)) / 100,
+                    resellerPrice:
+                        parseInt(item.price.toString()) +
+                        (parseInt(item.price.toString()) * parseInt(percentageReseller.value)) / 100,
+                    priceBuy: parseInt(item.price.toString()),
                     logoDenom: "",
                     gameId: gameId,
                     deleted: true,
@@ -118,6 +122,11 @@ const main: RequestHandler = async (req, res) => {
                 column: "gameId",
                 value: gameDb.id,
             });
+
+            if (gameDb.cd === "VID") {
+                console.log(gameDb);
+                console.log(prodsDb);
+            }
 
             // for(const prodLapak of allProductsFromLapakGaming.data.products) {
             //     const prodDb = prodsDb.find(item => item.code === prodLapak.code)
@@ -158,10 +167,13 @@ const main: RequestHandler = async (req, res) => {
                         by: "id",
                         value: prod.id,
                         data: {
-                            price: prodLapak.price + (prodLapak.price * parseInt(percentageUser.value)) / 100,
+                            price:
+                                parseInt(prodLapak.price.toString()) +
+                                (parseInt(prodLapak.price.toString()) * parseInt(percentageUser.value)) / 100,
                             resellerPrice:
-                                prodLapak.price + (prodLapak.price * parseInt(percentageReseller.value)) / 100,
-                            priceBuy: prodLapak.price,
+                                parseInt(prodLapak.price.toString()) +
+                                (parseInt(prodLapak.price.toString()) * parseInt(percentageReseller.value)) / 100,
+                            priceBuy: parseInt(prodLapak.price.toString()),
                             isActive: prodLapak.status === "available" ? true : false,
                         },
                     });

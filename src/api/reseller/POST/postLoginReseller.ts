@@ -9,6 +9,8 @@ import { CustomerEntity } from "@entity/customer.entity";
 import { EncryptionService } from "@serviceInternal/jose.service";
 import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
 import dayjs from "dayjs";
+import { ResellerConfigService } from "@serviceInternal/resellerConfig.service";
+import { v4 as uuid } from "uuid";
 
 const path = "/v1/reseller/login";
 const method = "POST";
@@ -62,6 +64,23 @@ const main: RequestHandler = async (req, res) => {
 
     if (user.roleId !== config.roleReseller) {
         throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
+    }
+
+    const resellerConfigService = new ResellerConfigService();
+    const resellerConfig = await resellerConfigService.findOneBy({
+        column: "resellerId",
+        value: user.id,
+    });
+
+    if (!resellerConfig) {
+        await resellerConfigService.create({
+            id: uuid(),
+            resellerId: user.id,
+            percentageMargin: 0,
+            apiKey: uuid(),
+            webhookApiKey: uuid(),
+            webhookCallbackUrl: "",
+        });
     }
 
     const otpService = new CustomerOtpService();

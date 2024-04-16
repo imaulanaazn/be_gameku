@@ -8,6 +8,8 @@ import { CustomerEntity } from "@entity/customer.entity";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
+import { Config } from "@config/index";
+import { Op } from "sequelize";
 
 const path = "/v1/order-history";
 const method = "GET";
@@ -36,12 +38,16 @@ const main = async (req: Request, res: Response) => {
         throw new BusinessError("Minimal harus ada nomor invoice atau nomor whatsapp", ErrorType.BadRequest);
     }
     const customerService = new CustomerService();
-
+    const config = new Config();
     let customer: CustomerEntity;
     if (query.mobileNumber) {
-        customer = await customerService.findOneBy({
-            column: "mobileNumber",
-            value: query.mobileNumber,
+        customer = await customerService.model.findOne({
+            where: {
+                mobileNumber: query.mobileNumber,
+                roleId: {
+                    [Op.in]: [config.roleGuest, config.roleUser],
+                },
+            },
         });
     }
 
@@ -88,11 +94,11 @@ const main = async (req: Request, res: Response) => {
             order: query.order,
             limit: query.limit,
         },
-        // {
-        //     column: "type",
-        //     // @ts-ignore
-        //     value: [OrderType.TOPUP, null],
-        // },
+        {
+            column: "type",
+            // @ts-ignore
+            value: [OrderType.TOPUP, null],
+        },
     );
     const invoiceId = orders.rows.map((data) => data.invoiceId);
     const invoices = await invoiceService.findManyBy({

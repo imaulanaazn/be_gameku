@@ -130,6 +130,8 @@ import { getSyncSpreadsheets } from "./GET/getSyncSpreadsheet";
 import { getOrderDetailReseller } from "./reseller/GET/getOrderByInvoiceId";
 import { getAllDepositPagination } from "./admin/maintenanceDeposit/getAllDepositPagination";
 import { approvalDeposit } from "./admin/maintenanceDeposit/approvalDeposit";
+import { putChangeResellerConfig } from "./reseller/PUT/putChangeResellerConfig";
+import { getResellerConfig } from "./reseller/GET/getResellerConfig";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -289,11 +291,13 @@ const apis = [
     getOrderDetailResellerV2,
     getChangePasswordOtp,
     getDenomResellerByCategory,
+    getResellerConfig,
 
     // PUT
     putChangePassword,
     putProfileImage,
     putReseller,
+    putChangeResellerConfig,
 
     // DELETE
     deleteLogoutReseller,

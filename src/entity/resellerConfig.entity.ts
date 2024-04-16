@@ -13,8 +13,8 @@ export class ResellerConfigEntity extends Model<ResellerConfigEntity> {
     @Column(DataType.STRING(40))
     resellerId!: string;
 
-    @Column(DataType.STRING(255))
-    percentageMargin!: string;
+    @Column(DataType.INTEGER)
+    percentageMargin!: number;
 
     @Column(DataType.STRING(40))
     apiKey!: string;

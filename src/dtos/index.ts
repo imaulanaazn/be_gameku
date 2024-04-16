@@ -23,3 +23,4 @@ export * from "./ipAddress.dto";
 export * from "./fund.dto";
 export * from "./productCategory.dto";
 export * from "./provider.dto";
+export * from "./resellerConfig.dto";
