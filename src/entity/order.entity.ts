@@ -11,12 +11,13 @@ import {
     Scopes,
     DefaultScope,
     HasMany,
+    HasOne,
 } from "sequelize-typescript";
-import { OrderStatuses } from "@enum/index";
+import { OrderStatuses, OrderType } from "@enum/index";
 import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, PromotionEntity } from ".";
 
 @DefaultScope(() => ({
-    attributes: { exclude: ["amtBuy"] },
+    attributes: { exclude: ["amtBuy", "remark", "isError", "isCanResend"] },
 }))
 @Table({
     tableName: "orders",
@@ -27,6 +28,9 @@ import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, 
     withAmtBuy: {
         attributes: { include: ["amtBuy"] },
     },
+    logging: {
+        attributes: { include: ["remark", "isError", "isCanResend"] },
+    },
 }))
 export class OrderEntity extends Model<OrderEntity> {
     @PrimaryKey
@@ -35,6 +39,9 @@ export class OrderEntity extends Model<OrderEntity> {
 
     @Column(DataType.STRING(40))
     invoiceId!: string;
+
+    @Column(DataType.STRING(255))
+    extTrxId?: string;
 
     @ForeignKey(() => CustomerEntity)
     @Column(DataType.STRING(40))
@@ -47,6 +54,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @ForeignKey(() => PromotionEntity)
     @Column(DataType.STRING(40))
     promoId!: string;
+
+    @Column(DataType.STRING(10))
+    type: OrderType;
 
     @Column(DataType.STRING(255))
     game!: string;
@@ -83,10 +93,19 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.DATE)
     updatedAt!: Date;
 
+    @Column(DataType.BOOLEAN)
+    isError!: boolean;
+
+    @Column(DataType.BOOLEAN)
+    isCanResend!: boolean;
+
+    @Column(DataType.STRING(255))
+    remark!: string;
+
     @Column(DataType.DATE)
     completedAt!: Date | string;
 
-    @HasMany(() => OrderDetailEntity, "orderId")
+    @HasOne(() => OrderDetailEntity, "orderId")
     orderDetail!: OrderDetailEntity;
 
     @BelongsTo(() => InvoiceEntity, "invoiceId")

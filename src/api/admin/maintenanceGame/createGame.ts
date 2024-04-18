@@ -122,6 +122,7 @@ const main: RequestHandler = async (req, res) => {
     const gameService = new GameService();
     const newGame = await gameService.create({
         id: uuid(),
+        provider: "",
         categoryId: body.categoryId,
         name: body.name,
         logoUrl: uploadLogoUrl,

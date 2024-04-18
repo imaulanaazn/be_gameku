@@ -57,6 +57,9 @@ const main: RequestHandler = async (req, res) => {
     res.cookie("session_gasskeun_admin", token, {
         httpOnly: true,
         maxAge: config.maxAgeLogin * 1000,
+        // domain: config.domainAdmin,
+        // path: "/",
+        // secure: process.env.NODE_ENV.toLowerCase() === "production",
     });
 
     return res.send({

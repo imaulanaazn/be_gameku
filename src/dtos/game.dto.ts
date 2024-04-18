@@ -2,6 +2,7 @@ import { ServerIdType, VoucherType } from "@enum/index";
 import { MainDto } from "./main.dto";
 
 export class GameDto extends MainDto {
+    provider: string;
     categoryId: string;
     name: string;
     automatically: boolean;

@@ -10,7 +10,11 @@ type MultipleImageData = {
     single: false;
 };
 
-export type IApiRouter = IApiRouterWithImage | IApiRouterWithoutImage;
+export type IApiRouter =
+    | IApiRouterWebhookInternalWithImage
+    | IApiRouterWebhookInternalWithoutImage
+    | IApiRouterWithImage
+    | IApiRouterWithoutImage;
 
 export interface IApiRouterWithImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
@@ -21,10 +25,12 @@ export interface IApiRouterWithImage {
         | "user"
         | "admin"
         | "cookie"
-        | "webhook-internal"
         | "webhook-xendit"
         | "super-admin"
-        | "webhook-apigames";
+        | "webhook-apigames"
+        | "reseller"
+        | "webhook-digiflazz"
+        | "webhook-lapakgaming";
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
 }
@@ -37,10 +43,31 @@ export interface IApiRouterWithoutImage {
         | "user"
         | "admin"
         | "cookie"
-        | "webhook-internal"
         | "webhook-xendit"
         | "super-admin"
-        | "webhook-apigames";
+        | "webhook-apigames"
+        | "reseller"
+        | "webhook-digiflazz"
+        | "webhook-lapakgaming";
+    isUploadImage?: false;
+    dataImg?: SingleImageData | MultipleImageData;
+}
+
+interface IApiRouterWebhookInternalWithImage {
+    main: (req: Request, res: Response, next?: NextFunction) => any;
+    method: "GET" | "POST" | "PUT" | "DELETE";
+    path: string;
+    auth: "webhook-internal";
+    xApiKey: string;
+    isUploadImage?: true;
+    dataImg: SingleImageData | MultipleImageData;
+}
+interface IApiRouterWebhookInternalWithoutImage {
+    main: (req: Request, res: Response, next?: NextFunction) => any;
+    method: "GET" | "POST" | "PUT" | "DELETE";
+    path: string;
+    auth: "webhook-internal";
+    xApiKey: string;
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
 }

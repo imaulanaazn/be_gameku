@@ -1,9 +1,11 @@
-import { OrderStatuses } from "@enum/index";
+import { OrderStatuses, OrderType } from "@enum/index";
 import { MainDto } from "./main.dto";
 
 export class OrderDto extends MainDto {
     promoId: string;
+    type: OrderType;
     invoiceId: string;
+    extTrxId?: string;
     customerId: string;
     paymentMethodId: string;
     game: string;
@@ -16,4 +18,7 @@ export class OrderDto extends MainDto {
     promoCd: string;
     status: OrderStatuses;
     completedAt?: Date | string;
+    isError?: boolean;
+    isCanResend?: boolean;
+    remark?: string;
 }

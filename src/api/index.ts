@@ -2,10 +2,14 @@ import { Request, Response, NextFunction, Router } from "express";
 import {
     authAdmin,
     authLoginUser,
+    authReseller,
     authSuperAdmin,
+    authWebhookDigiflazz,
+    authWebhookLapakgaming,
     authWehbookAPIGames,
     authWehbookInternal,
     authWehbookXendit,
+    resellerChecking,
 } from "../middlewares/sessions";
 import responseErrorHandler from "@middleware/responseErrorHandler";
 import { IApiRouter } from "src/interfaces";
@@ -89,20 +93,69 @@ import { putCustomerImage } from "./PUT/putUploadImage";
 import { webhookApiGames } from "./webhook/apigames";
 import { cronjobSetExpiredPayment } from "./cronjob/setExpiredPayment";
 import { putArchiveProduct } from "./admin/maintenanceProduct/putChangeStatusProduct";
+import { postLoginReseller } from "./reseller/POST/postLoginReseller";
+import { postRegisterReseller } from "./reseller/POST/postRegisterReseller";
+import { getDenomReseller } from "./reseller/GET/getDenomReseller";
+import { postTopupFund } from "./reseller/POST/postTopupFund";
+import { getMeReseller } from "./reseller/GET/getMeReseller";
+import { postOrderReseller } from "./reseller/POST/postOrderReseller";
+import { postCheckPromoCodeReseller } from "./reseller/POST/postCheckPromotionReseller";
+import { getAllOrdersPaginationReseller } from "./reseller/GET/getOrderHistory";
+import { postRequestOtp } from "./reseller/POST/postRequestOtp";
+import { getBalance } from "./reseller/GET/getBalance";
+import { getStatistic } from "./reseller/GET/getStatistic";
+import { getChartOverview } from "./reseller/GET/getChartOverview";
+import { getSalesOverview } from "./reseller/GET/getSalesOverview";
+import { getOrderDetailResellerV2 } from "./reseller/GET/getOrderByInvoiceIdV2";
+import { getChangePasswordOtp } from "./reseller/GET/getOtpReseller";
+import { putChangePassword } from "./reseller/PUT/putChangePassword";
+import { putProfileImage } from "./reseller/PUT/putProfileImage";
+import { putReseller } from "./reseller/PUT/putProfile";
+import { deleteLogoutReseller } from "./reseller/DELETE/logout";
+import { getDenomResellerByCategory } from "./reseller/GET/getDenomByCategory";
+import { syncDigiflazzData } from "./cronjob/syncDigiflazzData";
+import { processVoucherInternal } from "./webhook/internal/processVoucherInternal";
+import { getAllProviders } from "./GET/getProviders";
+import { webhookDigiflazz } from "./webhook/digiflazz";
+import { webhookLapakGaming } from "./webhook/lapakgaming";
+import { syncLapakgamingData } from "./cronjob/syncLapakgamingData";
+import { processSuccessOrder } from "./webhook/internal/processSuccessOrder";
+import { webhookLapakGamingUpdateProduct } from "./webhook/lapakgaming/updateProduct";
+import { createProductCategory } from "./admin/maintenanceProductCategory/create";
+import { getAllProductCategoryPagination } from "./admin/maintenanceProductCategory/getAllPagination";
+import { putProductCategory } from "./admin/maintenanceProductCategory/putDenom";
+import { deleteProductCategory } from "./admin/maintenanceProductCategory/delete";
+import { syncLapakgamingDataDesc } from "./cronjob/syncDescProduct";
+import { putProductPrices } from "./admin/maintenanceConfiguration/syncPrices";
+import { getSyncSpreadsheets } from "./GET/getSyncSpreadsheet";
+import { getOrderDetailReseller } from "./reseller/GET/getOrderByInvoiceId";
+import { getAllDepositPagination } from "./admin/maintenanceDeposit/getAllDepositPagination";
+import { approvalDeposit } from "./admin/maintenanceDeposit/approvalDeposit";
+import { putChangeResellerConfig } from "./reseller/PUT/putChangeResellerConfig";
+import { getResellerConfig } from "./reseller/GET/getResellerConfig";
+import { postResendOrderFailed } from "./admin/maintenanceOrders/postResendOrderFailed";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
 
 const apis = [
+    getSyncSpreadsheets,
+
     loginAdmin,
     deleteLogoutAdmin,
     getOrderAnalytics,
     getMeAdmin,
 
     putConfig,
+    putProductPrices,
+
+    // Maintenance Deposit
+    getAllDepositPagination,
+    approvalDeposit,
 
     // Maintenance Order
     getAllOrdersPagination,
+    postResendOrderFailed,
     putStatusOrder,
 
     // Maintenance Game Voucher
@@ -175,6 +228,12 @@ const apis = [
     deleteSocialMedia,
     putSocialMedia,
 
+    // Maintenace Product Category
+    createProductCategory,
+    getAllProductCategoryPagination,
+    putProductCategory,
+    deleteProductCategory,
+
     // POST
     postOrder,
     postRegistration,
@@ -197,6 +256,7 @@ const apis = [
     getConfig,
     getOtp,
     getMetaByPath,
+    getAllProviders,
 
     // DELETE
     deleteLogout,
@@ -207,6 +267,44 @@ const apis = [
 
     // CRONJOB
     cronjobSetExpiredPayment,
+    syncDigiflazzData,
+    syncLapakgamingData,
+    syncLapakgamingDataDesc,
+
+    /**
+     * Start for reseller API
+     */
+
+    // POST
+    postLoginReseller,
+    postRegisterReseller,
+    postTopupFund,
+    postOrderReseller,
+    postCheckPromoCodeReseller,
+    postRequestOtp,
+
+    // GET
+    getDenomReseller,
+    getMeReseller,
+    getAllOrdersPaginationReseller,
+    getBalance,
+    getStatistic,
+    getChartOverview,
+    getSalesOverview,
+    getOrderDetailReseller,
+    getOrderDetailResellerV2,
+    getChangePasswordOtp,
+    getDenomResellerByCategory,
+    getResellerConfig,
+
+    // PUT
+    putChangePassword,
+    putProfileImage,
+    putReseller,
+    putChangeResellerConfig,
+
+    // DELETE
+    deleteLogoutReseller,
 ];
 
 for (const api of apis) {
@@ -222,6 +320,8 @@ for (const api of apis) {
         authorization = authAdmin;
     } else if (auth === "super-admin") {
         authorization = authSuperAdmin;
+    } else if (auth === "reseller") {
+        authorization = authReseller;
     }
 
     const main = (req: Request, res: Response) =>
@@ -265,6 +365,17 @@ const apisWebhook = [
 
     // API GAMES
     webhookApiGames,
+
+    // INTERNAL
+    processVoucherInternal,
+    processSuccessOrder,
+
+    // DIGIFLAZZ
+    webhookDigiflazz,
+
+    // LAPAKGAMING
+    webhookLapakGaming,
+    webhookLapakGamingUpdateProduct,
 ];
 
 for (const api of apisWebhook) {
@@ -275,11 +386,20 @@ for (const api of apisWebhook) {
 
     let authorization;
     if (auth === "webhook-internal") {
-        authorization = authWehbookInternal;
+        //@ts-ignore
+        const xApiKey = api.xApiKey;
+        const authInternal = (req: Request, res: Response, next: NextFunction) => {
+            authWehbookInternal(req, res, next)(xApiKey);
+        };
+        authorization = authInternal;
     } else if (auth === "webhook-xendit") {
         authorization = authWehbookXendit;
     } else if (auth === "webhook-apigames") {
         authorization = authWehbookAPIGames;
+    } else if (auth === "webhook-digiflazz") {
+        authorization = authWebhookDigiflazz;
+    } else if (auth === "webhook-lapakgaming") {
+        authorization = authWebhookLapakgaming;
     }
 
     const main = (req: Request, res: Response, next: NextFunction) =>

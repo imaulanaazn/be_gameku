@@ -19,7 +19,7 @@ const schemaValidation: Validation[] = [
     {
         name: "limit",
         type: "number",
-        default: 3,
+        default: 100,
         required: false,
     },
 ];

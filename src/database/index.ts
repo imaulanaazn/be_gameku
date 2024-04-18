@@ -7,6 +7,7 @@ import {
     CommentEntity,
     CustomerEntity,
     CustomerOtpEntity,
+    FundEntity,
     GameCategoryEntity,
     GameEntity,
     GameVoucherEntity,
@@ -16,13 +17,16 @@ import {
     OrderDetailEntity,
     OrderEntity,
     PaymentMethodEntity,
+    ProductCategoryEntity,
     ProductEntity,
     PromotionEntity,
+    ProviderEntity,
+    ResellerConfigEntity,
     SocialMediaEntity,
+    SysConfigEntity,
     VideoEntity,
     WhatsappTemplateEntity,
 } from "@entity/index";
-import { SysConfigEntity } from "@entity/sysConfig.entity";
 
 const config = new Config();
 
@@ -57,6 +61,10 @@ const sequelize = new Sequelize({
         GameVoucherEntity,
         CustomerOtpEntity,
         MetaEntity,
+        FundEntity,
+        ProductCategoryEntity,
+        ProviderEntity,
+        ResellerConfigEntity,
     ],
 });
 

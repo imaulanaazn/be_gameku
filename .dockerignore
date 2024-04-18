@@ -6,6 +6,7 @@ logs
 uploads
 .wwebjs_auth/
 .wwebjs_cache/
+sessions/
 
 # dotenv environment variable files
 

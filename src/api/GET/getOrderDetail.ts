@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, InvoiceStatuses, OrderStatuses, PaymentsCategory, ValidatorType } from "@enum/index";
+import { ErrorType, InvoiceStatuses, OrderStatuses, OrderType, PaymentsCategory, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { ProductService } from "@serviceInternal/product.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
@@ -12,6 +12,7 @@ import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { GameService } from "@serviceInternal/game.service";
 import dayjs from "dayjs";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { Op } from "sequelize";
 
 const path = "/v1/order-detail/:invoice";
 const method = "GET";
@@ -41,10 +42,14 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const orderService = new OrderService();
-    const order = await orderService.findOneBy({
-        column: "invoiceId",
-        value: invoice.id,
-        only: [
+    const order = await orderService.model.findOne({
+        where: {
+            invoiceId: invoice.id,
+            type: {
+                [Op.in]: [OrderType.TOPUP, null],
+            },
+        },
+        attributes: [
             "id",
             "invoiceId",
             "game",
@@ -64,7 +69,7 @@ const main: RequestHandler = async (req, res) => {
     const paymentMethod = await paymentMethodService.findOneBy({
         column: "id",
         value: order.paymentMethodId,
-        only: ["category", "logo", "cd"],
+        only: ["category", "logo", "cd", "name"],
     });
 
     const orderDetailService = new OrderDetailService();
@@ -148,12 +153,13 @@ const main: RequestHandler = async (req, res) => {
         payment: xenditData,
         status:
             dayjs(invoice.expiredAt).isBefore(dayjs()) && invoice.status === InvoiceStatuses.PENDING
-                ? InvoiceStatuses.EXPIRED
-                : invoice.status,
+                ? OrderStatuses.EXPIRED
+                : order.status,
         expiredAt: dayjs(invoice.expiredAt),
         category: paymentMethod.category,
         createdAt: order.createdAt,
         cd: paymentMethod.cd,
+        paymentMethods: paymentMethod,
         detail: orderDetail,
     });
 };
