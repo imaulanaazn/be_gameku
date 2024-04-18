@@ -1,7 +1,7 @@
 import { ProductDto } from "@dto/product.dto";
 import { CustomerEntity } from "@entity/customer.entity";
 import { OrderDetailEntity } from "@entity/orderDetail.entity";
-import { OrderStatuses, OrderType, ValidatorType } from "@enum/index";
+import { OrderScope, OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -189,7 +189,7 @@ const main: RequestHandler = async (req, res) => {
 
     let order: any = [[query.sort, query.order]];
 
-    const data = await orderService.model.findAndCountAll({
+    const data = await orderService.model.scope(OrderScope.LOGGING).findAndCountAll({
         where: {
             ...(where && where),
             type: {

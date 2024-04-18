@@ -135,3 +135,8 @@ export enum GameProvider {
     MANUAL = "MANUAL",
     APIGAMES = "API_GAMES",
 }
+
+export enum OrderScope {
+    WITH_AMT_BUY = "withAmtBuy",
+    LOGGING = "logging",
+}

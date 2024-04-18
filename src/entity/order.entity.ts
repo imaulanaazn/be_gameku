@@ -17,7 +17,7 @@ import { OrderStatuses, OrderType } from "@enum/index";
 import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, PromotionEntity } from ".";
 
 @DefaultScope(() => ({
-    attributes: { exclude: ["amtBuy"] },
+    attributes: { exclude: ["amtBuy", "remark", "isError", "isCanResend"] },
 }))
 @Table({
     tableName: "orders",
@@ -27,6 +27,9 @@ import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, 
 @Scopes(() => ({
     withAmtBuy: {
         attributes: { include: ["amtBuy"] },
+    },
+    logging: {
+        attributes: { include: ["remark", "isError", "isCanResend"] },
     },
 }))
 export class OrderEntity extends Model<OrderEntity> {
@@ -89,6 +92,15 @@ export class OrderEntity extends Model<OrderEntity> {
     @UpdatedAt
     @Column(DataType.DATE)
     updatedAt!: Date;
+
+    @Column(DataType.BOOLEAN)
+    isError!: boolean;
+
+    @Column(DataType.BOOLEAN)
+    isCanResend!: boolean;
+
+    @Column(DataType.STRING(255))
+    remark!: string;
 
     @Column(DataType.DATE)
     completedAt!: Date | string;

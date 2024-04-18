@@ -132,6 +132,7 @@ import { getAllDepositPagination } from "./admin/maintenanceDeposit/getAllDeposi
 import { approvalDeposit } from "./admin/maintenanceDeposit/approvalDeposit";
 import { putChangeResellerConfig } from "./reseller/PUT/putChangeResellerConfig";
 import { getResellerConfig } from "./reseller/GET/getResellerConfig";
+import { postResendOrderFailed } from "./admin/maintenanceOrders/postResendOrderFailed";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -153,6 +154,7 @@ const apis = [
 
     // Maintenance Order
     getAllOrdersPagination,
+    postResendOrderFailed,
     putStatusOrder,
 
     // Maintenance Game Voucher

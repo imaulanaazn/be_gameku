@@ -198,6 +198,7 @@ const main: RequestHandler = async (req, res) => {
                     quantity: orderDetail.quantity,
                     invoiceId: order.invoiceId,
                 });
+                const resendCodeStatus = ["TIMEOUT"];
                 console.log(createTrxLapakgaming);
                 if (createTrxLapakgaming.code === "SUCCESS") {
                     await orderService.updateBy({
@@ -205,6 +206,26 @@ const main: RequestHandler = async (req, res) => {
                         value: order.id,
                         data: {
                             extTrxId: createTrxLapakgaming.data.tid,
+                        },
+                    });
+                } else if (resendCodeStatus.includes(createTrxLapakgaming.code)) {
+                    await orderService.updateBy({
+                        by: "id",
+                        value: order.id,
+                        data: {
+                            isError: true,
+                            isCanResend: true,
+                            remark: createTrxLapakgaming.code,
+                        },
+                    });
+                } else {
+                    await orderService.updateBy({
+                        by: "id",
+                        value: order.id,
+                        data: {
+                            isError: true,
+                            isCanResend: false,
+                            remark: createTrxLapakgaming.code + " (Infokan developer)",
                         },
                     });
                 }

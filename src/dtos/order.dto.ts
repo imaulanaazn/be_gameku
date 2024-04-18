@@ -18,4 +18,7 @@ export class OrderDto extends MainDto {
     promoCd: string;
     status: OrderStatuses;
     completedAt?: Date | string;
+    isError?: boolean;
+    isCanResend?: boolean;
+    remark?: string;
 }
