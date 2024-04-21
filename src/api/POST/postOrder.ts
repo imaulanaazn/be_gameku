@@ -179,6 +179,11 @@ const main: RequestHandler = async (req, res) => {
         value: product.gameId,
     });
 
+    const gamesNeedClearSeverId = ["mobilelegends", "ML"];
+    if (gamesNeedClearSeverId.includes(game.cd)) {
+        body.serverId = body.serverId.replace(/[^0-9]/g, "");
+    }
+
     let serverName = body.serverId;
     if (game.typeServerId === ServerIdType.LIST) {
         const serverIdService = new ListServerService();

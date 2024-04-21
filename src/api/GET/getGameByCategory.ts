@@ -114,7 +114,7 @@ const main: RequestHandler = async (req, res) => {
         const games = await gameService.model.findAll({
             where: {
                 name: {
-                    [Op.like]: query.search + "%",
+                    [Op.like]: "%" + query.search + "%",
                 },
                 deleted: false,
             },
