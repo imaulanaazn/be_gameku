@@ -24,9 +24,10 @@
             "@helper/*": ["src/helper/*"],
             "@config/*": ["src/config/*"],
             "@enum/*": ["src/enum/*"],
-            "@interfaces/*": ["src/interfaces/"],
+            "@interfaces/*": ["src/interfaces/*"],
             "@middleware/*": ["src/middlewares/*"],
-            "@templates/*": ["src/template/*"]
+            "@templates/*": ["src/template/*"],
+            "@secret/*": ["src/key"]
         },
         "plugins": [
             { "transform": "typescript-transform-paths" },

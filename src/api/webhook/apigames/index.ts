@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { CustomerService } from "@serviceInternal/customer.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
-import { config } from "winston";
 import { Config } from "@config/index";
 
 const path = "/v1/webhook/apigames";

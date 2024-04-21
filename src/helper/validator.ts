@@ -84,7 +84,8 @@ export class Validator {
                     str = schema.enum.join("");
                 }
 
-                result.message = schema.errorMessage || `${schema.name} harus berisi antara ${str}`;
+                // result.message = schema.errorMessage || `${schema.name} harus berisi antara ${str}`;
+                result.message = schema.errorMessage || `Value ${value} tidak valid untuk ${schema.name}`;
                 return result;
             }
         }

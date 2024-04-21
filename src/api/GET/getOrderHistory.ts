@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { CustomerService, GameService, OrderService, ProductService } from "@serviceInternal/index";
-import { ErrorType, OrderStatuses, ValidatorType } from "@enum/index";
+import { ErrorType, OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { BusinessError } from "@helper/handleError";
 import { CustomerEntity } from "@entity/customer.entity";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
+import { Config } from "@config/index";
+import { Op } from "sequelize";
 
 const path = "/v1/order-history";
 const method = "GET";
@@ -36,12 +38,16 @@ const main = async (req: Request, res: Response) => {
         throw new BusinessError("Minimal harus ada nomor invoice atau nomor whatsapp", ErrorType.BadRequest);
     }
     const customerService = new CustomerService();
-
+    const config = new Config();
     let customer: CustomerEntity;
     if (query.mobileNumber) {
-        customer = await customerService.findOneBy({
-            column: "mobileNumber",
-            value: query.mobileNumber,
+        customer = await customerService.model.findOne({
+            where: {
+                mobileNumber: query.mobileNumber,
+                roleId: {
+                    [Op.in]: [config.roleGuest, config.roleUser],
+                },
+            },
         });
     }
 
@@ -67,12 +73,31 @@ const main = async (req: Request, res: Response) => {
         {
             column: query.mobileNumber ? "customerId" : "invoiceId",
             value: query.mobileNumber ? customer.id : query.invoice,
+            only: [
+                "id",
+                "invoiceId",
+                "game",
+                "paymentMethod",
+                "paymentMethodId",
+                "productName",
+                "totalAmt",
+                "feeAmt",
+                "discAmt",
+                "promoCd",
+                "status",
+                "createdAt",
+            ],
         },
         {
             page: query.page,
             sort: query.sort,
             order: query.order,
             limit: query.limit,
+        },
+        {
+            column: "type",
+            // @ts-ignore
+            value: [OrderType.TOPUP, null],
         },
     );
     const invoiceId = orders.rows.map((data) => data.invoiceId);

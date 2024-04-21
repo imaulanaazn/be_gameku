@@ -14,6 +14,7 @@ import {
     FeeType,
     InvoiceStatuses,
     OrderStatuses,
+    OrderType,
     PaymentsCategory,
     ServerIdType,
     ValidatorType,
@@ -34,6 +35,7 @@ import { ListServerService } from "@serviceInternal/listServer.service";
 import { Op } from "sequelize";
 import { OrderEntity } from "@entity/index";
 import APIGamesService from "@serviceExternal/apiGames.service";
+import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
 
 const path = "/v1/order";
 const method = "POST";
@@ -106,6 +108,8 @@ const main: RequestHandler = async (req, res) => {
     console.log(req.headers["x-forwarded-for"]);
     const client = req.client;
     const io = req.io;
+    body.userId = body.userId.trimEnd();
+    body.serverId = body.serverId?.trimEnd();
 
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findOneBy({
@@ -130,9 +134,13 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Nomor Whatsapp tidak valid", ErrorType.BadRequest);
     }
 
-    let customer = await customerService.findOneBy({
-        column: "mobileNumber",
-        value: convertedNumber,
+    let customer = await customerService.model.findOne({
+        where: {
+            mobileNumber: convertedNumber,
+            roleId: {
+                [Op.in]: [config.roleGuest, config.roleUser],
+            },
+        },
     });
 
     if (!customer) {
@@ -170,6 +178,11 @@ const main: RequestHandler = async (req, res) => {
         column: "id",
         value: product.gameId,
     });
+
+    const gamesNeedClearSeverId = ["mobilelegends", "ML"];
+    if (gamesNeedClearSeverId.includes(game.cd)) {
+        body.serverId = body.serverId.replace(/[^0-9]/g, "");
+    }
 
     let serverName = body.serverId;
     if (game.typeServerId === ServerIdType.LIST) {
@@ -319,6 +332,24 @@ const main: RequestHandler = async (req, res) => {
 
     let checkUsername;
     if (game.needCheckId) {
+        // const checkingGameService = new CheckingGameIdService();
+        // const checkGameId = await checkingGameService.checking({
+        //     gameCd: game.cd,
+        //     userId: body.userId,
+        //     ...(body.serverId && { serverId: body.serverId }),
+        // });
+
+        // if (!checkGameId) {
+        //     throw new BusinessError(
+        //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
+        //         ErrorType.BadRequest,
+        //     );
+        // }
+        // if (game.cd === "VALORANT") {
+        //     username = body.userId?.split("#")[0] || body.userId;
+        // } else {
+        //     username = checkGameId;
+        // }
         const configApiGames = await sysConfigService.findManyBy({
             column: "cd",
             value: ["api_games_merchant_id", "api_games_secret_key"],
@@ -372,6 +403,7 @@ const main: RequestHandler = async (req, res) => {
         productName: product.name,
         paymentMethod: payment.name,
         amtBuy: Math.ceil(product.price * body.quantity),
+        type: OrderType.TOPUP,
     });
 
     const orderDetail = await orderDetailService.create({
@@ -383,6 +415,7 @@ const main: RequestHandler = async (req, res) => {
         amount: product.price,
         quantity: body.quantity,
         webhookCount: 0,
+        // username: username || null,
         username: checkUsername?.data?.username || null,
     });
 

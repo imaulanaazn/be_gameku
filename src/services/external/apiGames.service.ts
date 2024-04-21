@@ -38,11 +38,26 @@ class APIGamesService {
 
     async checkUsernameGame(data: ICheckGameAccount): Promise<CheckGameAccount> {
         console.log("START CHECK USERNAME TO API GAMES");
+        const ff = ["FF", "freefire"];
+        const ml = ["ML", "mobilelegends"];
+
+        let gameCd = undefined;
+        if (ff.includes(data.gameCode)) {
+            gameCd = "freefire";
+        } else if (ml.includes(data.gameCode)) {
+            gameCd = "mobilelegends";
+        } else {
+            gameCd = undefined;
+        }
+
+        if (!gameCd) {
+            throw new BusinessError("Silahkan coba beberapa saat lagi", ErrorType.Internal);
+        }
         const signature = crypto
             .createHash("md5")
             .update(this.merchantId + this.secretKey)
             .digest("hex");
-        const url = `${this.baseUrl}/merchant/${this.merchantId}/cek-username/${data.gameCode}?user_id=${data.userId}&signature=${signature}`;
+        const url = `${this.baseUrl}/merchant/${this.merchantId}/cek-username/${gameCd}?user_id=${data.userId}&signature=${signature}`;
         console.log(url);
         try {
             const req = await fetch(url, {

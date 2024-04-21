@@ -11,6 +11,7 @@ export class Config {
     roleAdmin = process.env.ROLE_ADMIN || "asdwqdwqdwhjqbsadwijqbd";
     roleSuperAdmin = process.env.ROLE_SUPER_ADMIN || "hiewsvdfikweqviwevoufvewauoldfewvo";
     roleGuest = process.env.ROLE_GUEST || "wqbdfpouqwbfpiqbfpndpqn";
+    roleReseller = process.env.ROLE_RESELLER || "foehqofjbejkdbs";
 
     feUrl = process.env.FE_URL || "http://localhost:3000";
 
@@ -26,5 +27,16 @@ export class Config {
     bucketName = process.env.BUCKET_NAME || "gasskeun-topup.appspot.com";
 
     expiredTimeOtp = parseInt(process.env.EXPIRED_TIME_OTP) || 10;
-    mobileWhatsappAdmin = "089662944001";
+
+    domainReseller = process.env.RESELLER_DOMAIN || "http://localhost:3000";
+    domainAdmin = process.env.ADMIN_DOMAIN || "http://localhost:3000";
+
+    xApiKeyGameVoucher = process.env.X_API_KEY_GAME_VOUCHER || "f1302600-092c-4073-b661-e255824be5ae";
+    xApiKeyProcessOrder = process.env.X_API_KEY_PROCESS_ORDER || "d6eaf008-e595-4ceb-b17e-8fa8e74839f1";
+
+    digiflazzCbUrl = process.env.DIGIFLAZZ_CB_URL || "http://localhost:3001/api/v1/webhook/digiflazz";
+    digiflazzIp = process.env.DIGIFLAZZ_IP || "52.74.250.133";
+
+    lapakGamingUrl = process.env.LAPAK_GAMING_URL || "https://www.lapakgaming.com";
+    lapakGamingIP = process.env.LAPAK_GAMING_IP || "188.166.205.40";
 }

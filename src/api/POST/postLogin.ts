@@ -20,7 +20,6 @@ const schemaValidation: Validation[] = [
         name: "username",
         type: "string",
         required: true,
-        errorMessage: "Email atau Nomor Whatsapp harus diisi",
     },
     {
         name: "password",
@@ -78,6 +77,7 @@ const main: RequestHandler = async (req, res) => {
         where: {
             mobileNumber: user.mobileNumber,
             type: "login",
+            category: "user",
         },
     });
 

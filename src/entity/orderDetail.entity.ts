@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, ForeignKey, BelongsTo, HasOne } from "sequelize-typescript";
 import { OrderEntity, ProductEntity } from ".";
 
 @Table({
@@ -43,6 +43,6 @@ export class OrderDetailEntity extends Model<OrderDetailEntity> {
     @BelongsTo(() => OrderEntity, "orderId")
     order!: OrderEntity;
 
-    @BelongsTo(() => ProductEntity, "productId")
-    product!: ProductEntity;
+    // @HasOne(() => ProductEntity, "productId")
+    // product!: ProductEntity;
 }

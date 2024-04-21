@@ -9,7 +9,6 @@ import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { Op } from "sequelize";
 import { OrderService } from "@serviceInternal/order.service";
 import { OrderEntity } from "@entity/order.entity";
-import { CustomerEntity } from "@entity/customer.entity";
 import { CustomerService } from "@serviceInternal/customer.service";
 
 const path = "/v1/check-promotion";
@@ -38,7 +37,7 @@ const schemaValidation: Validation[] = [
     {
         name: "gameId",
         type: "string",
-        required: false,
+        required: true,
     },
     {
         name: "mobileNumber",
