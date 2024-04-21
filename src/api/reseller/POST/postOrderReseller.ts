@@ -174,13 +174,16 @@ const main: RequestHandler = async (req, res) => {
         const disc = (product.price * discReseller) / 100;
         prices = product.price - disc;
     }
-    console.log(prices);
-    console.log(product.price);
 
     const game = await gameService.findOneBy({
         column: "id",
         value: product.gameId,
     });
+
+    const gamesNeedClearSeverId = ["mobilelegends", "ML"];
+    if (gamesNeedClearSeverId.includes(game.cd)) {
+        body.serverId = body.serverId.replace(/[^0-9]/g, "");
+    }
 
     let serverName = body.serverId;
     if (game.typeServerId === ServerIdType.LIST) {
