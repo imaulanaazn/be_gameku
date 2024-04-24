@@ -1,9 +1,12 @@
-import { CustomerDto } from "@dto/customer.dto";
-import { ValidatorType } from "@enum/index";
+import { Config } from "@config/index";
+import { OrderStatuses, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
+import { FundService } from "@serviceInternal/fund.service";
+import { OrderService, PaymentMethodService } from "@serviceInternal/index";
 import { RequestHandler } from "express";
+import { Op, col, fn } from "sequelize";
 
 const path = "/v1/user";
 const method = "GET";
@@ -13,14 +16,24 @@ const schemaValidation: Validation[] = [
     {
         name: "email",
         type: "string",
+        required: false,
     },
     {
         name: "mobileNumber",
         type: "string",
+        required: false,
     },
     {
         name: "name",
         type: "string",
+        required: false,
+    },
+    {
+        name: "type",
+        type: "string",
+        required: false,
+        enum: ["reseller", "user"],
+        default: "user",
     },
 ];
 
@@ -29,59 +42,104 @@ const main: RequestHandler = async (req, res) => {
         email?: string;
         mobileNumber?: string;
         name?: string;
+        type: "reseller" | "user";
     }>(schemaValidation, ValidatorType.QUERY, true);
 
     const customerService = new CustomerService();
+    const clearQuery = JSON.parse(JSON.stringify(query));
+    delete clearQuery.name;
+    delete clearQuery.type;
+    delete clearQuery.page;
+    delete clearQuery.sort;
+    delete clearQuery.order;
+    delete clearQuery.limit;
+
     const column = Object.keys(query);
 
+    let where: any = {};
     if (column.length > 4) {
-        const user = await customerService.findManyByPagination(
-            {
-                column: column[0] as keyof CustomerDto,
-                value: `%${query[column[0]]}%`,
-                operator: "like",
+        for (const key of Object.keys(clearQuery)) {
+            where[key] = { [Op.like]: `%${clearQuery[key]}%` };
+        }
+    }
+
+    const config = new Config();
+    const users = await customerService.model.findAndCountAll({
+        order: [[query.sort, query.order]],
+        limit: query.limit,
+        offset: (query.page - 1) * query.limit,
+        where: {
+            ...where,
+            isRegistered: true,
+            roleId: [query.type === "reseller" ? config.roleReseller : config.roleUser],
+        },
+    });
+
+    if (query.type === "reseller") {
+        const paymentMethodService = new PaymentMethodService();
+
+        const payment = await paymentMethodService.findOneBy({
+            column: "cd",
+            value: "GASSKEUN",
+        });
+
+        const customerIds = users.rows.map((item) => item.id);
+
+        const fundService = new FundService();
+        const funds = await fundService.model.findAll({
+            where: {
+                customerId: {
+                    [Op.in]: customerIds,
+                },
             },
-            {
-                page: query.page,
-                sort: query.sort,
-                order: query.order,
-                limit: query.limit,
+        });
+
+        const orderService = new OrderService();
+        const orders = await orderService.model.findAll({
+            where: {
+                // type: [OrderType.TOPUP, null],
+                status: [OrderStatuses.PENDING_ORDER, OrderStatuses.PROCESSING, OrderStatuses.SUCCESS],
+                customerId: {
+                    [Op.in]: customerIds,
+                },
+                paymentMethodId: payment.id,
             },
-            {
-                column: "isRegistered",
-                value: true,
-            },
-        );
+            attributes: [
+                ["customer_id", "customerId"],
+                [fn("SUM", col("total_amt")), "totalAmt"],
+            ],
+            group: ["customerId"],
+        });
+
+        const newData = users.rows.map((user) => {
+            const fund = funds.find((item) => item.customerId === user.id);
+            const order = orders.find((item) => item.customerId === user.id);
+
+            return {
+                ...user.dataValues,
+                fund: {
+                    ...fund.dataValues,
+                    value: fund.value - order.totalAmt,
+                },
+            };
+        });
 
         return res.send({
-            data: user.rows,
+            data: newData,
             page: query.page,
-            total: user.count,
-            totalPage: Math.ceil(user.count / query.limit),
+            total: users.count,
+            totalPage: Math.ceil(users.count / query.limit),
             order: query.order,
             sort: query.sort,
             limit: query.limit,
         });
     }
 
-    const user = await customerService.findAllPagination(
-        {
-            page: query.page,
-            sort: query.sort,
-            order: query.order,
-            limit: query.limit,
-        },
-        {
-            column: "isRegistered",
-            value: true,
-        },
-    );
-
     return res.send({
-        data: user.data,
+        data: users.rows,
         page: query.page,
-        total: user.total,
-        totalPage: Math.ceil(user.total / query.limit),
+        total: users.count,
+        totalPage: Math.ceil(users.count / query.limit),
         order: query.order,
         sort: query.sort,
         limit: query.limit,
