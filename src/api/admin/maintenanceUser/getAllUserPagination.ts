@@ -47,7 +47,6 @@ const main: RequestHandler = async (req, res) => {
 
     const customerService = new CustomerService();
     const clearQuery = JSON.parse(JSON.stringify(query));
-    delete clearQuery.name;
     delete clearQuery.type;
     delete clearQuery.page;
     delete clearQuery.sort;

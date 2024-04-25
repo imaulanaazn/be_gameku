@@ -6,7 +6,7 @@ import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
 import { DigiflazzService } from "@serviceExternal/digiflazz.service";
-import { LapakGamingService } from "@serviceExternal/lapakgaming.service";
+import { IProductLapakGaming, LapakGamingService } from "@serviceExternal/lapakgaming.service";
 import { GameService } from "@serviceInternal/game.service";
 import { ListServerService } from "@serviceInternal/listServer.service";
 import { ProductService } from "@serviceInternal/product.service";
@@ -19,6 +19,21 @@ import { v4 as uuid } from "uuid";
 const path = "/v1/sync-product-lapakgaming";
 const method = "GET";
 const auth = "guess";
+
+const getUserPrices = (item: IProductLapakGaming) => {
+    const lapakGamingPrices = parseInt(item.price.toString());
+    let userPrices = 0;
+    if (lapakGamingPrices > 500000) {
+        userPrices = lapakGamingPrices + (lapakGamingPrices * 2) / 100;
+    } else if (lapakGamingPrices < 100000) {
+        userPrices = lapakGamingPrices + (lapakGamingPrices * 4) / 100;
+    } else {
+        userPrices = lapakGamingPrices + (lapakGamingPrices * 3) / 100;
+    }
+
+    return userPrices;
+};
+
 const main: RequestHandler = async (req, res) => {
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findManyBy({
@@ -96,15 +111,17 @@ const main: RequestHandler = async (req, res) => {
             });
             const productService = new ProductService();
             const productData = productsLapakGaming.data.products.map((item) => {
+                let userPrices = getUserPrices(item);
                 return {
                     id: uuid(),
                     categoryId: "",
                     name: item.name,
                     automatically: true,
                     code: item.code,
-                    price:
-                        parseInt(item.price.toString()) +
-                        (parseInt(item.price.toString()) * parseInt(percentageUser.value)) / 100,
+                    // price:
+                    // parseInt(item.price.toString()) +
+                    // (parseInt(item.price.toString()) * parseInt(percentageUser.value)) / 100,
+                    price: userPrices,
                     resellerPrice:
                         parseInt(item.price.toString()) +
                         (parseInt(item.price.toString()) * parseInt(percentageReseller.value)) / 100,
@@ -163,13 +180,15 @@ const main: RequestHandler = async (req, res) => {
             for (const prod of prodsDb) {
                 const prodLapak = allProductsFromLapakGaming.data.products.find((item) => item.code === prod.code);
                 if (prodLapak) {
+                    const userPrices = getUserPrices(prodLapak);
                     await productService.updateBy({
                         by: "id",
                         value: prod.id,
                         data: {
-                            price:
-                                parseInt(prodLapak.price.toString()) +
-                                (parseInt(prodLapak.price.toString()) * parseInt(percentageUser.value)) / 100,
+                            // price:
+                            //     parseInt(prodLapak.price.toString()) +
+                            //     (parseInt(prodLapak.price.toString()) * parseInt(percentageUser.value)) / 100,
+                            price: userPrices,
                             resellerPrice:
                                 parseInt(prodLapak.price.toString()) +
                                 (parseInt(prodLapak.price.toString()) * parseInt(percentageReseller.value)) / 100,
