@@ -133,6 +133,9 @@ import { approvalDeposit } from "./admin/maintenanceDeposit/approvalDeposit";
 import { putChangeResellerConfig } from "./reseller/PUT/putChangeResellerConfig";
 import { getResellerConfig } from "./reseller/GET/getResellerConfig";
 import { postResendOrderFailed } from "./admin/maintenanceOrders/postResendOrderFailed";
+import { postCreateOrderReview } from "./POST/postCreateOrderReview";
+import { putChangeOrderReview } from "./PUT/putChangeOrderReview";
+import { getListOrderReviews } from "./GET/getListOrderReviews";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -237,6 +240,7 @@ const apis = [
     postRegistration,
     postLogin,
     postCheckPromoCode,
+    postCreateOrderReview,
 
     // GET
     getBanners,
@@ -255,6 +259,7 @@ const apis = [
     getOtp,
     getMetaByPath,
     getAllProviders,
+    getListOrderReviews,
 
     // DELETE
     deleteLogout,
@@ -262,6 +267,7 @@ const apis = [
     // PUT
     putCustomer,
     putCustomerImage,
+    putChangeOrderReview,
 
     // CRONJOB
     cronjobSetExpiredPayment,
