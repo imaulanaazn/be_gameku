@@ -14,17 +14,7 @@ const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {
-        name: "email",
-        type: "string",
-        required: false,
-    },
-    {
-        name: "mobileNumber",
-        type: "string",
-        required: false,
-    },
-    {
-        name: "name",
+        name: "keyword",
         type: "string",
         required: false,
     },
@@ -39,26 +29,16 @@ const schemaValidation: Validation[] = [
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
-        email?: string;
-        mobileNumber?: string;
-        name?: string;
+        keyword?: string;
         type: "reseller" | "user";
     }>(schemaValidation, ValidatorType.QUERY, true);
 
     const customerService = new CustomerService();
-    const clearQuery = JSON.parse(JSON.stringify(query));
-    delete clearQuery.type;
-    delete clearQuery.page;
-    delete clearQuery.sort;
-    delete clearQuery.order;
-    delete clearQuery.limit;
-
-    const column = Object.keys(query);
-
-    let where: any = {};
-    if (column.length > 4) {
-        for (const key of Object.keys(clearQuery)) {
-            where[key] = { [Op.like]: `%${clearQuery[key]}%` };
+    let where = [];
+    const searchBy = ["email", "mobileNumber", "name"];
+    if (query.keyword) {
+        for (const key of searchBy) {
+            where.push({ [key]: { [Op.like]: `%${query.keyword}%` } });
         }
     }
 
@@ -68,7 +48,7 @@ const main: RequestHandler = async (req, res) => {
         limit: query.limit,
         offset: (query.page - 1) * query.limit,
         where: {
-            ...where,
+            ...(where.length > 0 ? { [Op.or]: where } : {}),
             isRegistered: true,
             roleId: [query.type === "reseller" ? config.roleReseller : config.roleUser],
         },
@@ -116,10 +96,7 @@ const main: RequestHandler = async (req, res) => {
 
             return {
                 ...user.dataValues,
-                fund: {
-                    ...fund.dataValues,
-                    value: fund.value - order.totalAmt,
-                },
+                balance: fund.value - (order?.totalAmt ? order.totalAmt : 0),
             };
         });
 
