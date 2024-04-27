@@ -6,6 +6,7 @@ import { BusinessError } from "@helper/handleError";
 import { OrderService } from "@serviceInternal/order.service";
 import { OrderReviewService } from "@serviceInternal/orderReview.service";
 import { v4 as uuid } from "uuid";
+import { CustomerService } from "@serviceInternal/customer.service";
 
 const path = "/v1/order-review";
 const method = "POST";
@@ -54,6 +55,12 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
+    const customerService = new CustomerService();
+    const customer = await customerService.findOneBy({
+        column: "id",
+        value: order.customerId,
+    });
+
     if (body.rating > 5) {
         body.rating = 5;
     }
@@ -73,6 +80,7 @@ const main: RequestHandler = async (req, res) => {
         orderId: order.id,
         message: body.message,
         rating: body.rating,
+        mobileNumber: customer.mobileNumber || "",
     });
 
     res.sendStatus(200);

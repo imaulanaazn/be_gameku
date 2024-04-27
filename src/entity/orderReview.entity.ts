@@ -26,6 +26,9 @@ export class OrderReviewEntity extends Model<OrderReviewEntity> {
     @Column(DataType.STRING(40))
     orderId!: string;
 
+    @Column(DataType.STRING(255))
+    mobileNumber!: string;
+
     @Column(DataType.TEXT)
     message!: string;
 
