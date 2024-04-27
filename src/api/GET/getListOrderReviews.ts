@@ -4,13 +4,9 @@ import { Validator } from "@helper/validator";
 import { ErrorType, ValidatorType } from "@enum/index";
 import { OrderReviewService } from "@serviceInternal/orderReview.service";
 import { Op, col, fn } from "sequelize";
-import { OrderService } from "@serviceInternal/order.service";
-import { CustomerService } from "@serviceInternal/customer.service";
 import { censorPhoneNumber } from "@helper/censorPhoneNumber";
 import { GameService } from "@serviceInternal/game.service";
 import { BusinessError } from "@helper/handleError";
-import { OrderEntity } from "@entity/order.entity";
-import { CustomerEntity } from "@entity/customer.entity";
 
 const path = "/v1/order-review";
 const method = "GET";
@@ -19,24 +15,32 @@ const auth = "guess";
 const schemaValidation: Validation[] = [
     {
         name: "gameId",
-        required: true,
+        required: false,
         type: "string",
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
-        gameId: string;
+        gameId?: string;
     }>(schemaValidation, ValidatorType.QUERY, true);
 
-    const gameService = new GameService();
-    const game = await gameService.findOneBy({
-        column: "id",
-        value: query.gameId,
-    });
+    let where: {} = {};
+    if (query.gameId) {
+        const gameService = new GameService();
+        const game = await gameService.findOneBy({
+            column: "id",
+            value: query.gameId,
+        });
 
-    if (!game) {
-        throw new BusinessError("Game tidak ditemukan", ErrorType.BadRequest);
+        if (!game) {
+            throw new BusinessError("Game tidak ditemukan", ErrorType.BadRequest);
+        }
+        where = {
+            gameName: {
+                [Op.like]: `%${game.name}%`,
+            },
+        };
     }
 
     const orderReviewService = new OrderReviewService();
@@ -44,66 +48,38 @@ const main: RequestHandler = async (req, res) => {
         order: [[query.sort, query.order]],
         limit: query.limit,
         offset: (query.page - 1) * query.limit,
-        include: [
-            {
-                model: OrderEntity,
-                as: "order",
-                required: true,
-                where: {
-                    game: {
-                        [Op.like]: game.name,
-                    },
-                },
-                include: [
-                    {
-                        model: CustomerEntity,
-                        as: "customer",
-                        required: true,
-                    },
-                ],
-            },
-        ],
+        attributes: ["message", "rating", "mobileNumber", ["product_name", "product"], "createdAt"],
+        where,
     });
 
     const newData = orderReview.rows.map((review) => {
         return {
-            message: review.message,
-            rating: review.rating,
+            ...review.dataValues,
             mobileNumber: censorPhoneNumber(review.mobileNumber),
-            product: review?.order?.productName || "",
-            createdAt: review.createdAt,
-            // game: review?.order?.game,
         };
     });
 
     const groupingRating: { rating: string; totalRating: number }[] = (await orderReviewService.model.findAll({
         attributes: ["rating", [fn("COUNT", col("rating")), "totalRating"]],
         group: ["rating"],
-        include: [
-            {
-                model: OrderEntity,
-                as: "order",
-                required: true,
-                attributes: [],
-                where: {
-                    "$order.game$": {
-                        [Op.like]: `%${game.name}%`,
-                    },
-                },
-            },
-        ],
-        // where: {
-        //     "$order.game$": {
-        //         [Op.like]: `%${game.name}%`,
-        //     },
-        // },
+        where,
     })) as any;
 
-    const averageRating = await orderReviewService.model.aggregate("rating", "avg");
+    const allRatings = ["1.0", "2.0", "3.0", "4.0", "5.0"];
+    const mergedRatings = allRatings
+        .map((rating) => {
+            const foundRating = groupingRating.find((item) => item.rating === rating);
+            return foundRating ? foundRating : { rating, totalRating: 0 };
+        })
+        .sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+
+    const averageRating = await orderReviewService.model.aggregate("rating", "avg", {
+        where,
+    });
 
     res.send({
         reviews: newData,
-        ratings: groupingRating,
+        ratings: mergedRatings,
         averageRating,
         totalRating: orderReview.count,
     });

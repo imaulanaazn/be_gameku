@@ -7,6 +7,9 @@ import { OrderService } from "@serviceInternal/order.service";
 import { OrderReviewService } from "@serviceInternal/orderReview.service";
 import { v4 as uuid } from "uuid";
 import { CustomerService } from "@serviceInternal/customer.service";
+import { OrderDetailService } from "@serviceInternal/orderDetail.service";
+import { ProductService } from "@serviceInternal/product.service";
+import { GameService } from "@serviceInternal/game.service";
 
 const path = "/v1/order-review";
 const method = "POST";
@@ -55,6 +58,24 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
+    const orderDetailService = new OrderDetailService();
+    const orderDetail = await orderDetailService.findOneBy({
+        column: "orderId",
+        value: order.id,
+    });
+
+    const productService = new ProductService();
+    const product = await productService.findOneBy({
+        column: "id",
+        value: orderDetail.productId,
+    });
+
+    const gameService = new GameService();
+    const game = await gameService.findOneBy({
+        column: "id",
+        value: product.gameId,
+    });
+
     const customerService = new CustomerService();
     const customer = await customerService.findOneBy({
         column: "id",
@@ -81,6 +102,10 @@ const main: RequestHandler = async (req, res) => {
         message: body.message,
         rating: body.rating,
         mobileNumber: customer.mobileNumber || "",
+        gameId: game.id || "",
+        productId: product.id || "",
+        gameName: game.name,
+        productName: product.name,
     });
 
     res.sendStatus(200);

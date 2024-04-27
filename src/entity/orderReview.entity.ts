@@ -11,6 +11,8 @@ import {
     Default,
 } from "sequelize-typescript";
 import { OrderEntity } from "./order.entity";
+import { GameEntity } from "./game.entity";
+import { ProductEntity } from "./product.entity";
 
 @Table({
     tableName: "order_reviews",
@@ -26,8 +28,22 @@ export class OrderReviewEntity extends Model<OrderReviewEntity> {
     @Column(DataType.STRING(40))
     orderId!: string;
 
+    @ForeignKey(() => GameEntity)
+    @Column(DataType.STRING(40))
+    gameId!: string;
+
+    @ForeignKey(() => ProductEntity)
+    @Column(DataType.STRING(40))
+    productId!: string;
+
     @Column(DataType.STRING(255))
     mobileNumber!: string;
+
+    @Column(DataType.STRING(255))
+    gameName!: string;
+
+    @Column(DataType.STRING(255))
+    productName!: string;
 
     @Column(DataType.TEXT)
     message!: string;
@@ -49,4 +65,10 @@ export class OrderReviewEntity extends Model<OrderReviewEntity> {
 
     @BelongsTo(() => OrderEntity, "orderId")
     order!: OrderEntity;
+
+    @BelongsTo(() => OrderEntity, "orderId")
+    game!: OrderEntity;
+
+    @BelongsTo(() => OrderEntity, "orderId")
+    product!: OrderEntity;
 }
