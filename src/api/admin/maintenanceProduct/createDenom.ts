@@ -95,7 +95,7 @@ const main: RequestHandler = async (req, res) => {
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findOneBy({
         column: "cd",
-        value: "disc_reseller",
+        value: "percentage_prices_reseller",
     });
 
     const prices = parseInt(body.price);

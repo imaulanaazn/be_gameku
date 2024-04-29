@@ -164,7 +164,7 @@ const main: RequestHandler = async (req, res) => {
     }
     const discRessellerPermanent = await sysConfigService.findOneBy({
         column: "cd",
-        value: "disc_reseller",
+        value: "percentage_prices_reseller",
     });
     const discReseller = parseInt(discRessellerPermanent.value);
 

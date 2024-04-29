@@ -83,9 +83,9 @@ const main: RequestHandler = async (req, res) => {
         if (body.userId) {
             conditions.push({ userId: body.userId });
         }
-        if (body.serverId) {
-            conditions.push({ serverId: body.serverId });
-        }
+        // if (body.serverId) {
+        //     conditions.push({ serverId: body.serverId });
+        // }
         const orderDetail = await orderDetailService.model.findAll({
             where: {
                 [Op.or]: conditions,
@@ -101,6 +101,7 @@ const main: RequestHandler = async (req, res) => {
                                 OrderStatuses.PENDING_ORDER,
                                 OrderStatuses.SUCCESS,
                                 OrderStatuses.PENDING_PAYMENT,
+                                OrderStatuses.PROCESSING,
                             ],
                         },
                     },
