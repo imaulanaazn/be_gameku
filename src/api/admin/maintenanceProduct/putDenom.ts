@@ -51,16 +51,16 @@ const schemaValidation: Validation[] = [
         required: false,
         enum: ["active", "archive"],
     },
-    {
-        name: "provider",
-        type: "string",
-        required: true,
-    },
-    {
-        name: "categoryId",
-        type: "string",
-        required: true,
-    },
+    // {
+    //     name: "provider",
+    //     type: "string",
+    //     required: true,
+    // },
+    // {
+    //     name: "categoryId",
+    //     type: "string",
+    //     required: true,
+    // },
 ];
 
 const main: RequestHandler = async (req, res) => {
@@ -72,8 +72,8 @@ const main: RequestHandler = async (req, res) => {
         price: VoucherType;
         gameId: "true" | "false";
         status: "active" | "archive";
-        provider: string;
-        categoryId: string;
+        // provider: string;
+        // categoryId: string;
     }>(schemaValidation, ValidatorType.BODY);
     const file = req.file;
     console.log(body);
@@ -117,24 +117,22 @@ const main: RequestHandler = async (req, res) => {
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findOneBy({
         column: "cd",
-        value: "disc_reseller",
+        value: "percentage_prices_reseller",
     });
 
     const prices = parseInt(body.price);
     const discReseller = (prices * parseInt(sysConfig.value)) / 100;
     const dataUpdate = {
-        id: uuid(),
         name: body.name,
         code: body.code,
         price: parseInt(body.price),
-        provider: body.provider,
         priceBuy: parseInt(body.priceBuy),
         logoDenom: uploadLogoDenom,
         gameId: body.gameId,
         isActive: body.status === "active",
         deleted: false,
         resellerPrice: prices - discReseller,
-        categoryId: body.categoryId,
+        // categoryId: body.categoryId,
     };
 
     await productService.updateBy({
