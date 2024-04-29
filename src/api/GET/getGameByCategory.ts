@@ -69,7 +69,7 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
-        const games = gamesPopular.sort((a, b) => a.name.localeCompare(b.name));
+        const games = gamesPopular.sort((a, b) => a.popSequence - b.popSequence);
 
         return res.send(games);
     }

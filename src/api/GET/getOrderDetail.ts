@@ -13,6 +13,7 @@ import { GameService } from "@serviceInternal/game.service";
 import dayjs from "dayjs";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { Op } from "sequelize";
+import { OrderReviewService } from "@serviceInternal/orderReview.service";
 
 const path = "/v1/order-detail/:invoice";
 const method = "GET";
@@ -63,6 +64,12 @@ const main: RequestHandler = async (req, res) => {
             "status",
             "createdAt",
         ],
+    });
+
+    const orderReviewService = new OrderReviewService();
+    const orderReview = await orderReviewService.findOneBy({
+        column: "orderId",
+        value: order.id,
     });
 
     const paymentMethodService = new PaymentMethodService();
@@ -161,6 +168,14 @@ const main: RequestHandler = async (req, res) => {
         cd: paymentMethod.cd,
         paymentMethods: paymentMethod,
         detail: orderDetail,
+        review: orderReview
+            ? {
+                  reviewId: orderReview.id,
+                  message: orderReview.message,
+                  rating: orderReview.rating,
+                  createdAt: orderReview.createdAt,
+              }
+            : null,
     });
 };
 

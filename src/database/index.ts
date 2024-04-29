@@ -16,6 +16,7 @@ import {
     MetaEntity,
     OrderDetailEntity,
     OrderEntity,
+    OrderReviewEntity,
     PaymentMethodEntity,
     ProductCategoryEntity,
     ProductEntity,
@@ -65,6 +66,7 @@ const sequelize = new Sequelize({
         ProductCategoryEntity,
         ProviderEntity,
         ResellerConfigEntity,
+        OrderReviewEntity
     ],
 });
 
