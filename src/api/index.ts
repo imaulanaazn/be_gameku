@@ -137,6 +137,7 @@ import { postResendOrderFailed } from "./admin/maintenanceOrders/postResendOrder
 import { postCreateOrderReview } from "./POST/postCreateOrderReview";
 import { putChangeOrderReview } from "./PUT/putChangeOrderReview";
 import { getListOrderReviews } from "./GET/getListOrderReviews";
+import { cronSetOrderReview } from "./cronjob/cronSetOrderReview";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -276,6 +277,7 @@ const apis = [
     syncDigiflazzData,
     syncLapakgamingData,
     syncLapakgamingDataDesc,
+    cronSetOrderReview,
 
     /**
      * Start for reseller API

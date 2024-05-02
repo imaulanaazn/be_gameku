@@ -14,7 +14,14 @@ import {
     HasOne,
 } from "sequelize-typescript";
 import { OrderStatuses, OrderType } from "@enum/index";
-import { CustomerEntity, InvoiceEntity, OrderDetailEntity, PaymentMethodEntity, PromotionEntity } from ".";
+import {
+    CustomerEntity,
+    InvoiceEntity,
+    OrderDetailEntity,
+    OrderReviewEntity,
+    PaymentMethodEntity,
+    PromotionEntity,
+} from ".";
 
 @DefaultScope(() => ({
     attributes: { exclude: ["amtBuy", "remark", "isError", "isCanResend"] },
@@ -119,4 +126,7 @@ export class OrderEntity extends Model<OrderEntity> {
 
     @BelongsTo(() => PromotionEntity, "promoId")
     promo!: PromotionEntity;
+
+    @HasOne(() => OrderReviewEntity, "orderId")
+    orderReview!: OrderReviewEntity;
 }

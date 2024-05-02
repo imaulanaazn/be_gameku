@@ -6,6 +6,7 @@ import { OrderService } from "@serviceInternal/order.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
 import { Op } from "sequelize";
+import { createLogCronjobInternal } from "@helper/logger";
 
 const path = "/v1/set-expired-payment";
 const method = "GET";
@@ -14,7 +15,8 @@ const auth = "guess";
 const schemaValidation: Validation[] = [];
 
 const main: RequestHandler = async (req, res) => {
-    console.log("@@ RUNNING START CRONJOB SET EXPIRED");
+    const logging = createLogCronjobInternal();
+    logging.log("@@ RUNNING START CRONJOB SET EXPIRED");
     const query = new Validator(req, res).process(schemaValidation, ValidatorType.QUERY, true);
     const orderService = new OrderService();
     const orders = await orderService.findManyBy({
@@ -48,11 +50,11 @@ const main: RequestHandler = async (req, res) => {
             },
         );
 
-        console.log(updated);
+        logging.log(updated);
     }
 
-    console.log(`AFFECTED ${invoiceId.length} ${invoiceId.length > 0 && "WITH DATA = " + JSON.stringify(invoiceId)}`);
-    console.log("@@ RUNNING END CRONJOB SET EXPIRED");
+    logging.log(`AFFECTED ${invoiceId.length} ${invoiceId.length > 0 && "WITH DATA = " + JSON.stringify(invoiceId)}`);
+    logging.log("@@ RUNNING END CRONJOB SET EXPIRED");
     return res.sendStatus(200);
 };
 

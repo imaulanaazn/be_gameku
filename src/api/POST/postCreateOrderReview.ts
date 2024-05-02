@@ -10,6 +10,7 @@ import { CustomerService } from "@serviceInternal/customer.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
+import dayjs from "dayjs";
 
 const path = "/v1/order-review";
 const method = "POST";
@@ -93,7 +94,20 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (orderReview) {
-        throw new BusinessError(`Kamu sudah pernah memberikan ulasan untuk transaksi ini`, ErrorType.BadRequest);
+        await orderReviewService.updateBy({
+            by: "id",
+            value: orderReview.id,
+            data: {
+                message: body.message,
+                rating: body.rating,
+                hasUpdated: true,
+                createdAt: dayjs().toDate(),
+                updatedAt: dayjs().toDate(),
+            },
+        });
+
+        res.sendStatus(200);
+        return;
     }
 
     await orderReviewService.create({

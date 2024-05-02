@@ -104,6 +104,48 @@ const loggerCronjob = winston.createLogger({
     ],
 });
 
+const cronjobInternalTransport = new DailyRotateFile({
+    filename: "logs/cronjob-internal/logger-cronjob-%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    maxSize: "100m",
+    maxFiles: "120d",
+});
+
+const loggerCronjobInternal = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:sss" }),
+        winston.format.printf(({ timestamp, level, message }) => {
+            if (typeof message === "object") {
+                return `[${timestamp}] ${util.inspect(message, { depth: null })}`;
+            }
+
+            return `[${timestamp}] ${message}`;
+        }),
+    ),
+    transports: [
+        cronjobInternalTransport,
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.printf(({ timestamp, level, message }) => {
+                    if (typeof message === "object") {
+                        return `[${timestamp}] ${util.inspect(message, { depth: null, colors: true })}`;
+                    }
+
+                    return `[${timestamp}] ${message}`;
+                }),
+            ),
+        }),
+    ],
+});
+
+export const createLogCronjobInternal = () => {
+    return {
+        log: loggerCronjobInternal.info.bind(loggerCronjobInternal),
+        warn: loggerCronjobInternal.warn.bind(loggerCronjobInternal),
+        error: loggerCronjobInternal.error.bind(loggerCronjobInternal),
+    };
+};
+
 export const createLogCronjob = () => {
     return {
         log: loggerCronjob.info.bind(loggerCronjob),
