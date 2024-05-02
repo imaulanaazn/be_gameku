@@ -21,4 +21,5 @@ export class OrderDto extends MainDto {
     isError?: boolean;
     isCanResend?: boolean;
     remark?: string;
+    ipAddress?: string;
 }

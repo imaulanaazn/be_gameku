@@ -109,6 +109,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.STRING(255))
     remark!: string;
 
+    @Column(DataType.STRING(255))
+    ipAddress!: string;
+
     @Column(DataType.DATE)
     completedAt!: Date | string;
 

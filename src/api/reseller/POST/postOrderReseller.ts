@@ -40,6 +40,7 @@ import { FundService } from "@serviceInternal/fund.service";
 import { sleep } from "@helper/index";
 import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
 import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
+import { getIpAddress } from "@helper/getIpAddress";
 
 const path = "/v1/reseller/order";
 const method = "POST";
@@ -103,6 +104,9 @@ const main: RequestHandler = async (req, res) => {
     console.log("REQUEST BODY ORDER");
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
+    const clientIp = getIpAddress(req);
+    console.log(clientIp);
+    console.log(ip);
     const client = req.client;
     const io = req.io;
     console.log(req.reseller);
@@ -214,6 +218,8 @@ const main: RequestHandler = async (req, res) => {
                 quantity: body.quantity,
                 userId: body.userId,
                 serverId: body.serverId,
+                isReseller: "true",
+                customerId: customer.id,
             }),
         });
 

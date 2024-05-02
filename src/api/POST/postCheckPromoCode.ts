@@ -10,6 +10,8 @@ import { Op } from "sequelize";
 import { OrderService } from "@serviceInternal/order.service";
 import { OrderEntity } from "@entity/order.entity";
 import { CustomerService } from "@serviceInternal/customer.service";
+import { getIpAddress } from "@helper/getIpAddress";
+import { Config } from "@config/index";
 
 const path = "/v1/check-promotion";
 const method = "POST";
@@ -60,6 +62,17 @@ const schemaValidation: Validation[] = [
         type: "string",
         required: false,
     },
+    {
+        name: "indentifier",
+        type: "string",
+        required: false,
+    },
+    {
+        name: "isReseller",
+        type: "string",
+        required: false,
+        enum: ["true", "false"],
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
@@ -73,9 +86,20 @@ const main: RequestHandler = async (req, res) => {
         customerId?: string;
         userId?: string;
         serverId?: string;
+        indentifier?: string;
+        isReseller: "true" | "false";
     }>(schemaValidation, ValidatorType.BODY);
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
+    const clientIp = getIpAddress(req);
+    console.log(clientIp);
+    console.log(ip);
+
+    const promotionService = new PromotionService();
+    const promoCode = await promotionService.findAvailablePromoBypromoCode(body.promoCode);
+    if (!promoCode) {
+        throw new BusinessError("Kode Promo tidak valid atau kadaluarsa", ErrorType.BadRequest);
+    }
     if (body.userId || body.serverId) {
         const orderDetailService = new OrderDetailService();
         const conditions = [];
@@ -95,7 +119,7 @@ const main: RequestHandler = async (req, res) => {
                     model: OrderEntity,
                     required: true,
                     where: {
-                        promoCd: body.promoCode,
+                        promoId: promoCode.id,
                         status: {
                             [Op.in]: [
                                 OrderStatuses.PENDING_ORDER,
@@ -118,9 +142,23 @@ const main: RequestHandler = async (req, res) => {
     const orderSevice = new OrderService();
 
     let customerId = [];
-    const customer = await customerService.findOneBy({
-        column: "mobileNumber",
-        value: body.mobileNumber,
+    // const customer = await customerService.findOneBy({
+    //     column: "mobileNumber",
+    //     value: body.mobileNumber,
+    // });
+
+    const config = new Config();
+    const customer = await customerService.model.findOne({
+        where: {
+            ...(body.isReseller === "true"
+                ? { id: body.customerId, roleId: config.roleReseller }
+                : {
+                      mobileNumber: body.mobileNumber,
+                      roleId: {
+                          [Op.in]: [config.roleUser, config.roleGuest],
+                      },
+                  }),
+        },
     });
 
     if (customer) {
@@ -132,12 +170,24 @@ const main: RequestHandler = async (req, res) => {
     }
     const order = await orderSevice.model.findAll({
         where: {
-            customerId: {
-                [Op.in]: customerId,
-            },
-            promoCd: body.promoCode,
+            [Op.or]: [
+                {
+                    customerId: {
+                        [Op.in]: customerId,
+                    },
+                },
+                {
+                    ipAddress: body.indentifier || clientIp,
+                },
+            ],
+            promoId: promoCode.id,
             status: {
-                [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS, OrderStatuses.PENDING_PAYMENT],
+                [Op.in]: [
+                    OrderStatuses.PENDING_ORDER,
+                    OrderStatuses.SUCCESS,
+                    OrderStatuses.PENDING_PAYMENT,
+                    OrderStatuses.PROCESSING,
+                ],
             },
         },
     });
@@ -146,15 +196,17 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Kode promo pernah sudah digunakan", ErrorType.BadRequest);
     }
 
-    const promotionService = new PromotionService();
-    const promoCode = await promotionService.findAvailablePromoBypromoCode(body.promoCode);
-    if (!promoCode) {
-        throw new BusinessError("Kode Promo tidak valid atau kadaluarsa", ErrorType.BadRequest);
-    }
-
     const usedVoucher = await orderSevice.model.count({
         where: {
-            promoCd: body.promoCode,
+            promoId: promoCode.id,
+            status: {
+                [Op.in]: [
+                    OrderStatuses.PENDING_ORDER,
+                    OrderStatuses.SUCCESS,
+                    OrderStatuses.PENDING_PAYMENT,
+                    OrderStatuses.PROCESSING,
+                ],
+            },
         },
     });
 

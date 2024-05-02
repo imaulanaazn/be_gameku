@@ -70,7 +70,8 @@ const main: RequestHandler = async (req, res) => {
     SELECT COUNT(orders.promo_id) as used, promotions.*
     from promotions
     left join orders on orders.promo_id = promotions.id
-    where deleted = false ${where.length > 0 ? "AND" : ""} ${where.join(" AND ")}
+    where deleted = false 
+    AND orders.status IN ('${OrderStatuses.SUCCESS}') ${where.length > 0 ? "AND" : ""} ${where.join(" AND ")}
     group by promotions.id
     order by used ${query.order}
     limit ${(query.page - 1) * query.limit}, ${query.limit}
@@ -127,7 +128,7 @@ const main: RequestHandler = async (req, res) => {
                 [Op.in]: data.rows.map((item) => item.id),
             },
             status: {
-                [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS],
+                [Op.in]: [OrderStatuses.SUCCESS],
             },
         },
         group: ["promoId"],

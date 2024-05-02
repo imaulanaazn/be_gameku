@@ -36,6 +36,8 @@ import { Op } from "sequelize";
 import { OrderEntity } from "@entity/index";
 import APIGamesService from "@serviceExternal/apiGames.service";
 import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
+import { getClientIp } from "request-ip";
+import { getIpAddress } from "@helper/getIpAddress";
 
 const path = "/v1/order";
 const method = "POST";
@@ -106,6 +108,9 @@ const main: RequestHandler = async (req, res) => {
     console.log("REQUEST BODY ORDER");
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
+    const clientIp = getIpAddress(req);
+    console.log(clientIp);
+    console.log(ip);
     const client = req.client;
     const io = req.io;
     body.userId = body.userId.trimEnd();
@@ -197,17 +202,21 @@ const main: RequestHandler = async (req, res) => {
         }
     }
     let discount = 0;
-    let voucher: PromotionEntity;
+    let voucher;
     if (body.promoCode) {
+        voucher = await voucherService.findAvailablePromoBypromoCode(body.promoCode);
+        if (!voucher) {
+            throw new BusinessError(`Kode Promo tidak valid atau kadaluarsa`, ErrorType.NotFound);
+        }
         if (body.userId || body.serverId) {
             const conditions = [];
 
             if (body.userId) {
                 conditions.push({ userId: body.userId });
             }
-            if (body.serverId) {
-                conditions.push({ serverId: body.serverId });
-            }
+            // if (body.serverId) {
+            //     conditions.push({ serverId: body.serverId });
+            // }
             const orderDetail = await orderDetailService.model.findAll({
                 where: {
                     [Op.or]: conditions,
@@ -217,12 +226,13 @@ const main: RequestHandler = async (req, res) => {
                         model: OrderEntity,
                         required: true,
                         where: {
-                            promoCd: body.promoCode,
+                            promoId: voucher.id,
                             status: {
                                 [Op.in]: [
                                     OrderStatuses.PENDING_ORDER,
                                     OrderStatuses.SUCCESS,
                                     OrderStatuses.PENDING_PAYMENT,
+                                    OrderStatuses.PROCESSING,
                                 ],
                             },
                         },
@@ -250,12 +260,24 @@ const main: RequestHandler = async (req, res) => {
         }
         const order = await orderService.model.findAll({
             where: {
-                customerId: {
-                    [Op.in]: customerId,
-                },
-                promoCd: body.promoCode,
+                [Op.or]: [
+                    {
+                        customerId: {
+                            [Op.in]: customerId,
+                        },
+                    },
+                    {
+                        ipAddress: clientIp,
+                    },
+                ],
+                promoId: voucher.id,
                 status: {
-                    [Op.in]: [OrderStatuses.PENDING_ORDER, OrderStatuses.SUCCESS, OrderStatuses.PENDING_PAYMENT],
+                    [Op.in]: [
+                        OrderStatuses.PENDING_ORDER,
+                        OrderStatuses.SUCCESS,
+                        OrderStatuses.PENDING_PAYMENT,
+                        OrderStatuses.PROCESSING,
+                    ],
                 },
             },
         });
@@ -264,14 +286,17 @@ const main: RequestHandler = async (req, res) => {
             throw new BusinessError("Kode promo sudah pernah digunakan", ErrorType.BadRequest);
         }
 
-        voucher = await voucherService.findAvailablePromoBypromoCode(body.promoCode);
-        if (!voucher) {
-            throw new BusinessError(`Kode Promo tidak valid atau kadaluarsa`, ErrorType.NotFound);
-        }
-
         const usedVoucher = await orderService.model.count({
             where: {
-                promoCd: body.promoCode,
+                promoId: voucher.id,
+                status: {
+                    [Op.in]: [
+                        OrderStatuses.PENDING_ORDER,
+                        OrderStatuses.SUCCESS,
+                        OrderStatuses.PENDING_PAYMENT,
+                        OrderStatuses.PROCESSING,
+                    ],
+                },
             },
         });
 
@@ -299,16 +324,6 @@ const main: RequestHandler = async (req, res) => {
                 "Kode Promo yang dimasukkan tidak memenuhi minimal pembelian",
                 ErrorType.BadRequest,
             );
-        }
-
-        const totalUsedPromotion = await orderService.model.count({
-            where: {
-                promoId: voucher.id,
-            },
-        });
-
-        if (voucher.stock <= totalUsedPromotion) {
-            throw new BusinessError("Stok voucher telah habis", ErrorType.BadRequest);
         }
     }
 
@@ -404,6 +419,7 @@ const main: RequestHandler = async (req, res) => {
         paymentMethod: payment.name,
         amtBuy: Math.ceil(product.price * body.quantity),
         type: OrderType.TOPUP,
+        ipAddress: clientIp,
     });
 
     const orderDetail = await orderDetailService.create({

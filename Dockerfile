@@ -59,6 +59,6 @@ RUN mkdir uploads
 RUN mv .env.production .env
 RUN npm install
 RUN npm run build
-COPY node_modules/whatsapp-web.js/src/Client.js node_modules/whatsapp-web.js/src/Client.js
+# COPY node_modules/whatsapp-web.js/src/Client.js node_modules/whatsapp-web.js/src/Client.js
 EXPOSE 3001
 CMD ["npm", "start"]
