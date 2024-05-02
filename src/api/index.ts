@@ -138,6 +138,7 @@ import { postCreateOrderReview } from "./POST/postCreateOrderReview";
 import { putChangeOrderReview } from "./PUT/putChangeOrderReview";
 import { getListOrderReviews } from "./GET/getListOrderReviews";
 import { cronSetOrderReview } from "./cronjob/cronSetOrderReview";
+import { getDownloadExcelOrder } from "./GET/getDownloadExcelOrder";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -263,6 +264,7 @@ const apis = [
     getMetaByPath,
     getAllProviders,
     getListOrderReviews,
+    getDownloadExcelOrder,
 
     // DELETE
     deleteLogout,
