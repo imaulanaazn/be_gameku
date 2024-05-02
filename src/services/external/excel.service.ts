@@ -1,3 +1,4 @@
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import dayjs from "dayjs";
 import ExcelJS, { Column } from "exceljs";
 import fetch from "node-fetch";
@@ -102,8 +103,15 @@ export default class ExcelService<T> {
             });
         });
 
+        const sysConfig = new SysConfigService();
+        const logo = await sysConfig.findOneBy({
+            column: "cd",
+            value: "logo",
+        });
+
         const response = await fetch(
-            "https://firebasestorage.googleapis.com/v0/b/gasskeun-topup.appspot.com/o/assets%2Fconfig%2Fba2c0309-5452-4e18-9e4b-dfe95d96c712.png?alt=media&token=1ff6550c-f0df-4672-99b3-0af079507de5",
+            logo.value ||
+                "https://firebasestorage.googleapis.com/v0/b/gasskeun-topup.appspot.com/o/assets%2Fconfig%2Fba2c0309-5452-4e18-9e4b-dfe95d96c712.png?alt=media&token=1ff6550c-f0df-4672-99b3-0af079507de5",
         );
         const buffer = await response.buffer();
         const imageId = workbook.addImage({
