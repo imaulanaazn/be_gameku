@@ -300,7 +300,7 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
-        if (usedVoucher > voucher.stock) {
+        if (usedVoucher >= voucher.stock) {
             throw new BusinessError("Kode promo telah habis", ErrorType.BadRequest);
         }
 
