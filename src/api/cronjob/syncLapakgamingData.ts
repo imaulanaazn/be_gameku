@@ -140,11 +140,6 @@ const main: RequestHandler = async (req, res) => {
                 value: gameDb.id,
             });
 
-            if (gameDb.cd === "VID") {
-                console.log(gameDb);
-                console.log(prodsDb);
-            }
-
             // for(const prodLapak of allProductsFromLapakGaming.data.products) {
             //     const prodDb = prodsDb.find(item => item.code === prodLapak.code)
             //     if(prodDb) {
