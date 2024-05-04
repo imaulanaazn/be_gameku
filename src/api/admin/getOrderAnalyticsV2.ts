@@ -55,29 +55,38 @@ const main: RequestHandler = async (req, res) => {
     const prevStartAt = dayjs(query.startAt).subtract(diffDay, "day").startOf("day");
     const prevEndAt = dayjs(query.startAt).subtract(1, "day").endOf("day");
 
-    const [ordersCount, prevOrdersCount, newBuyersCount, diagramData, popularGame] = await Promise.all([
-        orderService.countOrderGroupingByStatus({
-            startAt: startAt.toDate(),
-            endAt: endAt.toDate(),
-        }),
-        orderService.countOrderGroupingByStatus({
-            startAt: prevStartAt.toDate(),
-            endAt: prevEndAt.toDate(),
-        }),
-        orderService.countNewBuyers({
-            startAt: startAt.toDate(),
-            endAt: endAt.toDate(),
-        }),
-        orderService.countOrdersGroupedByDate({
-            startAt: startAt.toDate(),
-            endAt: endAt.toDate(),
-            format: query.diagramFormat,
-        }),
-        orderService.countPopularGame({
-            startAt: startAt.toDate(),
-            endAt: endAt.toDate(),
-        }),
-    ]);
+    const [ordersCount, prevOrdersCount, newBuyersCount, diagramData, popularGame, totalOrders, prevTotalOrders] =
+        await Promise.all([
+            orderService.countOrderGroupingByStatus({
+                startAt: startAt.toDate(),
+                endAt: endAt.toDate(),
+            }),
+            orderService.countOrderGroupingByStatus({
+                startAt: prevStartAt.toDate(),
+                endAt: prevEndAt.toDate(),
+            }),
+            orderService.countNewBuyers({
+                startAt: startAt.toDate(),
+                endAt: endAt.toDate(),
+            }),
+            orderService.countOrdersGroupedByDate({
+                startAt: startAt.toDate(),
+                endAt: endAt.toDate(),
+                format: query.diagramFormat,
+            }),
+            orderService.countPopularGame({
+                startAt: startAt.toDate(),
+                endAt: endAt.toDate(),
+            }),
+            orderService.countOrders({
+                startAt: startAt.toDate(),
+                endAt: endAt.toDate(),
+            }),
+            orderService.countOrders({
+                startAt: prevStartAt.toDate(),
+                endAt: prevEndAt.toDate(),
+            }),
+        ]);
 
     let statusCount = {};
     for (const data of ordersCount) {
@@ -102,10 +111,22 @@ const main: RequestHandler = async (req, res) => {
         statusCount[category].percentageChange = percentageChange;
     }
 
+    const percentageChangeTotalOrders = Math.round(((totalOrders - prevTotalOrders) / totalOrders) * 100);
+
     res.send({
         startAt: query.startAt,
         endAt: query.endAt,
-        data: { statusCount, newBuyersCount, diagramData, popularGame },
+        data: {
+            statusCount,
+            newBuyersCount,
+            diagramData,
+            popularGame,
+            totalOrders: {
+                total: totalOrders,
+                totalBefore: prevTotalOrders,
+                percentageChange: percentageChangeTotalOrders,
+            },
+        },
     });
 };
 
