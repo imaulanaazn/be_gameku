@@ -112,6 +112,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.STRING(255))
     ipAddress!: string;
 
+    @Column(DataType.BOOLEAN)
+    isNew!: boolean;
+
     @Column(DataType.DATE)
     completedAt!: Date | string;
 

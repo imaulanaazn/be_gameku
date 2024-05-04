@@ -43,6 +43,6 @@ export class OrderDetailEntity extends Model<OrderDetailEntity> {
     @BelongsTo(() => OrderEntity, "orderId")
     order!: OrderEntity;
 
-    // @HasOne(() => ProductEntity, "productId")
-    // product!: ProductEntity;
+    @BelongsTo(() => ProductEntity, "productId")
+    product!: ProductEntity;
 }

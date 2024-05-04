@@ -9,6 +9,7 @@ import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 import { OrderService } from "@serviceInternal/order.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
+import { Op } from "sequelize";
 const path = "/v1/reseller/topup";
 const method = "POST";
 const auth = "reseller";
@@ -44,13 +45,21 @@ const main: RequestHandler = async (req, res) => {
     const invoiceId = `INV-T${new Date().getTime()}`;
     const expiredAt = dayjs().tz("Asia/Jakarta").add(24, "day").toDate();
     const invoiceService = new InvoiceService();
+    const orderService = new OrderService();
+    const checkingOrder = await orderService.model.count({
+        where: {
+            customerId: customer.id,
+            type: {
+                [Op.in]: [OrderType.TOPUP, null],
+            },
+        },
+    });
     await invoiceService.create({
         id: invoiceId,
         status: InvoiceStatuses.PENDING,
         expiredAt,
     });
 
-    const orderService = new OrderService();
     const order = await orderService.create({
         id: uuid(),
         promoId: null,
@@ -67,6 +76,7 @@ const main: RequestHandler = async (req, res) => {
         paymentMethod: payment.name,
         amtBuy: 0,
         type: OrderType.BUY,
+        isNew: checkingOrder <= 0,
     });
 
     const orderDetailService = new OrderDetailService();

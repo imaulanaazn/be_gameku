@@ -15,7 +15,7 @@ import { Op, fn, col, literal, and } from "sequelize";
 
 const path = "/v1/order-analytics";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

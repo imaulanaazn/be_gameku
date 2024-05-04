@@ -397,6 +397,15 @@ const main: RequestHandler = async (req, res) => {
     const expiredAt = dayjs().tz("Asia/Jakarta").add(payment.durationExpired, payment.durationCd).toDate();
     let charge: any;
 
+    const checkingOrder = await orderService.model.count({
+        where: {
+            customerId: customer.id,
+            type: {
+                [Op.in]: [OrderType.TOPUP, null],
+            },
+        },
+    });
+
     await invoiceService.create({
         id: invoiceId,
         status: InvoiceStatuses.PENDING,
@@ -420,6 +429,7 @@ const main: RequestHandler = async (req, res) => {
         amtBuy: Math.ceil(product.price * body.quantity),
         type: OrderType.TOPUP,
         ipAddress: clientIp,
+        isNew: checkingOrder <= 0,
     });
 
     const orderDetail = await orderDetailService.create({

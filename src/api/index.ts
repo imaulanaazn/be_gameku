@@ -139,6 +139,9 @@ import { putChangeOrderReview } from "./PUT/putChangeOrderReview";
 import { getListOrderReviews } from "./GET/getListOrderReviews";
 import { cronSetOrderReview } from "./cronjob/cronSetOrderReview";
 import { getDownloadExcelOrder } from "./GET/getDownloadExcelOrder";
+import { getOrderAnalyticsV2 } from "./admin/getOrderAnalyticsV2";
+import { getLatestOrder } from "./admin/getLatestOrder";
+import { getRevenue } from "./admin/getRevenue";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -149,7 +152,10 @@ const apis = [
     loginAdmin,
     deleteLogoutAdmin,
     getOrderAnalytics,
+    getOrderAnalyticsV2,
+    getLatestOrder,
     getMeAdmin,
+    getRevenue,
 
     putConfig,
     putProductPrices,

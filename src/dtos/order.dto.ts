@@ -22,4 +22,5 @@ export class OrderDto extends MainDto {
     isCanResend?: boolean;
     remark?: string;
     ipAddress?: string;
+    isNew: boolean;
 }
