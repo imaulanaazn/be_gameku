@@ -87,6 +87,7 @@ const main: RequestHandler = async (req, res) => {
                     ? "User"
                     : "Guest",
             mobileNumber: order.customer.mobileNumber,
+            createdAt: order.createdAt,
         };
     });
 

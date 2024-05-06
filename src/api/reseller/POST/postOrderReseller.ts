@@ -117,6 +117,10 @@ const main: RequestHandler = async (req, res) => {
         value: "api_key",
     });
 
+    if (body.quantity <= 1) {
+        body.quantity = 1;
+    }
+
     const voucherService = new PromotionService();
     const productService = new ProductService();
     const paymentMethodService = new PaymentMethodService();

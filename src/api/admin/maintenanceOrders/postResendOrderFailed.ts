@@ -52,6 +52,14 @@ const main: RequestHandler = async (req, res) => {
         throw error;
     }
 
+    await orderService.updateBy({
+        by: "id",
+        value: order.id,
+        data: {
+            isCanResend: false,
+        },
+    });
+
     return res.sendStatus(200);
 };
 

@@ -116,8 +116,8 @@ const main: RequestHandler = async (req, res) => {
     body.userId = body.userId.trimEnd();
     body.serverId = body.serverId?.trimEnd();
 
-    if(body.quantity <= 1) {
-        body.quantity = 1
+    if (body.quantity <= 1) {
+        body.quantity = 1;
     }
 
     const sysConfigService = new SysConfigService();
