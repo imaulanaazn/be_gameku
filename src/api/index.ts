@@ -142,6 +142,7 @@ import { getDownloadExcelOrder } from "./GET/getDownloadExcelOrder";
 import { getOrderAnalyticsV2 } from "./admin/getOrderAnalyticsV2";
 import { getLatestOrder } from "./admin/getLatestOrder";
 import { getRevenue } from "./admin/getRevenue";
+import { syncLapakgamingDataV2 } from "./cronjob/syncLapakgamingDataV2";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -284,6 +285,7 @@ const apis = [
     cronjobSetExpiredPayment,
     syncDigiflazzData,
     syncLapakgamingData,
+    syncLapakgamingDataV2,
     syncLapakgamingDataDesc,
     cronSetOrderReview,
 

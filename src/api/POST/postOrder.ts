@@ -116,6 +116,10 @@ const main: RequestHandler = async (req, res) => {
     body.userId = body.userId.trimEnd();
     body.serverId = body.serverId?.trimEnd();
 
+    if(body.quantity <= 1) {
+        body.quantity = 1
+    }
+
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findOneBy({
         column: "cd",
