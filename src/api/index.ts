@@ -143,6 +143,8 @@ import { getOrderAnalyticsV2 } from "./admin/getOrderAnalyticsV2";
 import { getLatestOrder } from "./admin/getLatestOrder";
 import { getRevenue } from "./admin/getRevenue";
 import { syncLapakgamingDataV2 } from "./cronjob/syncLapakgamingDataV2";
+import { checkingTokoKuponOrderStatus } from "./cronjob/checkingTokoKuponOrderStatus";
+import { syncTokoKuponData } from "./cronjob/syncTokoKuponData";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -288,6 +290,8 @@ const apis = [
     syncLapakgamingDataV2,
     syncLapakgamingDataDesc,
     cronSetOrderReview,
+    checkingTokoKuponOrderStatus,
+    syncTokoKuponData,
 
     /**
      * Start for reseller API

@@ -17,6 +17,8 @@ import { v4 as uuid } from "uuid";
 import { ProviderService } from "@serviceInternal/provider.service";
 import { DigiflazzService } from "@serviceExternal/digiflazz.service";
 import { LapakGamingService } from "@serviceExternal/lapakgaming.service";
+import { KuponService } from "@serviceExternal/kupon.service";
+import { OrderPending3rdPartyService } from "@serviceInternal/orderPending3rdParty.service";
 
 const path = "/v1/gasskeun/process-order-success";
 const method = "POST";
@@ -61,6 +63,7 @@ const main: RequestHandler = async (req, res) => {
             "api_key_digiflazz",
             "username_digiflazz",
             "api_key_lapakgaming",
+            "kupon_apikey",
         ],
         operator: "in",
     });
@@ -120,17 +123,17 @@ const main: RequestHandler = async (req, res) => {
 
         console.log(productProvider?.dataValues);
 
-        if (process.env.NODE_ENV.toLowerCase() === "development" || !process.env.NODE_ENV) {
-            await orderService.updateBy({
-                by: "id",
-                value: order.id,
-                data: {
-                    status: OrderStatuses.SUCCESS,
-                },
-            });
+        // if (process.env.NODE_ENV.toLowerCase() === "development" || !process.env.NODE_ENV) {
+        //     await orderService.updateBy({
+        //         by: "id",
+        //         value: order.id,
+        //         data: {
+        //             status: OrderStatuses.SUCCESS,
+        //         },
+        //     });
 
-            return;
-        }
+        //     return;
+        // }
 
         if (product.automatically) {
             await orderService.updateBy({
@@ -231,6 +234,50 @@ const main: RequestHandler = async (req, res) => {
                 }
 
                 return;
+            } else if (productProvider.cd === "KUPON") {
+                console.log(
+                    `@@@ GAME ORDER OTOMATIS TO TOKOKUPON ${order.game} ${order.productName} total ${orderDetail.quantity}`,
+                );
+
+                const apiKey = configDb.find((item) => item.cd === "kupon_apikey");
+                const tokoKuponService = new KuponService(apiKey.value);
+                const body = {
+                    productCode: parseInt(product.code),
+                    quantity: orderDetail.quantity,
+                    userId: orderDetail.userId || "",
+                    serverId: orderDetail.serverId || "",
+                };
+                console.log("Body Request Create TRX to Toko Kupon");
+                console.log(body);
+                const createTrx = await tokoKuponService.createOrder(body);
+                console.log(createTrx);
+
+                if (createTrx.success) {
+                    await orderService.updateBy({
+                        by: "id",
+                        value: order.id,
+                        data: {
+                            extTrxId: createTrx.data.invoiceNumber,
+                        },
+                    });
+
+                    const orderPending3rdParty = new OrderPending3rdPartyService();
+                    await orderPending3rdParty.create({
+                        id: uuid(),
+                        providerId: productProvider.id,
+                        extInvoiceNumber: createTrx.data.invoiceNumber,
+                    });
+                } else {
+                    await orderService.updateBy({
+                        by: "id",
+                        value: order.id,
+                        data: {
+                            isError: true,
+                            isCanResend: false,
+                            remark: createTrx.message + " (Infokan developer)",
+                        },
+                    });
+                }
             }
         }
     } else if (order.type === OrderType.BUY) {

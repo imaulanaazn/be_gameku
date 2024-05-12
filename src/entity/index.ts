@@ -24,4 +24,5 @@ export * from "./fund.entity";
 export * from "./productCategory.entity";
 export * from "./provider.entity";
 export * from "./resellerConfig.entity";
-export * from "./orderReview.entity"
+export * from "./orderReview.entity";
+export * from "./orderPending3rdParty.entity";

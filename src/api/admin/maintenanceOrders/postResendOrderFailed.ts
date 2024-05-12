@@ -26,13 +26,20 @@ const main: RequestHandler = async (req, res) => {
 
     const config = new Config();
     const orderService = new OrderService();
-    const order = await orderService.findOneBy({
-        column: "id",
-        value: body.orderId,
+    const order = await orderService.model.scope("logging").findOne({
+        where: {
+            id: body.orderId,
+        },
     });
 
     if (!order) {
         throw new BusinessError("Pesanan tidak valid", ErrorType.BadRequest);
+    }
+
+    console.log(order.dataValues);
+
+    if (!order.isCanResend) {
+        throw new BusinessError("Pesanan tidak bisa/sudah di resend", ErrorType.BadRequest);
     }
 
     try {

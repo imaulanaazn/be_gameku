@@ -39,7 +39,7 @@ class APIGamesService {
     async checkUsernameGame(data: ICheckGameAccount): Promise<CheckGameAccount> {
         console.log("START CHECK USERNAME TO API GAMES");
         const ff = ["FF", "freefire"];
-        const ml = ["ML", "mobilelegends"];
+        const ml = ["ML", "mobilelegends", "1"];
 
         let gameCd = undefined;
         if (ff.includes(data.gameCode)) {

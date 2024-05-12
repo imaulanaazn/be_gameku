@@ -103,6 +103,39 @@ const loggerCronjob = winston.createLogger({
         }),
     ],
 });
+const cronjobKuponTransport = new DailyRotateFile({
+    filename: "logs/cronjob-kupon/logger-cronjob-%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    maxSize: "100m",
+    maxFiles: "120d",
+});
+
+const loggerKuponCronjob = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:sss" }),
+        winston.format.printf(({ timestamp, level, message }) => {
+            if (typeof message === "object") {
+                return `[${timestamp}] ${util.inspect(message, { depth: null })}`;
+            }
+
+            return `[${timestamp}] ${message}`;
+        }),
+    ),
+    transports: [
+        cronjobKuponTransport,
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.printf(({ timestamp, level, message }) => {
+                    if (typeof message === "object") {
+                        return `[${timestamp}] ${util.inspect(message, { depth: null, colors: true })}`;
+                    }
+
+                    return `[${timestamp}] ${message}`;
+                }),
+            ),
+        }),
+    ],
+});
 
 const cronjobInternalTransport = new DailyRotateFile({
     filename: "logs/cronjob-internal/logger-cronjob-%DATE%.log",
@@ -143,6 +176,14 @@ export const createLogCronjobInternal = () => {
         log: loggerCronjobInternal.info.bind(loggerCronjobInternal),
         warn: loggerCronjobInternal.warn.bind(loggerCronjobInternal),
         error: loggerCronjobInternal.error.bind(loggerCronjobInternal),
+    };
+};
+
+export const createLogCronjobKupon = () => {
+    return {
+        log: loggerKuponCronjob.info.bind(loggerKuponCronjob),
+        warn: loggerKuponCronjob.warn.bind(loggerKuponCronjob),
+        error: loggerKuponCronjob.error.bind(loggerKuponCronjob),
     };
 };
 

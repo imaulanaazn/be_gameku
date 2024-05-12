@@ -43,6 +43,7 @@ const main: RequestHandler = async (req, res) => {
             createdAt: {
                 [Op.between]: [startAt.toDate(), endAt.toDate()],
             },
+            status: OrderStatuses.SUCCESS,
             type: { [Op.in]: [OrderType.TOPUP, null] },
         },
     });
@@ -51,6 +52,7 @@ const main: RequestHandler = async (req, res) => {
             createdAt: {
                 [Op.between]: [startAt.toDate(), endAt.toDate()],
             },
+            status: OrderStatuses.SUCCESS,
             type: { [Op.in]: [OrderType.TOPUP, null] },
         },
     });

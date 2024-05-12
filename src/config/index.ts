@@ -39,4 +39,6 @@ export class Config {
 
     lapakGamingUrl = process.env.LAPAK_GAMING_URL || "https://www.lapakgaming.com";
     lapakGamingIP = process.env.LAPAK_GAMING_IP || "188.166.205.40";
+
+    kuponUrl = process.env.KUPON_URL || "https://dev-api.tokokupon.com";
 }
