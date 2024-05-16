@@ -62,7 +62,7 @@ const main: RequestHandler = async (req, res) => {
         if (query.status) {
             where = {
                 ...where,
-                isActive: query.status === "active",
+                isDisplayed: query.status === "active",
             };
         }
 
@@ -108,6 +108,7 @@ const main: RequestHandler = async (req, res) => {
             logoDenom: item.logoDenom || item.game.logoDenom || "",
             totalSold: dataTotalSold ? dataTotalSold.dataValues.totalSold : 0,
             game: undefined,
+            isActive: item.isDisplayed,
         };
 
         return data;

@@ -60,6 +60,7 @@ const main: RequestHandler = async (req, res) => {
             gameId: game.id,
             deleted: false,
             isActive: true,
+            isDisplayed: true,
         },
     });
 
@@ -105,11 +106,11 @@ const main: RequestHandler = async (req, res) => {
         servers: listServers,
     });
 
-    res.send({
-        ...game.dataValues,
-        products,
-        servers: listServers,
-    });
+    // res.send({
+    //     ...game.dataValues,
+    //     products,
+    //     servers: listServers,
+    // });
 };
 
 export const getGameDetailById: IApiRouter = {

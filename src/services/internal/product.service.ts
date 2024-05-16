@@ -23,6 +23,7 @@ export class ProductService extends MainService<ProductEntity, ProductDto> {
                 gameId: gameId,
                 isActive: true,
                 deleted: false,
+                isDisplayed: true,
             },
             attributes: { include: ["priceBuy"] },
         });
@@ -35,6 +36,7 @@ export class ProductService extends MainService<ProductEntity, ProductDto> {
                 id: productId,
                 deleted: false,
                 isActive: true,
+                isDisplayed: true,
             },
             attributes: { include: ["priceBuy"] },
         });

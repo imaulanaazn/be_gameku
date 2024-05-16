@@ -109,7 +109,7 @@ const main: RequestHandler = async (req, res) => {
         priceBuy: parseInt(body.priceBuy),
         logoDenom: uploadLogoDenom,
         gameId: game.id,
-        isActive: body.status === "active",
+        isDisplayed: body.status === "active",
         deleted: false,
         resellerPrice: prices - discReseller,
         categoryId: body.categoryId,

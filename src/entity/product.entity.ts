@@ -71,6 +71,10 @@ export class ProductEntity extends Model<ProductEntity> {
     @Column(DataType.BOOLEAN)
     isActive!: boolean;
 
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    isDisplayed!: boolean;
+
     @AllowNull(false)
     @Default(false)
     @Column(DataType.BOOLEAN)

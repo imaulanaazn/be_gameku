@@ -14,6 +14,7 @@ import {
 } from "sequelize-typescript";
 import { GameCategoryEntity } from "./gameCategory.entity";
 import { ServerIdType, VoucherType } from "@enum/index";
+import { ProviderEntity } from "./provider.entity";
 
 @Table({
     tableName: "games",
@@ -25,6 +26,7 @@ export class GameEntity extends Model<GameEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @ForeignKey(() => ProviderEntity)
     @Column(DataType.STRING(40))
     provider!: string;
 
@@ -91,4 +93,7 @@ export class GameEntity extends Model<GameEntity> {
 
     @BelongsTo(() => GameCategoryEntity, "categoryId")
     gameCategory!: GameCategoryEntity;
+
+    @BelongsTo(() => ProviderEntity, "provider")
+    gameProvider!: ProviderEntity;
 }

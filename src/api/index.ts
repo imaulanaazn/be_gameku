@@ -138,7 +138,7 @@ import { postCreateOrderReview } from "./POST/postCreateOrderReview";
 import { putChangeOrderReview } from "./PUT/putChangeOrderReview";
 import { getListOrderReviews } from "./GET/getListOrderReviews";
 import { cronSetOrderReview } from "./cronjob/cronSetOrderReview";
-import { getDownloadExcelOrder } from "./GET/getDownloadExcelOrder";
+import { getDownloadExcelOrder } from "./admin/report/getDownloadExcelOrder";
 import { getOrderAnalyticsV2 } from "./admin/getOrderAnalyticsV2";
 import { getLatestOrder } from "./admin/getLatestOrder";
 import { getRevenue } from "./admin/getRevenue";
@@ -162,6 +162,9 @@ const apis = [
 
     putConfig,
     putProductPrices,
+
+    // Report
+    getDownloadExcelOrder,
 
     // Maintenance Deposit
     getAllDepositPagination,
@@ -273,7 +276,6 @@ const apis = [
     getMetaByPath,
     getAllProviders,
     getListOrderReviews,
-    getDownloadExcelOrder,
 
     // DELETE
     deleteLogout,

@@ -11,5 +11,6 @@ export class ProductDto extends MainDto {
     priceBuy?: number;
     logoDenom: string;
     isActive?: boolean;
+    isDisplayed?: boolean;
     deleted: boolean;
 }

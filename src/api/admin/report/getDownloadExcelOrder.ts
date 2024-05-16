@@ -17,7 +17,7 @@ import { OrderEntity } from "@entity/order.entity";
 
 const path = "/v1/download-report-order";
 const method = "GET";
-const auth = "guess";
+const auth = "admin";
 
 const schemaValidation: Validation[] = [
     {

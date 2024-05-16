@@ -88,6 +88,7 @@ const main: RequestHandler = async (req, res) => {
             for (const lapakGamingProduct of dataProductsLapakGaming) {
                 const databaseProduct = productDb.find((product) => product.code === lapakGamingProduct.code);
                 const userPrices = getUserPrices(lapakGamingProduct);
+                const isActive = lapakGamingProduct.status === "available" ? true : false;
                 if (databaseProduct) {
                     updatedData++;
                     await productService.updateBy({
@@ -100,7 +101,8 @@ const main: RequestHandler = async (req, res) => {
                                 (parseInt(lapakGamingProduct.price.toString()) * parseInt(percentageReseller.value)) /
                                     100,
                             priceBuy: parseInt(lapakGamingProduct.price.toString()),
-                            isActive: lapakGamingProduct.status === "available" ? true : false,
+                            isActive,
+                            ...(!isActive ? { isDisplayed: false } : {}),
                         },
                     });
                 } else {
@@ -116,10 +118,11 @@ const main: RequestHandler = async (req, res) => {
                             parseInt(lapakGamingProduct.price.toString()) +
                             (parseInt(lapakGamingProduct.price.toString()) * parseInt(percentageReseller.value)) / 100,
                         priceBuy: parseInt(lapakGamingProduct.price.toString()),
-                        isActive: lapakGamingProduct.status === "available" ? true : false,
+                        isActive,
                         logoDenom: "",
                         deleted: false,
                         automatically: true,
+                        isDisplayed: isActive,
                     });
                 }
             }

@@ -44,6 +44,8 @@ const main: RequestHandler = async (req, res) => {
             where: {
                 gameId: query.gameId,
                 isActive: true,
+                deleted: false,
+                isDisplayed: true,
             },
         });
 
@@ -55,6 +57,8 @@ const main: RequestHandler = async (req, res) => {
             where: {
                 id: query.productId,
                 isActive: true,
+                deleted: false,
+                isDisplayed: true,
             },
         });
 

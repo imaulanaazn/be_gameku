@@ -83,6 +83,7 @@ const main: RequestHandler = async (req, res) => {
                             (parseInt(kuponProduct.price.toString()) * parseInt(percentageReseller.value)) / 100,
                         priceBuy: parseInt(kuponProduct.price.toString()),
                         isActive: kuponProduct.isActive,
+                        ...(!kuponProduct.isActive ? { isDisplayed: false } : {}),
                     },
                 });
             } else {
@@ -100,6 +101,7 @@ const main: RequestHandler = async (req, res) => {
                         (parseInt(kuponProduct.price.toString()) * parseInt(percentageReseller.value)) / 100,
                     priceBuy: parseInt(kuponProduct.price.toString()),
                     isActive: kuponProduct.isActive,
+                    isDisplayed: kuponProduct.isActive,
                     logoDenom: "",
                     deleted: false,
                     automatically: true,

@@ -1,12 +1,18 @@
+import { GameEntity } from "@entity/game.entity";
+import { ProviderEntity } from "@entity/provider.entity";
 import { ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
+import { KuponService } from "@serviceExternal/kupon.service";
+import { LapakGamingService } from "@serviceExternal/lapakgaming.service";
 import { ProductService } from "@serviceInternal/product.service";
+import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { RequestHandler } from "express";
+import { Op } from "sequelize";
 
 const path = "/v1/denom/archive";
 const method = "PUT";
-const auth = "admin";
+const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
@@ -33,14 +39,97 @@ const main: RequestHandler = async (req, res) => {
         status: "active" | "archive";
     }>(schemaValidation, ValidatorType.BODY);
     console.log(body);
+
     const productService = new ProductService();
-    await productService.updateBy({
-        by: "id",
-        value: body.productId,
-        data: {
-            isActive: body.status === "active",
+    const products = await productService.model.findAll({
+        where: {
+            id: {
+                [Op.in]: body.productId,
+            },
         },
+        include: [
+            {
+                model: GameEntity,
+                required: true,
+                include: [
+                    {
+                        model: ProviderEntity,
+                        required: true,
+                    },
+                ],
+            },
+        ],
     });
+
+    if (body.status === "archive") {
+        await productService.model.update(
+            {
+                isDisplayed: false,
+            },
+            {
+                where: {
+                    id: {
+                        [Op.in]: body.productId,
+                    },
+                },
+            },
+        );
+
+        res.sendStatus(200);
+        return;
+    }
+
+    const sysConfigService = new SysConfigService();
+    const sysConfig = await sysConfigService.findManyBy({
+        column: "cd",
+        value: ["api_key_lapakgaming", "kupon_apikey"],
+        operator: "in",
+    });
+
+    const lapakGamingApiKey = sysConfig.find((item) => item.cd === "api_key_lapakgaming");
+    const kuponApiKey = sysConfig.find((item) => item.cd === "kupon_apikey");
+    const lapakgamingService = new LapakGamingService(lapakGamingApiKey.value);
+    const kuponService = new KuponService(kuponApiKey.value);
+
+    for (const product of products) {
+        let isCanUpdate = false;
+        if (product.game.gameProvider.cd === "LAPAKGAMING") {
+            const lapakGamingProducts = await lapakgamingService.getProductByGamesCode({
+                gameCd: product.game.cd,
+            });
+
+            const findProduct = lapakGamingProducts.data.products.find((item) => item.code === product.code);
+            if (!findProduct || findProduct.status !== "available") {
+                continue;
+            }
+
+            await productService.updateBy({
+                by: "id",
+                value: product.id,
+                data: {
+                    isDisplayed: true,
+                },
+            });
+        } else if (product.game.gameProvider.cd === "KUPON") {
+            const kuponProducts = await kuponService.getProductByGamesCode({
+                gameCd: product.game.cd,
+            });
+
+            const findProduct = kuponProducts.data.products.find((item) => item.id.toString() === product.code);
+            if (!findProduct || !findProduct.isActive) {
+                continue;
+            }
+
+            await productService.updateBy({
+                by: "id",
+                value: product.id,
+                data: {
+                    isDisplayed: true,
+                },
+            });
+        }
+    }
+
     res.sendStatus(200);
 };
 
