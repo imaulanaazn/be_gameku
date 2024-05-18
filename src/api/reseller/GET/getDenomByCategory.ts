@@ -10,6 +10,7 @@ import { GameService } from "@serviceInternal/index";
 import { ListServerService } from "@serviceInternal/listServer.service";
 import { ProductCategoryService } from "@serviceInternal/productCategory.service";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { Op } from "sequelize";
 
 const path = "/v1/reseller/products-grouped";
 const method = "GET";
@@ -36,15 +37,64 @@ const main: RequestHandler = async (req, res) => {
             slug: query.slug,
             deleted: false,
         },
+        attributes: ["id", "categoryId", "name", "type", "needServerId", "typeServerId", "logoUrl", "description"],
     });
 
     if (!game) {
         throw new BusinessError("Slug Tidak valid", ErrorType.BadRequest);
     }
 
-    const products = await productService.findDenomResellerPricesByGameId({ gameId: game.id });
-    if (!products) {
-        throw new BusinessError(`Produk tidak valid`, ErrorType.NotFound);
+    const productCategoryService = new ProductCategoryService();
+    let isGrouped = false;
+    const productCategories = await productCategoryService.model.findAll({
+        where: {
+            gameId: game.id,
+        },
+        order: [["catSequence", "ASC"]],
+        attributes: ["id", "name", "catSequence"],
+        include: [
+            {
+                model: ProductEntity,
+                required: true,
+                where: {
+                    gameId: game.id,
+                    deleted: false,
+                    isActive: true,
+                    isDisplayed: true,
+                },
+                attributes: ["id", "name", "price", "logoDenom", "priceBuy"],
+            },
+        ],
+    });
+
+    const products = await productService.model.findAll({
+        where: {
+            gameId: game.id,
+            deleted: false,
+            isActive: true,
+            isDisplayed: true,
+            categoryId: {
+                [Op.in]: ["", null],
+            },
+        },
+        attributes: ["id", "name", "price", "logoDenom", "priceBuy"],
+    });
+
+    if (productCategories.length > 0) {
+        isGrouped = true;
+        for (const product of products) {
+            productCategories[0].products.push(product);
+        }
+    }
+
+    const listServerService = new ListServerService();
+    let listServers;
+    if (game.needServerId && game.typeServerId === ServerIdType.LIST) {
+        listServers = await listServerService.model.findAll({
+            where: {
+                gameId: game.id,
+            },
+        });
     }
 
     const sysConfigService = new SysConfigService();
@@ -66,39 +116,35 @@ const main: RequestHandler = async (req, res) => {
         }
     });
 
-    denom.sort((a, b) => a.price - b.price);
-    let listServer;
-    if (game.needServerId && game.typeServerId === ServerIdType.LIST) {
-        const listServiceService = new ListServerService();
-        listServer = await listServiceService.findManyBy({
-            column: "gameId",
-            value: game.id,
+    const newDataProductCategories = productCategories.map((item) => {
+        const denoms = item.products.map((item) => {
+            const { resellerPrice, ...rest } = item.dataValues;
+            if (!resellerPrice) {
+                const disc = (rest.priceBuy * discReseller) / 100;
+                return {
+                    ...rest,
+                    price: rest.priceBuy + disc,
+                };
+            } else {
+                return { ...rest, price: resellerPrice };
+            }
         });
-    }
 
-    const categoryId = products.map((item) => item.categoryId);
-    const productCategoryService = new ProductCategoryService();
-    let isGrouped = false;
-    const productCategories = await productCategoryService.model.findAll({
-        where: {
-            id: categoryId,
-        },
-    });
-
-    if (productCategories.length > 0) {
-        isGrouped = true;
-    }
-
-    const newData = productCategories.map((category) => {
-        const prods = denom.filter((product) => product.categoryId === category.id);
-
+        denoms.sort((a, b) => a.price - b.price);
+        delete item.products;
         return {
-            ...category.dataValues,
-            denoms: prods,
+            ...item.dataValues,
+            denoms,
         };
     });
 
-    return res.send({ ...game.dataValues, denoms: denom, listServer, groupedDenoms: newData, isGrouped });
+    return res.send({
+        ...game.dataValues,
+        denoms: denom.sort((a, b) => a.price - b.price),
+        listServer: listServers,
+        groupedDenoms: newDataProductCategories,
+        isGrouped,
+    });
 };
 
 export const getDenomResellerByCategory: IApiRouter = {

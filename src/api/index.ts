@@ -123,7 +123,7 @@ import { processSuccessOrder } from "./webhook/internal/processSuccessOrder";
 import { webhookLapakGamingUpdateProduct } from "./webhook/lapakgaming/updateProduct";
 import { createProductCategory } from "./admin/maintenanceProductCategory/create";
 import { getAllProductCategoryPagination } from "./admin/maintenanceProductCategory/getAllPagination";
-import { putProductCategory } from "./admin/maintenanceProductCategory/putDenom";
+import { putProductCategory } from "./admin/maintenanceProductCategory/putProductCategory";
 import { deleteProductCategory } from "./admin/maintenanceProductCategory/delete";
 import { syncLapakgamingDataDesc } from "./cronjob/syncDescProduct";
 import { putProductPrices } from "./admin/maintenanceConfiguration/syncPrices";

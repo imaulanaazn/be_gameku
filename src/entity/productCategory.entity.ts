@@ -1,4 +1,16 @@
-import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, UpdatedAt } from "sequelize-typescript";
+import {
+    Table,
+    Column,
+    Model,
+    DataType,
+    PrimaryKey,
+    CreatedAt,
+    UpdatedAt,
+    ForeignKey,
+    HasMany,
+} from "sequelize-typescript";
+import { GameEntity } from "./game.entity";
+import { ProductEntity } from "./product.entity";
 
 @Table({
     tableName: "product_categories",
@@ -10,8 +22,15 @@ export class ProductCategoryEntity extends Model<ProductCategoryEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @ForeignKey(() => GameEntity)
+    @Column(DataType.STRING(40))
+    gameId!: string;
+
     @Column(DataType.STRING(255))
     name!: string;
+
+    @Column(DataType.INTEGER)
+    catSequence!: number;
 
     @CreatedAt
     @Column(DataType.DATE)
@@ -20,4 +39,7 @@ export class ProductCategoryEntity extends Model<ProductCategoryEntity> {
     @UpdatedAt
     @Column(DataType.DATE)
     updatedAt!: Date;
+
+    @HasMany(() => ProductEntity, "categoryId")
+    products!: ProductEntity[];
 }

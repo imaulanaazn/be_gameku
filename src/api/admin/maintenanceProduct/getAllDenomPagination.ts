@@ -78,6 +78,7 @@ const main: RequestHandler = async (req, res) => {
         where: {
             ...where,
             deleted: false,
+            isActive: true,
         },
         include: [
             {

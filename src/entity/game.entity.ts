@@ -15,6 +15,7 @@ import {
 import { GameCategoryEntity } from "./gameCategory.entity";
 import { ServerIdType, VoucherType } from "@enum/index";
 import { ProviderEntity } from "./provider.entity";
+import { ProductCategoryEntity } from "./productCategory.entity";
 
 @Table({
     tableName: "games",

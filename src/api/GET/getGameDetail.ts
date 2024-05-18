@@ -7,6 +7,8 @@ import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
 import { ListServerService } from "@serviceInternal/listServer.service";
 import { ProductCategoryService } from "@serviceInternal/productCategory.service";
+import { ProductEntity } from "@entity/product.entity";
+import { Op } from "sequelize";
 
 const path = "/v1/game-detail";
 const method = "GET";
@@ -44,15 +46,35 @@ const main: RequestHandler = async (req, res) => {
             ...(query.id ? { id: query.id } : { slug: query.slug }),
             deleted: false,
         },
+        attributes: ["id", "categoryId", "name", "type", "needServerId", "typeServerId", "logoUrl", "description"],
     });
-    // const game = await gameService.findOneBy({
-    //     column: query.id ? "id" : "slug",
-    //     value: query.id || query.slug,
-    // });
 
     if (!game) {
         throw new BusinessError(`Game tidak ditemukan dengan id: ${query.id}`, ErrorType.NotFound);
     }
+
+    const productCategoryService = new ProductCategoryService();
+    let isGrouped = false;
+    const productCategories = await productCategoryService.model.findAll({
+        where: {
+            gameId: game.id,
+        },
+        order: [["catSequence", "ASC"]],
+        attributes: ["id", "name", "catSequence"],
+        include: [
+            {
+                model: ProductEntity,
+                required: true,
+                where: {
+                    gameId: game.id,
+                    deleted: false,
+                    isActive: true,
+                    isDisplayed: true,
+                },
+                attributes: ["id", "name", "price", "logoDenom"],
+            },
+        ],
+    });
 
     const productService = new ProductService();
     const products = await productService.model.findAll({
@@ -61,56 +83,49 @@ const main: RequestHandler = async (req, res) => {
             deleted: false,
             isActive: true,
             isDisplayed: true,
+            categoryId: {
+                [Op.in]: ["", null],
+            },
         },
-    });
-
-    const listServerService = new ListServerService();
-    let listServers;
-    if (game.needServerId && game.typeServerId === ServerIdType.LIST) {
-        listServers = await listServerService.findManyBy({
-            column: "gameId",
-            value: game.id,
-        });
-    }
-
-    const categoryId = products.map((item) => item.categoryId);
-    const productCategoryService = new ProductCategoryService();
-    let isGrouped = false;
-    const productCategories = await productCategoryService.model.findAll({
-        where: {
-            id: categoryId,
-        },
+        attributes: ["id", "name", "price", "logoDenom"],
     });
 
     if (productCategories.length > 0) {
         isGrouped = true;
+        for (const product of products) {
+            productCategories[0].products.push(product);
+        }
     }
 
-    products.sort((a, b) => a.price - b.price);
-    const newData = productCategories.map((category) => {
-        const prods = products.filter((product) => product.categoryId === category.id);
+    const listServerService = new ListServerService();
+    let listServers;
+    if (game.needServerId && game.typeServerId === ServerIdType.LIST) {
+        listServers = await listServerService.model.findAll({
+            where: {
+                gameId: game.id,
+            },
+        });
+    }
 
+    const newDataProductCategories = productCategories.map((item) => {
+        item.products.sort((a, b) => a.price - b.price);
+        const denoms = item.products;
+        delete item.products;
         return {
-            ...category.dataValues,
-            denoms: prods,
+            ...item.dataValues,
+            denoms,
         };
     });
 
     return res.send({
         ...game.dataValues,
-        denoms: products,
         listServer: listServers,
-        groupedDenoms: newData,
+        groupedDenoms: newDataProductCategories,
         isGrouped,
-        products,
+        products: products.sort((a, b) => a.price - b.price),
+        denoms: products.sort((a, b) => a.price - b.price),
         servers: listServers,
     });
-
-    // res.send({
-    //     ...game.dataValues,
-    //     products,
-    //     servers: listServers,
-    // });
 };
 
 export const getGameDetailById: IApiRouter = {

@@ -24,6 +24,11 @@ const schemaValidation: Validation[] = [
         required: true,
     },
     {
+        name: "position",
+        type: "number",
+        required: true,
+    },
+    {
         name: "productsId",
         type: "array",
         required: true,
@@ -39,6 +44,7 @@ const main: RequestHandler = async (req, res) => {
     const body = new Validator(req, res).process<{
         name: string;
         gameId: string;
+        position: number;
         productsId: string[];
     }>(schemaValidation, ValidatorType.BODY);
 
@@ -70,6 +76,8 @@ const main: RequestHandler = async (req, res) => {
     await productCategoryService.create({
         id: productCategoryId,
         name: body.name,
+        gameId: game.id,
+        catSequence: body.position,
     });
 
     for (const productId of productsId) {
