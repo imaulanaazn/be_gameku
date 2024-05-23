@@ -1,5 +1,5 @@
 import { Config } from "@config/index";
-import { OrderStatuses, ValidatorType } from "@enum/index";
+import { OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -76,7 +76,7 @@ const main: RequestHandler = async (req, res) => {
         const orderService = new OrderService();
         const orders = await orderService.model.findAll({
             where: {
-                // type: [OrderType.TOPUP, null],
+                type: [OrderType.TOPUP, null],
                 status: [OrderStatuses.PENDING_ORDER, OrderStatuses.PROCESSING, OrderStatuses.SUCCESS],
                 customerId: {
                     [Op.in]: customerIds,

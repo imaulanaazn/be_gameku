@@ -145,6 +145,7 @@ import { getRevenue } from "./admin/getRevenue";
 import { syncLapakgamingDataV2 } from "./cronjob/syncLapakgamingDataV2";
 import { checkingTokoKuponOrderStatus } from "./cronjob/checkingTokoKuponOrderStatus";
 import { syncTokoKuponData } from "./cronjob/syncTokoKuponData";
+import { sendNotifyBalanceReseller } from "./admin/maintenanceUser/sendNotifyBalanceReseller";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -216,6 +217,7 @@ const apis = [
 
     // Maintenance User
     getAllUserPagination,
+    sendNotifyBalanceReseller,
 
     // Maintenance Game
     createGame,

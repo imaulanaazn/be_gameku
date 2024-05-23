@@ -36,6 +36,10 @@ interface IParamsSendNotifyAdmin {
     invoiceId: string;
 }
 
+interface IParamsSendNotifyResellerBalance {
+    balance: number;
+}
+
 interface IParamSendMessageOtp extends IParamSendMessage {
     data: IDataSendMessageOtp;
 }
@@ -49,6 +53,12 @@ interface IParamSendMessageVoucher extends IParamSendMessage {
 
 interface IParamSendMessageNotifyAdmin extends IParamSendMessage {
     data: IParamsSendNotifyAdmin;
+}
+interface IParamSendMessageNotifyResellerBalance extends IParamSendMessage {
+    data: {
+        balance: number;
+        resellerName: string;
+    };
 }
 
 export class WhatsAppService {
@@ -302,6 +312,50 @@ export class WhatsAppService {
             const replaceTemplate = content.replace(/\[invoiceId\]/g, data.data.invoiceId);
             await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
             console.log("[WHATSAPP] - SEND MESSAGE VOUCHER TO : " + data.targetNumber);
+            return {
+                success: true,
+                msg: "",
+            };
+        } catch (error) {
+            console.error(error);
+            return {
+                success: false,
+                msg: error.message,
+            };
+        }
+    }
+
+    async sendNotifyBalanceReseller(data: IParamSendMessageNotifyResellerBalance) {
+        const content = data.message.content;
+        const numb = "62" + data.targetNumber.slice(1) + "@c.us";
+        try {
+            const checkNumber = await this.client.isRegisteredUser(numb);
+            if (!checkNumber) {
+                return {
+                    success: false,
+                    msg: "User Belum Terdaftar Whatsapp",
+                };
+            }
+
+            let textMessage = "";
+            if (data.isTest) {
+                textMessage = textMessage + "HANYA TEST (TEXT INI TIDAK AKAN MUNCUL SELAIN UNTUK TEST)\n\n";
+            }
+
+            const replaceTemplate = content
+                // .replace(/\[balance\]/g, data.data.balance.toString())
+                .replace(
+                    /\[balance\]/g,
+                    new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }).format(data.data.balance),
+                )
+                .replace(/\[reseller_name\]/g, data.data.resellerName);
+            await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
+            console.log("[WHATSAPP] - SEND MESSAGE NOTIFY BALANCE RESELLER TO : " + data.targetNumber);
             return {
                 success: true,
                 msg: "",
