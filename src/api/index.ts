@@ -146,6 +146,7 @@ import { syncLapakgamingDataV2 } from "./cronjob/syncLapakgamingDataV2";
 import { checkingTokoKuponOrderStatus } from "./cronjob/checkingTokoKuponOrderStatus";
 import { syncTokoKuponData } from "./cronjob/syncTokoKuponData";
 import { sendNotifyBalanceReseller } from "./admin/maintenanceUser/sendNotifyBalanceReseller";
+import { putPopularBulkV2 } from "./admin/maintenanceGame/putPopularBulkV2";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -225,6 +226,7 @@ const apis = [
     getAllGameOnlyName,
     getAllGamePagination,
     putPopularBulk,
+    putPopularBulkV2,
     deleteGame,
 
     // Maintenance Banner
