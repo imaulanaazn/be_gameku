@@ -93,12 +93,13 @@ const main: RequestHandler = async (req, res) => {
 
     for (const product of products) {
         let isCanUpdate = false;
-        if (product.game.gameProvider.cd === "LAPAKGAMING") {
+        if (product.game.gameProvider.cd === "LAPAK_GAMING") {
             const lapakGamingProducts = await lapakgamingService.getProductByGamesCode({
                 gameCd: product.game.cd,
             });
 
             const findProduct = lapakGamingProducts.data.products.find((item) => item.code === product.code);
+            console.log(findProduct);
             if (!findProduct || findProduct.status !== "available") {
                 continue;
             }
@@ -116,6 +117,7 @@ const main: RequestHandler = async (req, res) => {
             });
 
             const findProduct = kuponProducts.data.products.find((item) => item.id.toString() === product.code);
+            console.log(findProduct);
             if (!findProduct || !findProduct.isActive) {
                 continue;
             }
