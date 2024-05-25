@@ -28,6 +28,7 @@ const main: RequestHandler = async (req, res) => {
         const paymentMethod = await paymentMethodService.model.findAll({
             where: {
                 isActive: true,
+                deleted: false,
                 cd: {
                     [Op.notIn]: ["GASSKEUN", "GASSKEUN_DEPOSIT"],
                 },
@@ -35,9 +36,11 @@ const main: RequestHandler = async (req, res) => {
         });
         res.send(paymentMethod);
     } else {
-        const paymentMethod = await paymentMethodService.findManyBy({
-            column: "isActive",
-            value: true,
+        const paymentMethod = await paymentMethodService.model.findAll({
+            where: {
+                isActive: true,
+                deleted: false,
+            },
         });
         res.send(paymentMethod);
     }

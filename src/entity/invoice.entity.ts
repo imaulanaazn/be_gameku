@@ -1,5 +1,6 @@
-import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, UpdatedAt } from "sequelize-typescript";
+import { Table, Column, Model, DataType, PrimaryKey, CreatedAt, UpdatedAt, HasOne } from "sequelize-typescript";
 import { InvoiceStatuses, OrderStatuses } from "@enum/index";
+import { OrderEntity } from "./order.entity";
 
 @Table({
     tableName: "invoices",
@@ -27,4 +28,7 @@ export class InvoiceEntity extends Model<InvoiceEntity> {
 
     @Column(DataType.DATE)
     expiredAt!: Date;
+
+    @HasOne(() => OrderEntity, "invoiceId")
+    order!: OrderEntity;
 }

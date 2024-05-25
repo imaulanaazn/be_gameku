@@ -11,6 +11,9 @@ export class PaymentMethodEntity extends Model<PaymentMethodEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @Column(DataType.STRING(255))
+    providerCd!: string;
+
     @AllowNull(false)
     @Column(DataType.STRING(255))
     name!: string;
@@ -58,6 +61,12 @@ export class PaymentMethodEntity extends Model<PaymentMethodEntity> {
     @AllowNull(false)
     @Column(DataType.STRING(255))
     logo!: string;
+
+    @Column(DataType.BOOLEAN)
+    deleted!: boolean;
+
+    @Column(DataType.TEXT)
+    paymentGuide!: string;
 
     @CreatedAt
     @Column(DataType.DATE)

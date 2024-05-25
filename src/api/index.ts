@@ -147,6 +147,8 @@ import { checkingTokoKuponOrderStatus } from "./cronjob/checkingTokoKuponOrderSt
 import { syncTokoKuponData } from "./cronjob/syncTokoKuponData";
 import { sendNotifyBalanceReseller } from "./admin/maintenanceUser/sendNotifyBalanceReseller";
 import { putPopularBulkV2 } from "./admin/maintenanceGame/putPopularBulkV2";
+import { postOrderV2 } from "./POST/postOrderV2";
+import { getOrderDetailV2 } from "./GET/getOrderDetailV2";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -257,6 +259,7 @@ const apis = [
 
     // POST
     postOrder,
+    postOrderV2,
     postRegistration,
     postLogin,
     postCheckPromoCode,
@@ -274,6 +277,7 @@ const apis = [
     getGameCategory,
     getOrderHistory,
     getOrderDetail,
+    getOrderDetailV2,
     getSocialMedia,
     getConfig,
     getOtp,

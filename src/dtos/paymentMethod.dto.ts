@@ -2,6 +2,7 @@ import { DurationCD, FeeType, PaymentsCategory } from "@enum/index";
 import { MainDto } from "./main.dto";
 
 export class PaymentMethodDto extends MainDto {
+    providerCd: string;
     name: string;
     minAmount: number;
     maxAmount: number;
@@ -13,4 +14,6 @@ export class PaymentMethodDto extends MainDto {
     durationExpired: number;
     durationCd: DurationCD;
     logo: string;
+    deleted?: boolean;
+    paymentGuide: string;
 }

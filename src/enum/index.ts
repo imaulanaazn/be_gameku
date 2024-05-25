@@ -93,6 +93,7 @@ export enum PaymentsCategory {
     VIRTUAL_ACCOUNT = "3",
     RETAIL = "4",
     INTERNAL = "5",
+    PULSA = "6",
 }
 
 export enum TypeOverview {

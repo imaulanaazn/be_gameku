@@ -61,7 +61,10 @@ const main: RequestHandler = async (req, res) => {
         limit: query.limit,
         offset: (query.page - 1) * query.limit,
         order: [[query.sort, query.order]],
-        where,
+        where: {
+            deleted: false,
+            ...where,
+        },
     });
 
     return res.send({
@@ -74,49 +77,49 @@ const main: RequestHandler = async (req, res) => {
         limit: query.limit,
     });
 
-    let paymentsMethod: {
-        data: PaymentMethodEntity[];
-        total: number;
-    };
-    if (column.length > 4) {
-        const data = await paymentMethodService.findManyByPagination(
-            {
-                column: column[0] as keyof PaymentMethodDto,
-                value: `%${query[column[0]]}%`,
-                operator: "like",
-            },
-            {
-                page: query.page,
-                sort: query.sort,
-                order: query.order,
-                limit: query.limit,
-            },
-        );
+    // let paymentsMethod: {
+    //     data: PaymentMethodEntity[];
+    //     total: number;
+    // };
+    // if (column.length > 4) {
+    //     const data = await paymentMethodService.findManyByPagination(
+    //         {
+    //             column: column[0] as keyof PaymentMethodDto,
+    //             value: `%${query[column[0]]}%`,
+    //             operator: "like",
+    //         },
+    //         {
+    //             page: query.page,
+    //             sort: query.sort,
+    //             order: query.order,
+    //             limit: query.limit,
+    //         },
+    //     );
 
-        paymentsMethod = {
-            data: data.rows,
-            total: data.count,
-        };
-    } else {
-        const data = await paymentMethodService.findAllPagination({
-            page: query.page,
-            sort: query.sort,
-            order: query.order,
-            limit: query.limit,
-        });
+    //     paymentsMethod = {
+    //         data: data.rows,
+    //         total: data.count,
+    //     };
+    // } else {
+    //     const data = await paymentMethodService.findAllPagination({
+    //         page: query.page,
+    //         sort: query.sort,
+    //         order: query.order,
+    //         limit: query.limit,
+    //     });
 
-        paymentsMethod = data;
-    }
+    //     paymentsMethod = data;
+    // }
 
-    return res.send({
-        data: paymentsMethod.data,
-        page: query.page,
-        total: paymentsMethod.total,
-        totalPage: Math.ceil(paymentsMethod.total / query.limit),
-        order: query.order,
-        sort: query.sort,
-        limit: query.limit,
-    });
+    // return res.send({
+    //     data: paymentsMethod.data,
+    //     page: query.page,
+    //     total: paymentsMethod.total,
+    //     totalPage: Math.ceil(paymentsMethod.total / query.limit),
+    //     order: query.order,
+    //     sort: query.sort,
+    //     limit: query.limit,
+    // });
 };
 
 export const getAllPaymentMethodPagination: IApiRouter = {

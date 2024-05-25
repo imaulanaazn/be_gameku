@@ -38,8 +38,9 @@ import APIGamesService from "@serviceExternal/apiGames.service";
 import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
 import { getClientIp } from "request-ip";
 import { getIpAddress } from "@helper/getIpAddress";
+import { TokopayService } from "@serviceExternal/tokopay.service";
 
-const path = "/v1/order";
+const path = "/v2/order";
 const method = "POST";
 const auth = "guess";
 
@@ -121,15 +122,21 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const sysConfigService = new SysConfigService();
-    const sysConfig = await sysConfigService.findOneBy({
+    const sysConfig = await sysConfigService.findManyBy({
         column: "cd",
-        value: "api_key",
+        value: [
+            "api_key",
+            "api_games_merchant_id",
+            "api_games_secret_key",
+            "tokopay_merchant_id",
+            "tokopay_secret_key",
+        ],
+        operator: "in",
     });
 
     const voucherService = new PromotionService();
     const productService = new ProductService();
     const paymentMethodService = new PaymentMethodService();
-    const xenditService = new XenditService(sysConfig.value);
     const orderService = new OrderService();
     const customerService = new CustomerService();
     const invoiceService = new InvoiceService();
@@ -356,56 +363,50 @@ const main: RequestHandler = async (req, res) => {
     }
 
     let checkUsername;
-    if (game.needCheckId) {
-        // const checkingGameService = new CheckingGameIdService();
-        // const checkGameId = await checkingGameService.checking({
-        //     gameCd: game.cd,
-        //     userId: body.userId,
-        //     ...(body.serverId && { serverId: body.serverId }),
-        // });
+    // if (game.needCheckId) {
+    //     // const checkingGameService = new CheckingGameIdService();
+    //     // const checkGameId = await checkingGameService.checking({
+    //     //     gameCd: game.cd,
+    //     //     userId: body.userId,
+    //     //     ...(body.serverId && { serverId: body.serverId }),
+    //     // });
 
-        // if (!checkGameId) {
-        //     throw new BusinessError(
-        //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
-        //         ErrorType.BadRequest,
-        //     );
-        // }
-        // if (game.cd === "VALORANT") {
-        //     username = body.userId?.split("#")[0] || body.userId;
-        // } else {
-        //     username = checkGameId;
-        // }
-        const configApiGames = await sysConfigService.findManyBy({
-            column: "cd",
-            value: ["api_games_merchant_id", "api_games_secret_key"],
-            operator: "in",
-        });
-        const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
-        const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
-        const apiGameService = new APIGamesService({
-            merchantId: merchantId.value,
-            secretKey: secretKey.value,
-        });
+    //     // if (!checkGameId) {
+    //     //     throw new BusinessError(
+    //     //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
+    //     //         ErrorType.BadRequest,
+    //     //     );
+    //     // }
+    //     // if (game.cd === "VALORANT") {
+    //     //     username = body.userId?.split("#")[0] || body.userId;
+    //     // } else {
+    //     //     username = checkGameId;
+    //     // }
+    //     const merchantId = sysConfig.find((item) => item.cd === "api_games_merchant_id");
+    //     const secretKey = sysConfig.find((item) => item.cd === "api_games_secret_key");
+    //     const apiGameService = new APIGamesService({
+    //         merchantId: merchantId.value,
+    //         secretKey: secretKey.value,
+    //     });
 
-        checkUsername = await apiGameService.checkUsernameGame({
-            gameCode: game.cd,
-            userId: body.userId + (body.serverId || ""),
-        });
+    //     checkUsername = await apiGameService.checkUsernameGame({
+    //         gameCode: game.cd,
+    //         userId: body.userId + (body.serverId || ""),
+    //     });
 
-        if (checkUsername.status === 0) {
-            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-        }
+    //     if (checkUsername.status === 0) {
+    //         throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+    //     }
 
-        if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
-            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-        } else if (!checkUsername.data.username) {
-            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-        }
-    }
+    //     if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
+    //         throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+    //     } else if (!checkUsername.data.username) {
+    //         throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+    //     }
+    // }
 
     const invoiceId = `INV${new Date().getTime()}`;
     const expiredAt = dayjs().tz("Asia/Jakarta").add(payment.durationExpired, payment.durationCd).toDate();
-    let charge: any;
 
     const checkingOrder = await orderService.model.count({
         where: {
@@ -455,24 +456,203 @@ const main: RequestHandler = async (req, res) => {
         username: checkUsername?.data?.username || null,
     });
 
-    const response: any = {
-        id: order.id,
-        invoiceId,
-        totalAmount: amount,
-        productName: product.name,
-        productPrice: product.price,
-        fee,
-        discount,
-        paymentName: payment.name,
-        paymentLogo: payment.logo,
-        expiredAt,
-        promoCode: body.promoCode,
-        mobileNumber: body.mobileNumber,
-        userId: body.userId,
-        serverId: serverName,
-        isExpired: false,
-        category: payment.category,
-    };
+    if (payment.providerCd === "TOKOPAY") {
+        const tokopayMerchantID = sysConfig.find((item) => item.cd === "tokopay_merchant_id");
+        const tokopaySecretKey = sysConfig.find((item) => item.cd === "tokopay_secret_key");
+        const tokopayService = new TokopayService({
+            merchantID: tokopayMerchantID.value,
+            secretKey: tokopaySecretKey.value,
+        });
+
+        const tokopayInvoices = await tokopayService.createInvoice({
+            paymentCode: payment.cd,
+            invoiceId,
+            totalAmt: amount,
+            customer: {
+                name: customer.name || "Gasskeun Topup",
+                email: customer.email || "guess@gasskeuntopup.com",
+                mobileNumber: customer.mobileNumber,
+            },
+            expiredAt: expiredAt.getTime(),
+            product: {
+                gameName: game.name,
+                code: product.code,
+                name: product.name,
+                price: product.price,
+                gameImageUrl: game.logoUrl,
+                quantity: body.quantity,
+                gameSlug: game.slug,
+            },
+        });
+
+        if (tokopayInvoices.status !== "Success") {
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.FAILED,
+                    isError: true,
+                    isCanResend: false,
+                    remark: JSON.stringify(tokopayInvoices.error_msg || "Ada kesalahan ketika membuat pembayaran"),
+                },
+            });
+
+            await invoiceService.updateBy({
+                by: "id",
+                value: invoiceId,
+                data: {
+                    status: InvoiceStatuses.FAILED,
+                },
+            });
+
+            throw new BusinessError(
+                "Ada kesalahan ketika membuat order, silahkan coba beberapa saat lagi",
+                ErrorType.Internal,
+            );
+        }
+
+        await invoiceService.updateBy({
+            by: "id",
+            value: invoiceId,
+            data: {
+                xenditId: tokopayInvoices.data.trx_id,
+            },
+        });
+
+        if (payment.cd === "OVOPUSH") {
+            console.log("@@@ PUSH NOTIF OVO");
+            const pushNotifOVO = await tokopayService.pushNotificationOvo({
+                mobileNumber: customer.mobileNumber,
+                extTrxId: tokopayInvoices.data.trx_id,
+            });
+            console.log(pushNotifOVO);
+            console.log("@@@ PUSH NOTIF OVO");
+        }
+    } else if (payment.providerCd === "XENDIT") {
+        const xenditSecretKey = sysConfig.find((item) => item.cd === "api_key");
+        const xenditService = new XenditService(xenditSecretKey.value);
+        let charge;
+        if (payment.category === PaymentsCategory.EWALLET) {
+            const redirectUrl = config.feUrl + "/payment/" + invoiceId;
+            let channel_properties = {};
+            if (payment.cd === "ID_ASTRAPAY") {
+                channel_properties = {
+                    success_redirect_url: redirectUrl,
+                    failure_redirect_url: redirectUrl,
+                };
+            } else if (payment.cd === "ID_OVO") {
+                const mobile_number = `+62${body.mobileNumber.slice(1)}`;
+                channel_properties = { mobile_number };
+            } else if (payment.cd === "ID_JENIUSPAY") {
+                const cashtag = body.cashtag.startsWith("$") ? body.cashtag : "$" + body.cashtag;
+                channel_properties = { cashtag };
+            } else {
+                channel_properties = {
+                    success_redirect_url: redirectUrl,
+                };
+            }
+
+            charge = await xenditService.createEwalletPayment({
+                reference_id: invoiceId,
+                amount,
+                checkout_method: "ONE_TIME_PAYMENT",
+                currency: "IDR",
+                channel_code: payment.cd,
+                channel_properties,
+                basket: [
+                    {
+                        reference_id: product.id,
+                        name: product.name,
+                        category: "ML",
+                        currency: "IDR",
+                        price: product.price,
+                        type: "PRODUCT",
+                        quantity: 1,
+                    },
+                ],
+            });
+        } else if (payment.category === PaymentsCategory.QRIS) {
+            charge = await xenditService.createQRISPayment({
+                reference_id: invoiceId,
+                type: "DYNAMIC",
+                currency: "IDR",
+                amount,
+                channel_code: payment.cd,
+                expires_at: expiredAt.toISOString(),
+            });
+        } else if (payment.category === PaymentsCategory.VIRTUAL_ACCOUNT) {
+            charge = await xenditService.createVAPayment({
+                external_id: invoiceId,
+                bank_code: payment.cd,
+                name: customer.name || customer.mobileNumber,
+                expiration_date: expiredAt.toISOString(),
+                country: "ID",
+                currency: "IDR",
+                is_single_use: payment.isSingleUse,
+                is_closed: true,
+                expected_amount: amount,
+            });
+        } else if (payment.category === PaymentsCategory.RETAIL) {
+            charge = await xenditService.createRetailPayment({
+                external_id: invoiceId,
+                retail_outlet_name: payment.cd,
+                name: customer.name || customer.mobileNumber,
+                expected_amount: amount,
+                expiration_date: expiredAt.toISOString(),
+                is_single_use: payment.isSingleUse,
+            });
+        } else {
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.FAILED,
+                },
+            });
+
+            await invoiceService.updateBy({
+                by: "id",
+                value: invoiceId,
+                data: {
+                    status: InvoiceStatuses.FAILED,
+                },
+            });
+            throw new BusinessError(
+                "Ada kesalahan di category pembayaran, silahkan coba beberapa saat lagi",
+                ErrorType.Internal,
+            );
+        }
+
+        if (charge.error_code) {
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.FAILED,
+                },
+            });
+
+            await invoiceService.updateBy({
+                by: "id",
+                value: invoiceId,
+                data: {
+                    status: InvoiceStatuses.FAILED,
+                },
+            });
+            throw new BusinessError(
+                "Sepertinya ada kesalahan dalam pembayaran, silahkan coba beberapa saat lagi",
+                ErrorType.Internal,
+            );
+        }
+
+        await invoiceService.updateBy({
+            by: "id",
+            value: invoiceId,
+            data: {
+                xenditId: charge.id,
+            },
+        });
+    }
 
     io.emit("order:new", {
         id: order.id,
@@ -495,135 +675,6 @@ const main: RequestHandler = async (req, res) => {
         quantity: orderDetail.quantity,
         logoUrl: game.logoUrl,
         mobileNumber: customer.mobileNumber,
-    });
-
-    if (payment.category === PaymentsCategory.EWALLET) {
-        const redirectUrl = config.feUrl + "/payment/" + invoiceId;
-        let channel_properties = {};
-        if (payment.cd === "ID_ASTRAPAY") {
-            channel_properties = {
-                success_redirect_url: redirectUrl,
-                failure_redirect_url: redirectUrl,
-            };
-        } else if (payment.cd === "ID_OVO") {
-            const mobile_number = `+62${body.mobileNumber.slice(1)}`;
-            channel_properties = { mobile_number };
-        } else if (payment.cd === "ID_JENIUSPAY") {
-            const cashtag = body.cashtag.startsWith("$") ? body.cashtag : "$" + body.cashtag;
-            channel_properties = { cashtag };
-        } else {
-            channel_properties = {
-                success_redirect_url: redirectUrl,
-            };
-        }
-
-        charge = await xenditService.createEwalletPayment({
-            reference_id: invoiceId,
-            amount,
-            checkout_method: "ONE_TIME_PAYMENT",
-            currency: "IDR",
-            channel_code: payment.cd,
-            channel_properties,
-            basket: [
-                {
-                    reference_id: product.id,
-                    name: product.name,
-                    category: "ML",
-                    currency: "IDR",
-                    price: product.price,
-                    type: "PRODUCT",
-                    quantity: 1,
-                },
-            ],
-        });
-
-        response.actions = charge.actions;
-    } else if (payment.category === PaymentsCategory.QRIS) {
-        charge = await xenditService.createQRISPayment({
-            reference_id: invoiceId,
-            type: "DYNAMIC",
-            currency: "IDR",
-            amount,
-            channel_code: payment.cd,
-            expires_at: expiredAt.toISOString(),
-        });
-
-        response.qrString = charge.qr_string;
-    } else if (payment.category === PaymentsCategory.VIRTUAL_ACCOUNT) {
-        charge = await xenditService.createVAPayment({
-            external_id: invoiceId,
-            bank_code: payment.cd,
-            name: customer.name || customer.mobileNumber,
-            expiration_date: expiredAt.toISOString(),
-            country: "ID",
-            currency: "IDR",
-            is_single_use: payment.isSingleUse,
-            is_closed: true,
-            expected_amount: amount,
-        });
-
-        response.accountNumber = charge.account_number;
-    } else if (payment.category === PaymentsCategory.RETAIL) {
-        charge = await xenditService.createRetailPayment({
-            external_id: invoiceId,
-            retail_outlet_name: payment.cd,
-            name: customer.name || customer.mobileNumber,
-            expected_amount: amount,
-            expiration_date: expiredAt.toISOString(),
-            is_single_use: payment.isSingleUse,
-        });
-
-        response.paymentCode = charge.payment_code;
-    } else {
-        await orderService.updateBy({
-            by: "id",
-            value: order.id,
-            data: {
-                status: OrderStatuses.FAILED,
-            },
-        });
-
-        await invoiceService.updateBy({
-            by: "id",
-            value: invoiceId,
-            data: {
-                status: InvoiceStatuses.FAILED,
-            },
-        });
-        throw new BusinessError(
-            "Ada kesalahan di category pembayaran, silahkan coba beberapa saat lagi",
-            ErrorType.Internal,
-        );
-    }
-
-    if (charge.error_code) {
-        await orderService.updateBy({
-            by: "id",
-            value: order.id,
-            data: {
-                status: OrderStatuses.FAILED,
-            },
-        });
-
-        await invoiceService.updateBy({
-            by: "id",
-            value: invoiceId,
-            data: {
-                status: InvoiceStatuses.FAILED,
-            },
-        });
-        throw new BusinessError(
-            "Sepertinya ada kesalahan dalam pembayaran, silahkan coba beberapa saat lagi",
-            ErrorType.Internal,
-        );
-    }
-
-    await invoiceService.updateBy({
-        by: "id",
-        value: invoiceId,
-        data: {
-            xenditId: charge.id,
-        },
     });
 
     const whatsappTemplateService = new WhatsappTemplateService();
@@ -656,7 +707,7 @@ const main: RequestHandler = async (req, res) => {
     });
 };
 
-export const postOrder: IApiRouter = {
+export const postOrderV2: IApiRouter = {
     path,
     method,
     main,

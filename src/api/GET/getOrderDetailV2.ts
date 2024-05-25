@@ -13,16 +13,18 @@ import { GameService } from "@serviceInternal/game.service";
 import dayjs from "dayjs";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { Op } from "sequelize";
-import { GameEntity } from "@entity/game.entity";
-import { OrderEntity } from "@entity/order.entity";
-import { OrderDetailEntity } from "@entity/orderDetail.entity";
+import { OrderReviewService } from "@serviceInternal/orderReview.service";
 import { OrderReviewEntity } from "@entity/orderReview.entity";
-import { PaymentMethodEntity } from "@entity/paymentMethod.entity";
+import { OrderDetailEntity } from "@entity/orderDetail.entity";
 import { ProductEntity } from "@entity/product.entity";
+import { GameEntity } from "@entity/game.entity";
+import { PaymentMethodEntity } from "@entity/paymentMethod.entity";
+import { OrderEntity } from "@entity/order.entity";
+import { TokopayService } from "@serviceExternal/tokopay.service";
 
-const path = "/v2/reseller/order-detail/:invoice";
+const path = "/v2/order-detail/:invoice";
 const method = "GET";
-const auth = "reseller";
+const auth = "guess";
 
 const schemaValidation: Validation[] = [
     {
@@ -37,7 +39,6 @@ const main: RequestHandler = async (req, res) => {
         invoice: string;
     }>(schemaValidation, ValidatorType.PARAMS);
 
-    const session = req.reseller.data;
     const invoiceService = new InvoiceService();
     const invoice = await invoiceService.model.findOne({
         where: {
@@ -48,7 +49,9 @@ const main: RequestHandler = async (req, res) => {
                 model: OrderEntity,
                 required: true,
                 where: {
-                    customerId: session.id,
+                    type: {
+                        [Op.in]: [OrderType.TOPUP, null],
+                    },
                 },
                 attributes: [
                     "id",
@@ -70,7 +73,7 @@ const main: RequestHandler = async (req, res) => {
                         required: true,
                         where: {
                             providerCd: {
-                                [Op.in]: ["INTERNAL"],
+                                [Op.notIn]: ["INTERNAL"],
                             },
                         },
                     },
@@ -85,7 +88,7 @@ const main: RequestHandler = async (req, res) => {
                         include: [
                             {
                                 model: ProductEntity,
-                                required: false,
+                                required: true,
                                 include: [
                                     {
                                         model: GameEntity,
@@ -101,18 +104,78 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (!invoice) {
-        throw new BusinessError("Invoice Id tidak valid", ErrorType.BadRequest);
+        throw new BusinessError("Nomor Invoice Tidak Valid", ErrorType.NotFound);
     }
 
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findManyBy({
         column: "cd",
-        value: ["logo", "rekening_name", "rekening_number"],
+        value: ["api_key", "tokopay_merchant_id", "tokopay_secret_key"],
         operator: "in",
     });
-    const logo = sysConfig.find((item) => item.cd === "logo");
-    const rekeningName = sysConfig.find((item) => item.cd === "rekening_name");
-    const rekeningNumber = sysConfig.find((item) => item.cd === "rekening_number");
+
+    let paymentData = {
+        mobileNumber: undefined,
+        checkoutUrl: undefined,
+        qrString: undefined,
+        paymentCode: undefined,
+    };
+
+    if (invoice.order.payment.providerCd === "XENDIT") {
+        const xenditSecretKey = sysConfig.find((item) => item.cd === "api_key");
+        const xenditService = new XenditService(xenditSecretKey.value);
+        const xendit = await xenditService.getPayment({
+            category: invoice.order.payment.category as PaymentsCategory,
+            id: invoice.xenditId,
+        });
+        if (invoice.order.payment.category === PaymentsCategory.EWALLET) {
+            if (invoice.order.payment.cd === "ID_OVO") {
+                paymentData.mobileNumber = xendit.channel_properties.mobile_number;
+            } else if (invoice.order.payment.cd === "ID_JENIUSPAY") {
+                paymentData.mobileNumber = xendit.channel_properties.cashtag;
+            } else {
+                paymentData.checkoutUrl =
+                    xendit.actions.mobile_deeplink_checkout_url ||
+                    xendit.actions.mobile_web_checkout_url ||
+                    xendit.actions.desktop_web_checkout_url;
+                paymentData.qrString = xendit.actions.qr_checkout_string;
+            }
+        } else if (
+            invoice.order.payment.category === PaymentsCategory.VIRTUAL_ACCOUNT ||
+            invoice.order.payment.category === PaymentsCategory.RETAIL
+        ) {
+            paymentData.paymentCode = xendit.account_number || xendit.payment_code;
+        } else if (invoice.order.payment.category === PaymentsCategory.QRIS) {
+            paymentData.qrString = xendit.qr_string;
+        } else {
+            throw new BusinessError("Payment Category is not valid", ErrorType.Internal);
+        }
+    } else if (invoice.order.payment.providerCd === "TOKOPAY") {
+        const tokopayMerchantID = sysConfig.find((item) => item.cd === "tokopay_merchant_id");
+        const tokopaySecretKey = sysConfig.find((item) => item.cd === "tokopay_secret_key");
+        const tokopayService = new TokopayService({
+            merchantID: tokopayMerchantID.value,
+            secretKey: tokopaySecretKey.value,
+        });
+
+        const order = await tokopayService.getInvoice({
+            invoiceId: invoice.id,
+            paymentCode: invoice.order.payment.cd,
+            totalAmt: invoice.order.totalAmt,
+        });
+
+        if (invoice.order.payment.category === PaymentsCategory.PULSA) {
+            paymentData.checkoutUrl = order.data.checkout_url;
+        } else if (invoice.order.payment.category === PaymentsCategory.RETAIL) {
+            paymentData.paymentCode = order.data.nomor_va;
+        } else if (invoice.order.payment.category === PaymentsCategory.VIRTUAL_ACCOUNT) {
+            paymentData.paymentCode = order.data.nomor_va;
+        } else if (invoice.order.payment.category === PaymentsCategory.QRIS) {
+            paymentData.qrString = order.data.qr_string;
+        } else if (invoice.order.payment.category === PaymentsCategory.EWALLET) {
+            paymentData.checkoutUrl = order.data.checkout_url;
+        }
+    }
 
     res.send({
         order: {
@@ -138,26 +201,23 @@ const main: RequestHandler = async (req, res) => {
             cd: invoice.order.payment.cd,
             logo: invoice.order.payment.logo,
             paymentGuide: invoice.order.payment.paymentGuide,
-            ...(invoice.order.payment.cd === "GASSKEUN_DEPOSIT"
-                ? { action: { paymentCode: rekeningNumber.value, name: rekeningName.value } }
-                : {}),
+            action: paymentData,
         },
         product: {
-            name: invoice.order.orderDetail?.product?.name || "Topup Saldo Gasskeun",
+            name: invoice.order.orderDetail.product.name,
             logoDenom:
-                invoice.order.orderDetail?.product?.logoDenom ||
-                invoice.order.orderDetail?.product?.game?.logoDenom ||
-                invoice.order.orderDetail?.product?.game?.logoUrl ||
-                logo.value,
+                invoice.order.orderDetail.product.logoDenom ||
+                invoice.order.orderDetail.product.game.logoDenom ||
+                invoice.order.orderDetail.product.game.logoUrl,
         },
         game: {
-            name: invoice.order.orderDetail.product?.game?.name || "Gasskeun Deposit",
-            logoUrl: invoice.order.orderDetail.product?.game?.logoUrl || logo.value,
+            name: invoice.order.orderDetail.product.game.name,
+            logoUrl: invoice.order.orderDetail.product.game.logoUrl,
         },
     });
 };
 
-export const getOrderDetailResellerV2: IApiRouter = {
+export const getOrderDetailV2: IApiRouter = {
     path,
     method,
     main,
