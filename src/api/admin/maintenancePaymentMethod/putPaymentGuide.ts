@@ -14,7 +14,7 @@ const schemaValidationBody = Joi.object({
     paymentGuide: Joi.string().required(),
 });
 const schemaValidationParam = Joi.object({
-    paymentGuide: Joi.string().required(),
+    id: Joi.string().required(),
 });
 
 const main: RequestHandler = async (req, res) => {
