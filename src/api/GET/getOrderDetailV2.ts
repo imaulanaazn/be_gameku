@@ -202,6 +202,7 @@ const main: RequestHandler = async (req, res) => {
             logo: invoice.order.payment.logo,
             paymentGuide: invoice.order.payment.paymentGuide,
             action: paymentData,
+            expiredAt: invoice.expiredAt,
         },
         product: {
             name: invoice.order.orderDetail.product.name,
