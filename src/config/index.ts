@@ -42,4 +42,5 @@ export class Config {
 
     kuponUrl = process.env.KUPON_URL || "https://dev-api.tokokupon.com";
     tokopayUrl = process.env.TOKOPAY_BASE_URL || "https://api.tokopay.id";
+    tokopayIp = process.env.TOKOPAY_IP || "178.128.104.179";
 }

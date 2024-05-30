@@ -211,6 +211,32 @@ export const authWebhookLapakgaming: RequestHandler = (req, res, next) => {
     }
 };
 
+export const authWebhookTokopay: RequestHandler = async (req, res, next) => {
+    const remoteAddr = req.headers["x-forwarded-for"] || req.connection.remoteAddress || req.socket.remoteAddress;
+    const config = new Config();
+    if (remoteAddr === config.tokopayIp) {
+        const sysConfigService = new SysConfigService();
+        const configTokopay = await sysConfigService.findManyBy({
+            column: "cd",
+            value: ["tokopay_merchant_id", "tokopay_secret_key"],
+            operator: "in",
+        });
+        const merchantId = configTokopay.find((item) => item.cd === "tokopay_merchant_id");
+        const secretKey = configTokopay.find((item) => item.cd === "tokopay_secret_key");
+        const signature = crypto
+            .createHash("md5")
+            .update(`${merchantId}:${secretKey}:${req.body.reff_id}`)
+            .digest("hex");
+        console.log(req.body.signature);
+        console.log(signature);
+        console.log(req.body);
+        next();
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+};
+
 export const resellerChecking: RequestHandler = async (req, res, next) => {
     const encryptService = new EncryptionService();
     const session = req.cookies.session_gasskeun_reseller;

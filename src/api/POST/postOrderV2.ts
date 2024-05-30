@@ -353,7 +353,7 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Sepertinya ada kesalahan, silahkan coba beberapa saat lagi [FEE]", ErrorType.Internal);
     }
 
-    const amount = Math.ceil(product.price * body.quantity - discount + fee);
+    let amount = Math.ceil(product.price * body.quantity - discount + fee);
 
     if (amount < payment.minAmount || amount > payment.maxAmount) {
         throw new BusinessError(
@@ -362,48 +362,54 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
+    if (payment.providerCd === "TOKOPAY" && payment.category === "6") {
+        const newAmount = Math.ceil(amount / 1000) * 1000;
+        fee = fee + newAmount - amount;
+        amount = newAmount;
+    }
+
     let checkUsername;
-    // if (game.needCheckId) {
-    //     // const checkingGameService = new CheckingGameIdService();
-    //     // const checkGameId = await checkingGameService.checking({
-    //     //     gameCd: game.cd,
-    //     //     userId: body.userId,
-    //     //     ...(body.serverId && { serverId: body.serverId }),
-    //     // });
+    if (game.needCheckId) {
+        // const checkingGameService = new CheckingGameIdService();
+        // const checkGameId = await checkingGameService.checking({
+        //     gameCd: game.cd,
+        //     userId: body.userId,
+        //     ...(body.serverId && { serverId: body.serverId }),
+        // });
 
-    //     // if (!checkGameId) {
-    //     //     throw new BusinessError(
-    //     //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
-    //     //         ErrorType.BadRequest,
-    //     //     );
-    //     // }
-    //     // if (game.cd === "VALORANT") {
-    //     //     username = body.userId?.split("#")[0] || body.userId;
-    //     // } else {
-    //     //     username = checkGameId;
-    //     // }
-    //     const merchantId = sysConfig.find((item) => item.cd === "api_games_merchant_id");
-    //     const secretKey = sysConfig.find((item) => item.cd === "api_games_secret_key");
-    //     const apiGameService = new APIGamesService({
-    //         merchantId: merchantId.value,
-    //         secretKey: secretKey.value,
-    //     });
+        // if (!checkGameId) {
+        //     throw new BusinessError(
+        //         `User ID ${game.needServerId ? "Atau Server ID" : ""} tidak valid`,
+        //         ErrorType.BadRequest,
+        //     );
+        // }
+        // if (game.cd === "VALORANT") {
+        //     username = body.userId?.split("#")[0] || body.userId;
+        // } else {
+        //     username = checkGameId;
+        // }
+        const merchantId = sysConfig.find((item) => item.cd === "api_games_merchant_id");
+        const secretKey = sysConfig.find((item) => item.cd === "api_games_secret_key");
+        const apiGameService = new APIGamesService({
+            merchantId: merchantId.value,
+            secretKey: secretKey.value,
+        });
 
-    //     checkUsername = await apiGameService.checkUsernameGame({
-    //         gameCode: game.cd,
-    //         userId: body.userId + (body.serverId || ""),
-    //     });
+        checkUsername = await apiGameService.checkUsernameGame({
+            gameCode: game.cd,
+            userId: body.userId + (body.serverId || ""),
+        });
 
-    //     if (checkUsername.status === 0) {
-    //         throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-    //     }
+        if (checkUsername.status === 0) {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        }
 
-    //     if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
-    //         throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-    //     } else if (!checkUsername.data.username) {
-    //         throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
-    //     }
-    // }
+        if (!checkUsername?.data?.is_valid || checkUsername.error_msg === "Wrong Player ID") {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        } else if (!checkUsername.data.username) {
+            throw new BusinessError("User ID tidak valid, silahkan check kembali dan coba lagi", ErrorType.BadRequest);
+        }
+    }
 
     const invoiceId = `INV${new Date().getTime()}`;
     const expiredAt = dayjs().tz("Asia/Jakarta").add(payment.durationExpired, payment.durationCd).toDate();
@@ -467,6 +473,7 @@ const main: RequestHandler = async (req, res) => {
         const tokopayInvoices = await tokopayService.createInvoice({
             paymentCode: payment.cd,
             invoiceId,
+            // totalAmt: amount,
             totalAmt: amount,
             customer: {
                 name: customer.name || "Gasskeun Topup",

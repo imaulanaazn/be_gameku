@@ -30,7 +30,8 @@ export interface IApiRouterWithImage {
         | "webhook-apigames"
         | "reseller"
         | "webhook-digiflazz"
-        | "webhook-lapakgaming";
+        | "webhook-lapakgaming"
+        | "webhook-tokopay";
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
 }
@@ -48,7 +49,8 @@ export interface IApiRouterWithoutImage {
         | "webhook-apigames"
         | "reseller"
         | "webhook-digiflazz"
-        | "webhook-lapakgaming";
+        | "webhook-lapakgaming"
+        | "webhook-tokopay";
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
 }

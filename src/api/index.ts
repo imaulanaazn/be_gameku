@@ -6,6 +6,7 @@ import {
     authSuperAdmin,
     authWebhookDigiflazz,
     authWebhookLapakgaming,
+    authWebhookTokopay,
     authWehbookAPIGames,
     authWehbookInternal,
     authWehbookXendit,
@@ -149,6 +150,8 @@ import { sendNotifyBalanceReseller } from "./admin/maintenanceUser/sendNotifyBal
 import { putPopularBulkV2 } from "./admin/maintenanceGame/putPopularBulkV2";
 import { postOrderV2 } from "./POST/postOrderV2";
 import { getOrderDetailV2 } from "./GET/getOrderDetailV2";
+import { webhookTokopay } from "./webhook/tokopay";
+import { putPaymentGuide } from "./admin/maintenancePaymentMethod/putPaymentGuide";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -169,6 +172,9 @@ const apis = [
 
     // Report
     getDownloadExcelOrder,
+
+    // Maintenance Payment Method
+    putPaymentGuide,
 
     // Maintenance Deposit
     getAllDepositPagination,
@@ -408,6 +414,9 @@ const apisWebhook = [
     // LAPAKGAMING
     webhookLapakGaming,
     webhookLapakGamingUpdateProduct,
+
+    // TOKOPAY
+    webhookTokopay,
 ];
 
 for (const api of apisWebhook) {
@@ -432,6 +441,8 @@ for (const api of apisWebhook) {
         authorization = authWebhookDigiflazz;
     } else if (auth === "webhook-lapakgaming") {
         authorization = authWebhookLapakgaming;
+    } else if (auth === "webhook-tokopay") {
+        authorization = authWebhookTokopay;
     }
 
     const main = (req: Request, res: Response, next: NextFunction) =>
