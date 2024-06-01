@@ -31,7 +31,7 @@ const main: RequestHandler = async (req, res) => {
     const param = new Validator(req, res).process<{
         invoice: string;
     }>(schemaValidation, ValidatorType.PARAMS);
-
+    throw new BusinessError("API version v1 is no longer supported. Please use v2", ErrorType.BadRequest);
     const invoiceService = new InvoiceService();
     const invoice = await invoiceService.findOneBy({
         column: "id",

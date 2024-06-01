@@ -480,7 +480,7 @@ const main: RequestHandler = async (req, res) => {
                 email: customer.email || "guess@gasskeuntopup.com",
                 mobileNumber: customer.mobileNumber,
             },
-            expiredAt: expiredAt.getTime(),
+            expiredAt: expiredAt.getTime() / 1000,
             product: {
                 gameName: game.name,
                 code: product.code,

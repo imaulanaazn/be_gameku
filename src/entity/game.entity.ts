@@ -11,11 +11,13 @@ import {
     AllowNull,
     ForeignKey,
     BelongsTo,
+    HasMany,
 } from "sequelize-typescript";
 import { GameCategoryEntity } from "./gameCategory.entity";
 import { ServerIdType, VoucherType } from "@enum/index";
 import { ProviderEntity } from "./provider.entity";
 import { ProductCategoryEntity } from "./productCategory.entity";
+import { ProductEntity } from "./product.entity";
 
 @Table({
     tableName: "games",
@@ -91,6 +93,9 @@ export class GameEntity extends Model<GameEntity> {
     @Default(false)
     @Column(DataType.BOOLEAN)
     deleted!: boolean;
+
+    @HasMany(() => ProductEntity, "gameId")
+    products!: ProductEntity[];
 
     @BelongsTo(() => GameCategoryEntity, "categoryId")
     gameCategory!: GameCategoryEntity;

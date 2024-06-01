@@ -105,6 +105,8 @@ const main: RequestHandler = async (req, res) => {
         cashtag?: string;
         customerId?: string;
     }>(schemaValidation, ValidatorType.BODY);
+
+    throw new BusinessError("API version v1 is no longer supported. Please use v2", ErrorType.BadRequest);
     console.log("REQUEST BODY ORDER");
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
