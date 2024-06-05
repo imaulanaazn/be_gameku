@@ -102,7 +102,6 @@ const main: RequestHandler = async (req, res) => {
                                     100,
                             priceBuy: parseInt(lapakGamingProduct.price.toString()),
                             isActive,
-                            ...(!isActive ? { isDisplayed: false } : {}),
                         },
                     });
                 } else {
