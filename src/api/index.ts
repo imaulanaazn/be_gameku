@@ -152,6 +152,7 @@ import { postOrderV2 } from "./POST/postOrderV2";
 import { getOrderDetailV2 } from "./GET/getOrderDetailV2";
 import { webhookTokopay } from "./webhook/tokopay";
 import { putPaymentGuide } from "./admin/maintenancePaymentMethod/putPaymentGuide";
+import { sendMessagePendingOrder } from "./cronjob/sendMessagePendingOrder";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -308,6 +309,7 @@ const apis = [
     cronSetOrderReview,
     checkingTokoKuponOrderStatus,
     syncTokoKuponData,
+    sendMessagePendingOrder,
 
     /**
      * Start for reseller API

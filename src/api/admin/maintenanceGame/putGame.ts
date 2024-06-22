@@ -182,21 +182,21 @@ const main: RequestHandler = async (req, res) => {
         data: dataUpdate,
     });
 
-    const clearDesc = body.desc.replace(/<[^>]+>/g, " ");
-    const metaService = new MetaService();
-    await metaService.updateBy({
-        by: "slug",
-        value: game.slug,
-        data: {
-            path: `/${dataUpdate.slug}`,
-            slug: dataUpdate.slug,
-            title: dataUpdate.name,
-            icon: uploadLogoUrl || game.logoUrl,
-            image: uploadLogoUrl || game.logoUrl,
-            description: clearDesc,
-            keywords: body.keywords,
-        },
-    });
+    // const clearDesc = body.desc.replace(/<[^>]+>/g, " ");
+    // const metaService = new MetaService();
+    // await metaService.updateBy({
+    //     by: "slug",
+    //     value: game.slug,
+    //     data: {
+    //         path: `/${dataUpdate.slug}`,
+    //         slug: dataUpdate.slug,
+    //         title: dataUpdate.name,
+    //         icon: uploadLogoUrl || game.logoUrl,
+    //         image: uploadLogoUrl || game.logoUrl,
+    //         description: clearDesc,
+    //         keywords: body.keywords,
+    //     },
+    // });
 
     res.send({
         id: game.id,

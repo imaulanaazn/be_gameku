@@ -6,6 +6,7 @@ export class Config {
     databaseUsername = process.env.DB_USERNAME || "root";
     databasePassword = process.env.DB_PASSWORD || "P@ssw0rd";
     databaseHost = process.env.DB_HOST || "127.0.0.1";
+    databasePort = parseInt(process.env.DB_PORT) || 3306;
 
     roleUser = process.env.ROLE_USER || "asdasdadwqfqwfwqafasd";
     roleAdmin = process.env.ROLE_ADMIN || "asdwqdwqdwhjqbsadwijqbd";

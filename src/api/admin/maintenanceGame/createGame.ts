@@ -153,18 +153,18 @@ const main: RequestHandler = async (req, res) => {
         await listServerService.model.bulkCreate(dataBulk);
     }
 
-    const clearDesc = body.desc.replace(/<[^>]+>/g, "");
-    const metaService = new MetaService();
-    await metaService.create({
-        id: uuid(),
-        path: `/${body.slug}`,
-        title: body.name,
-        slug: body.slug,
-        description: clearDesc,
-        keywords: body.keywords,
-        icon: uploadLogoUrl,
-        image: uploadLogoUrl,
-    });
+    // const clearDesc = body.desc.replace(/<[^>]+>/g, "");
+    // const metaService = new MetaService();
+    // await metaService.create({
+    //     id: uuid(),
+    //     path: `/${body.slug}`,
+    //     title: body.name,
+    //     slug: body.slug,
+    //     description: clearDesc,
+    //     keywords: body.keywords,
+    //     icon: uploadLogoUrl,
+    //     image: uploadLogoUrl,
+    // });
 
     res.send({
         ...newGame.dataValues,

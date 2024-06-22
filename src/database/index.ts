@@ -37,7 +37,7 @@ const sequelize = new Sequelize({
     database: config.databaseName,
     username: config.databaseUsername,
     password: config.databasePassword,
-    port: 3306,
+    port: config.databasePort,
     logQueryParameters: false,
     logging: false,
     dialect: "mysql",

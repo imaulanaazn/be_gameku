@@ -115,6 +115,9 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.BOOLEAN)
     isNew!: boolean;
 
+    @Column(DataType.INTEGER)
+    countMessagePending!: number;
+
     @Column(DataType.DATE)
     completedAt!: Date | string;
 
