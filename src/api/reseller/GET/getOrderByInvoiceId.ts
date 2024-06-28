@@ -13,10 +13,11 @@ import { GameService } from "@serviceInternal/game.service";
 import dayjs from "dayjs";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { Op } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/order-detail/:invoice";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

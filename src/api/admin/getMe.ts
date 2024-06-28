@@ -4,20 +4,15 @@ import { ErrorStatusCode } from "@enum/index";
 import { Config } from "@config/index";
 import * as jwt from "jsonwebtoken";
 import { AdminDto } from "@dto/admin.dto";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/me-admin";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ALL_ADMIN;
 
 const main: RequestHandler = async (req, res) => {
-    const config = new Config();
-    const session = req.cookies.session_gasskeun_admin;
-    const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
-
-    return res.send({
-        roleName: decoded.role === config.roleAdmin ? "admin" : "super-admin",
-        ...decoded,
-    });
+    const session = req.admin.data;
+    return res.send(session);
 };
 
 export const getMeAdmin: IApiRouter = {

@@ -1,5 +1,5 @@
 import { Config } from "@config/index";
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, JoseKey, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -7,8 +7,8 @@ import { EncryptionService } from "@serviceInternal/jose.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/reseller/update";
-const method = "PUT";
-const auth = "reseller";
+const method = APIMethod.PUT;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {
@@ -36,7 +36,7 @@ const main: RequestHandler = async (req, res) => {
         ...reseller,
         name: body.name,
     });
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(JoseKey.RESELLER);
     const config = new Config();
     const encrypt = await encryptService.encryptData(
         {

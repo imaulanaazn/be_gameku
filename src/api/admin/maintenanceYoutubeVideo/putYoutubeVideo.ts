@@ -1,14 +1,14 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { VideoService } from "@serviceInternal/video.service";
 import { BusinessError } from "@helper/handleError";
 import { v4 as uuid } from "uuid";
 
 const path = "/v1/youtube";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

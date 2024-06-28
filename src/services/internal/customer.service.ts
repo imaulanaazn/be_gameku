@@ -30,14 +30,11 @@ export class CustomerService extends MainService<CustomerEntity, CustomerDto> {
         column: K,
         value: CustomerDto[K],
     ): Promise<CustomerEntity> {
-        return await this.model
-            .scope("withPassword")
-            .scope("withRole")
-            .findOne({
-                where: {
-                    [column]: value,
-                    roleId: this.config.roleReseller,
-                },
-            });
+        return await this.model.scope("withPassword").findOne({
+            where: {
+                [column]: value,
+                roleId: this.config.roleReseller,
+            },
+        });
     }
 }

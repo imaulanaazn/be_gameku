@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { OrderReviewService } from "@serviceInternal/orderReview.service";
 
 const path = "/v1/order-review/:reviewId";
-const method = "PUT";
-const auth = "guess";
+const method = APIMethod.PUT;
+const auth = APIAuth.GUEST;
 
 const schemaValidationParams: Validation[] = [
     {

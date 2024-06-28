@@ -1,3 +1,16 @@
+import { Config } from "@config/index";
+import { APIAuth, APIMethod } from "@enum/index";
+import { MinioService } from "@serviceExternal/minio.service";
+import { RedisService } from "@serviceExternal/redis.service";
+import { AdminService } from "@serviceInternal/admin.service";
+import { AdminRoleService } from "@serviceInternal/adminRole.service";
+import { AdminUserRoleService } from "@serviceInternal/adminUserRole";
+import { ArticleService } from "@serviceInternal/article.service";
+import { ArticleButtonService } from "@serviceInternal/articleButton.service";
+import { ArticleCategoryService } from "@serviceInternal/articleCategory.service";
+import { ArticleCategoryArticleService } from "@serviceInternal/articleCategoryArticle.service";
+import { ArticleImageService } from "@serviceInternal/articleImage.service";
+import { CommentService } from "@serviceInternal/comment.service";
 import { NextFunction, Request, Response } from "express";
 
 type SingleImageData = {
@@ -18,57 +31,35 @@ export type IApiRouter =
 
 export interface IApiRouterWithImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
-    method: "GET" | "POST" | "PUT" | "DELETE";
+    method: APIMethod;
     path: string;
-    auth:
-        | "guess"
-        | "user"
-        | "admin"
-        | "cookie"
-        | "webhook-xendit"
-        | "super-admin"
-        | "webhook-apigames"
-        | "reseller"
-        | "webhook-digiflazz"
-        | "webhook-lapakgaming"
-        | "webhook-tokopay";
+    auth: Exclude<APIAuth, APIAuth.WEBHOOK_INTERNAL>;
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
 }
 export interface IApiRouterWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
-    method: "GET" | "POST" | "PUT" | "DELETE";
+    method: APIMethod;
     path: string;
-    auth:
-        | "guess"
-        | "user"
-        | "admin"
-        | "cookie"
-        | "webhook-xendit"
-        | "super-admin"
-        | "webhook-apigames"
-        | "reseller"
-        | "webhook-digiflazz"
-        | "webhook-lapakgaming"
-        | "webhook-tokopay";
+    auth: Exclude<APIAuth, APIAuth.WEBHOOK_INTERNAL>;
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
 }
 
 interface IApiRouterWebhookInternalWithImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
-    method: "GET" | "POST" | "PUT" | "DELETE";
+    method: APIMethod;
     path: string;
-    auth: "webhook-internal";
+    auth: APIAuth.WEBHOOK_INTERNAL;
     xApiKey: string;
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
 }
 interface IApiRouterWebhookInternalWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
-    method: "GET" | "POST" | "PUT" | "DELETE";
+    method: APIMethod;
     path: string;
-    auth: "webhook-internal";
+    auth: APIAuth.WEBHOOK_INTERNAL;
     xApiKey: string;
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
@@ -89,4 +80,19 @@ export interface Validation {
     properties?: Array<Validation>;
     enum?: Array<string | number | boolean>;
     errorMessage?: string;
+}
+
+export interface IDI {
+    config: Config;
+    adminService: AdminService;
+    adminUserRoleService: AdminUserRoleService;
+    adminRoleService: AdminRoleService;
+    minioService: MinioService;
+    redisService: RedisService;
+    articleService: ArticleService;
+    articleCategoryService: ArticleCategoryService;
+    articleCategoryArticleService: ArticleCategoryArticleService;
+    articleButtonService: ArticleButtonService;
+    articleImageService: ArticleImageService;
+    commentService: CommentService;
 }

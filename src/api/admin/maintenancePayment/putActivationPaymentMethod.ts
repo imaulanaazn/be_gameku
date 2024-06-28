@@ -1,12 +1,12 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
 const path = "/v1/payment-method/activation";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

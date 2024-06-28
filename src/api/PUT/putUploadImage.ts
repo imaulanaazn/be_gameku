@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -9,8 +9,8 @@ import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Config } from "@config/index";
 
 const path = "/v1/customer/image";
-const method = "PUT";
-const auth = "guess";
+const method = APIMethod.PUT;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { VideoService } from "@serviceInternal/video.service";
 import { BusinessError } from "@helper/handleError";
@@ -11,8 +11,8 @@ import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
 import { GameVoucherDto } from "@dto/gameVoucher.dto";
 
 const path = "/v1/voucher-game";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

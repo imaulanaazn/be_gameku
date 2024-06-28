@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { Request, Response } from "express";
 import Joi from "joi";
 import { IPagination } from "./validator";
@@ -32,7 +32,8 @@ export class ValidatorV2 {
         addPagination?: boolean,
     ): T | (T & IPagination) {
         if (addPagination) {
-            schema = Joi.object({ ...schema, ...pagination });
+            // @ts-ignore
+            schema = schema.concat(pagination);
         }
 
         const { error } = schema.validate(this.request[type], { abortEarly: false });
@@ -40,6 +41,16 @@ export class ValidatorV2 {
             const firstError = error.details[0];
             const errorMessage = firstError.message.replace(/\[\d+\]\./g, "").replace(/"/g, "");
             throw new BusinessError(errorMessage, ErrorType.Validation);
+        }
+
+        if (addPagination) {
+            return {
+                ...this.request[type],
+                page: parseInt(this.request[type]?.page) || 1,
+                sort: this.request[type]?.sort || "createdAt",
+                order: this.request[type]?.order || "DESC",
+                limit: parseInt(this.request[type]?.limit) || 10,
+            };
         }
 
         return this.request[type];

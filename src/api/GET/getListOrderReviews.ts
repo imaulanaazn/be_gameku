@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { OrderReviewService } from "@serviceInternal/orderReview.service";
 import { Op, col, fn } from "sequelize";
 import { censorPhoneNumber } from "@helper/censorPhoneNumber";
@@ -9,8 +9,8 @@ import { GameService } from "@serviceInternal/game.service";
 import { BusinessError } from "@helper/handleError";
 
 const path = "/v1/order-review";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

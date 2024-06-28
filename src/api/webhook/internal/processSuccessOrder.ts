@@ -19,10 +19,11 @@ import { DigiflazzService } from "@serviceExternal/digiflazz.service";
 import { LapakGamingService } from "@serviceExternal/lapakgaming.service";
 import { KuponService } from "@serviceExternal/kupon.service";
 import { OrderPending3rdPartyService } from "@serviceInternal/orderPending3rdParty.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/gasskeun/process-order-success";
-const method = "POST";
-const auth = "webhook-internal";
+const method = APIMethod.POST;
+const auth = APIAuth.WEBHOOK_INTERNAL;
 
 const schemaValidation: Validation[] = [
     {

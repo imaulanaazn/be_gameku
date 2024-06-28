@@ -1,13 +1,13 @@
 import { MainDto } from "./main.dto";
 
 export class ArticleDto extends MainDto {
+    authorId: string;
     title: string;
-    img: string;
-    content?: string;
-    category: string;
-    isExternal: boolean;
-    externalUrl?: string;
     slug: string;
-    isPublished: boolean;
-    publishDate?: Date;
+    content: string;
+    contentPreview: string;
+    status: string;
+    isPopular: boolean;
+    // seqPop?: number;
+    publishedAt: Date;
 }

@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { BusinessError } from "@helper/handleError";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Validator } from "@helper/validator";
 import { BannerService } from "@serviceInternal/banner.service";
 import { v4 as uuid } from "uuid";
 
 const path = "/v1/banner";
-const method = "POST";
-const auth = "admin";
+const method = APIMethod.POST;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

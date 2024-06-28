@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import { Config } from "../config";
 import {
     AdminEntity,
+    AdminRoleEntity,
     ArticleEntity,
     BannerEntity,
     CommentEntity,
@@ -26,8 +27,15 @@ import {
     ResellerConfigEntity,
     SocialMediaEntity,
     SysConfigEntity,
+    AdminUserRoleEntity,
     VideoEntity,
     WhatsappTemplateEntity,
+    AdminMenuEntity,
+    AdminMenuRoleEntity,
+    ArticleCategoryEntity,
+    ArticleCategoryArticleEntity,
+    ArticleImageEntity,
+    ArticleButtonEntity,
 } from "@entity/index";
 
 const config = new Config();
@@ -37,7 +45,7 @@ const sequelize = new Sequelize({
     database: config.databaseName,
     username: config.databaseUsername,
     password: config.databasePassword,
-    port: 3306,
+    port: config.databasePort,
     logQueryParameters: false,
     logging: false,
     dialect: "mysql",
@@ -69,6 +77,14 @@ const sequelize = new Sequelize({
         ResellerConfigEntity,
         OrderReviewEntity,
         OrderPending3rdPartyEntity,
+        AdminUserRoleEntity,
+        AdminRoleEntity,
+        AdminMenuEntity,
+        AdminMenuRoleEntity,
+        ArticleCategoryEntity,
+        ArticleCategoryArticleEntity,
+        ArticleImageEntity,
+        ArticleButtonEntity,
     ],
 });
 

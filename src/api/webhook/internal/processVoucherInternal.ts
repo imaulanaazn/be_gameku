@@ -11,10 +11,11 @@ import { ProductService } from "@serviceInternal/product.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/gasskeun/process-voucher-internal";
-const method = "POST";
-const auth = "webhook-internal";
+const method = APIMethod.POST;
+const auth = APIAuth.WEBHOOK_INTERNAL;
 const schemaValidation: Validation[] = [
     {
         name: "customerId",

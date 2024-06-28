@@ -21,10 +21,11 @@ import { InvoiceService } from "@serviceInternal/invoice.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { Config } from "@config/index";
 import { Op } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v2/reseller/topup";
-const method = "POST";
-const auth = "reseller";
+const method = APIMethod.POST;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

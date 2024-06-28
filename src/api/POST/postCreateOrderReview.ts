@@ -11,10 +11,11 @@ import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
 import dayjs from "dayjs";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/order-review";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

@@ -6,9 +6,11 @@ import { v4 as uuid } from "uuid";
 import { Op } from "sequelize";
 import { OrderStatuses, OrderType } from "@enum/index";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
+import { APIAuth, APIMethod } from "@enum/index";
+
 const path = "/v1/reseller/balance";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const main: RequestHandler = async (req, res) => {
     const session = req.reseller.data;

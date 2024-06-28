@@ -1,9 +1,10 @@
 import { IApiRouter } from "@interfaces/index";
 import { RequestHandler } from "express";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/logout";
-const method = "DELETE";
-const auth = "reseller";
+const method = APIMethod.DELETE;
+const auth = APIAuth.RESELLER;
 
 const main: RequestHandler = async (req, res) => {
     const reseller = req.reseller.data;

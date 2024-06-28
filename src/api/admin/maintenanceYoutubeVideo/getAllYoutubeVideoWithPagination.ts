@@ -1,6 +1,6 @@
 import { BannerDto } from "@dto/banner.dto";
 import { VideoDto } from "@dto/video.dto";
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { BannerService } from "@serviceInternal/banner.service";
@@ -9,8 +9,8 @@ import { RequestHandler } from "express";
 import { Op } from "sequelize";
 
 const path = "/v1/youtube";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

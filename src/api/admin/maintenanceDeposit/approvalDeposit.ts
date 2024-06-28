@@ -1,5 +1,5 @@
 import { Config } from "@config/index";
-import { ErrorType, OrderStatuses, ValidatorType, VoucherType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, OrderStatuses, ValidatorType, VoucherType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
@@ -15,8 +15,8 @@ import { RequestHandler } from "express";
 import { v4 as uuid } from "uuid";
 
 const path = "/v1/approval-deposit";
-const method = "POST";
-const auth = "admin";
+const method = APIMethod.POST;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

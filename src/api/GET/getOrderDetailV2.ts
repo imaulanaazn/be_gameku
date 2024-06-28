@@ -21,10 +21,11 @@ import { GameEntity } from "@entity/game.entity";
 import { PaymentMethodEntity } from "@entity/paymentMethod.entity";
 import { OrderEntity } from "@entity/order.entity";
 import { TokopayService } from "@serviceExternal/tokopay.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v2/order-detail/:invoice";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

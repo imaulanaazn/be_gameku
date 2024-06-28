@@ -3,14 +3,12 @@ import {
     authAdmin,
     authLoginUser,
     authReseller,
-    authSuperAdmin,
     authWebhookDigiflazz,
     authWebhookLapakgaming,
     authWebhookTokopay,
     authWehbookAPIGames,
     authWehbookInternal,
     authWehbookXendit,
-    resellerChecking,
 } from "../middlewares/sessions";
 import responseErrorHandler from "@middleware/responseErrorHandler";
 import { IApiRouter } from "src/interfaces";
@@ -152,6 +150,19 @@ import { postOrderV2 } from "./POST/postOrderV2";
 import { getOrderDetailV2 } from "./GET/getOrderDetailV2";
 import { webhookTokopay } from "./webhook/tokopay";
 import { putPaymentGuide } from "./admin/maintenancePaymentMethod/putPaymentGuide";
+import { APIAuth } from "@enum/index";
+import { getListRoles } from "./admin/maintenanceRole/getListRole";
+import { putAssignRole } from "./admin/maintenanceRole/putAssignRole";
+import { getListAdminMenu } from "./admin/maintenanceAdminMenu/getListAdminMenu";
+import { postArticle } from "./admin/maintenanceArticle/postArticle";
+import { getListArticle } from "./admin/maintenanceArticle/getListArticle";
+import { getArticleDetail } from "./admin/maintenanceArticle/getArticleDetail";
+import { deleteArticle } from "./admin/maintenanceArticle/deleteArticle";
+import { getImage } from "./GET/getImage";
+import { updateArticle } from "./admin/maintenanceArticle/updateArticle";
+import { updateStatusArticle } from "./admin/maintenanceArticle/updateStatusArticle";
+import { getArticleBySlug } from "./GET/getArticleBySlug";
+import { getListArticles } from "./GET/getListArticles";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -249,7 +260,12 @@ const apis = [
     getAllPaymentMethodPagination,
 
     // Maintenance Article
-    // postArticle,
+    postArticle,
+    getListArticle,
+    getArticleDetail,
+    deleteArticle,
+    updateArticle,
+    updateStatusArticle,
 
     // Maintenance Sosmed
     getAllSocialMediaPagination,
@@ -262,6 +278,13 @@ const apis = [
     getAllProductCategoryPagination,
     putProductCategory,
     deleteProductCategory,
+
+    // Maintenance Role
+    getListRoles,
+    putAssignRole,
+
+    // Maintenance Menu
+    getListAdminMenu,
 
     // POST
     postOrder,
@@ -290,6 +313,9 @@ const apis = [
     getMetaByPath,
     getAllProviders,
     getListOrderReviews,
+    getImage,
+    getArticleBySlug,
+    getListArticles,
 
     // DELETE
     deleteLogout,
@@ -351,14 +377,17 @@ for (const api of apis) {
         path = "/api" + path;
     }
 
+    const authAdmins = [APIAuth.ADMIN, APIAuth.OWNER, APIAuth.WRITER, APIAuth.ALL_ADMIN];
+
     let authorization;
-    if (auth === "user") {
+    if (authAdmins.includes(auth)) {
+        const a = (req: Request, res: Response, next: NextFunction) => {
+            authAdmin(req, res, next)(auth);
+        };
+        authorization = a;
+    } else if (auth === APIAuth.USER) {
         authorization = authLoginUser;
-    } else if (auth === "admin") {
-        authorization = authAdmin;
-    } else if (auth === "super-admin") {
-        authorization = authSuperAdmin;
-    } else if (auth === "reseller") {
+    } else if (auth === APIAuth.RESELLER) {
         authorization = authReseller;
     }
 
@@ -378,13 +407,13 @@ for (const api of apis) {
         }
         const uploadMiddleware = dataImg.single ? upload.single(dataImg.field) : upload.fields(fieldImages);
 
-        if (auth !== "guess") {
+        if (auth !== APIAuth.GUEST) {
             router[method.toLowerCase()](path, authorization, uploadMiddleware, main);
         } else {
             router[method.toLowerCase()](path, uploadMiddleware, main);
         }
     } else {
-        if (auth !== "guess") {
+        if (auth !== APIAuth.GUEST) {
             router[method.toLowerCase()](path, authorization, main);
         } else {
             router[method.toLowerCase()](path, main);
@@ -426,22 +455,22 @@ for (const api of apisWebhook) {
     }
 
     let authorization;
-    if (auth === "webhook-internal") {
+    if (auth === APIAuth.WEBHOOK_INTERNAL) {
         //@ts-ignore
         const xApiKey = api.xApiKey;
         const authInternal = (req: Request, res: Response, next: NextFunction) => {
             authWehbookInternal(req, res, next)(xApiKey);
         };
         authorization = authInternal;
-    } else if (auth === "webhook-xendit") {
+    } else if (auth === APIAuth.WEBHOOK_XENDIT) {
         authorization = authWehbookXendit;
-    } else if (auth === "webhook-apigames") {
+    } else if (auth === APIAuth.WEBHOOK_APIGAMES) {
         authorization = authWehbookAPIGames;
-    } else if (auth === "webhook-digiflazz") {
+    } else if (auth === APIAuth.WEBHOOK_DIGIFLAZZ) {
         authorization = authWebhookDigiflazz;
-    } else if (auth === "webhook-lapakgaming") {
+    } else if (auth === APIAuth.WEBHOOK_LAPAKGAMING) {
         authorization = authWebhookLapakgaming;
-    } else if (auth === "webhook-tokopay") {
+    } else if (auth === APIAuth.WEBHOOK_TOKOPAY) {
         authorization = authWebhookTokopay;
     }
 
@@ -450,7 +479,7 @@ for (const api of apisWebhook) {
             responseErrorHandler(err, res, req);
         });
 
-    if (auth === "guess") {
+    if (auth === APIAuth.GUEST) {
         webhook[method.toLowerCase()](path, main);
     } else {
         webhook[method.toLowerCase()](path, authorization, main);

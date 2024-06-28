@@ -8,10 +8,11 @@ import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
 import { v4 as uuid } from "uuid";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/sync-product-tokokupon";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const getUserPrices = (item: IProductKupon) => {
     const prices = parseInt(item.price.toString());

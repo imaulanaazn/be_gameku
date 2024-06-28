@@ -7,10 +7,11 @@ import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.servi
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import randomatic from "randomatic";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/whatsapp-test";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

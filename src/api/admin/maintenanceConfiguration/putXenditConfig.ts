@@ -1,12 +1,12 @@
-import { ErrorType, SysConfigCD } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, SysConfigCD } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { IApiRouter } from "@interfaces/index";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/xendit";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const main: RequestHandler = async (req, res) => {
     const body: {

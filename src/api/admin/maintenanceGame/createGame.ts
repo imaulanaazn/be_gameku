@@ -1,5 +1,5 @@
 import { ListServerDto } from "@dto/listServer.dto";
-import { ErrorType, ServerIdType, ValidatorType, VoucherType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ServerIdType, ValidatorType, VoucherType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
@@ -12,8 +12,8 @@ import { RequestHandler } from "express";
 import { v4 as uuid } from "uuid";
 
 const path = "/v1/game";
-const method = "POST";
-const auth = "admin";
+const method = APIMethod.POST;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {
@@ -153,18 +153,18 @@ const main: RequestHandler = async (req, res) => {
         await listServerService.model.bulkCreate(dataBulk);
     }
 
-    const clearDesc = body.desc.replace(/<[^>]+>/g, "");
-    const metaService = new MetaService();
-    await metaService.create({
-        id: uuid(),
-        path: `/${body.slug}`,
-        title: body.name,
-        slug: body.slug,
-        description: clearDesc,
-        keywords: body.keywords,
-        icon: uploadLogoUrl,
-        image: uploadLogoUrl,
-    });
+    // const clearDesc = body.desc.replace(/<[^>]+>/g, "");
+    // const metaService = new MetaService();
+    // await metaService.create({
+    //     id: uuid(),
+    //     path: `/${body.slug}`,
+    //     title: body.name,
+    //     slug: body.slug,
+    //     description: clearDesc,
+    //     keywords: body.keywords,
+    //     icon: uploadLogoUrl,
+    //     image: uploadLogoUrl,
+    // });
 
     res.send({
         ...newGame.dataValues,

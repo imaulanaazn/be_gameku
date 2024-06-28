@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -6,8 +6,8 @@ import { ProviderService } from "@serviceInternal/provider.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/game-providers/:id";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

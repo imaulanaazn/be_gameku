@@ -12,10 +12,11 @@ import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import { fn, col, where, Op, literal, Order, OrderItem } from "sequelize";
 import sequelize from "../../../database/index";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/promo-code";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

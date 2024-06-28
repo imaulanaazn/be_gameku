@@ -7,10 +7,11 @@ import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
 import { Op } from "sequelize";
 import { createLogCronjobInternal } from "@helper/logger";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/set-expired-payment";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [];
 

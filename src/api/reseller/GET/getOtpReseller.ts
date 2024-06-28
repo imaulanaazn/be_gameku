@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import randomatic from "randomatic";
 import { v4 as uuid } from "uuid";
+import { APIAuth, APIMethod, JoseKey } from "@enum/index";
 
 const main: RequestHandler = async (req, res) => {
     const client = req.client;
@@ -79,7 +80,7 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(JoseKey.RESELLER);
     const encrypt = await encryptService.encryptData(
         {
             email: reseller.email,
@@ -106,6 +107,6 @@ const main: RequestHandler = async (req, res) => {
 export const getChangePasswordOtp: IApiRouter = {
     main,
     path: "/v1/reseller/otp-change-password",
-    method: "GET",
-    auth: "reseller",
+    method: APIMethod.GET,
+    auth: APIAuth.RESELLER,
 };

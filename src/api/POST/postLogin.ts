@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -12,8 +12,8 @@ import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
 import dayjs from "dayjs";
 
 const path = "/v1/customer/login";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

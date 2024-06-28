@@ -4,10 +4,11 @@ import { OrderService } from "@serviceInternal/order.service";
 import { OrderStatuses, OrderType } from "@enum/index";
 import { Op } from "sequelize";
 import dayjs from "dayjs";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/statistic";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const main: RequestHandler = async (req, res) => {
     const session = req.reseller.data;

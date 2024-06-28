@@ -41,10 +41,11 @@ import { sleep } from "@helper/index";
 import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
 import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
 import { getIpAddress } from "@helper/getIpAddress";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/order";
-const method = "POST";
-const auth = "reseller";
+const method = APIMethod.POST;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

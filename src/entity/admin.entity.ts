@@ -3,12 +3,14 @@ import {
     CreatedAt,
     DataType,
     DefaultScope,
+    HasMany,
     Model,
     PrimaryKey,
     Scopes,
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
+import { AdminUserRoleEntity } from "./AdminUserRole";
 
 @Table({
     tableName: "admin",
@@ -22,12 +24,6 @@ import {
     withPassword: {
         attributes: { include: ["password"] },
     },
-    withRole: {
-        attributes: { include: ["role"] },
-    },
-    all: {
-        attributes: { include: ["password", "role"] },
-    },
 }))
 export class AdminEntity extends Model<AdminEntity> {
     @PrimaryKey
@@ -38,13 +34,13 @@ export class AdminEntity extends Model<AdminEntity> {
     name!: string;
 
     @Column(DataType.STRING(255))
-    role!: string;
-
-    @Column(DataType.STRING(255))
     username!: string;
 
     @Column(DataType.STRING(255))
     password!: string;
+
+    @Column(DataType.BOOLEAN)
+    deleted!: boolean;
 
     @CreatedAt
     @Column(DataType.DATE)
@@ -53,4 +49,7 @@ export class AdminEntity extends Model<AdminEntity> {
     @UpdatedAt
     @Column(DataType.DATE)
     updatedAt!: Date;
+
+    @HasMany(() => AdminUserRoleEntity, "userId")
+    roles!: AdminUserRoleEntity[];
 }

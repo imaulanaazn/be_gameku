@@ -14,10 +14,11 @@ import dayjs from "dayjs";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { Op } from "sequelize";
 import { OrderReviewService } from "@serviceInternal/orderReview.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/order-detail/:invoice";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

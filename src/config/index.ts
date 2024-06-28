@@ -6,6 +6,7 @@ export class Config {
     databaseUsername = process.env.DB_USERNAME || "root";
     databasePassword = process.env.DB_PASSWORD || "P@ssw0rd";
     databaseHost = process.env.DB_HOST || "127.0.0.1";
+    databasePort = parseInt(process.env.DB_PORT) || 3306;
 
     roleUser = process.env.ROLE_USER || "asdasdadwqfqwfwqafasd";
     roleAdmin = process.env.ROLE_ADMIN || "asdwqdwqdwhjqbsadwijqbd";
@@ -15,7 +16,9 @@ export class Config {
 
     feUrl = process.env.FE_URL || "http://localhost:3000";
 
-    redisUri = process.env.REDIS_URI;
+    redisHost = process.env.REDIS_HOST || "127.0.0.1";
+    redisPort = parseInt(process.env.REDIS_PORT) || 6379;
+    redisPassword = process.env.REDIS_PASSWORD || "N0P@ss0wrd";
 
     // xenditSecretKey = process.env.XENDIT_SECRET_KEY;
     xenditBaseUrl = process.env.XENDIT_BASE_URL;
@@ -43,4 +46,11 @@ export class Config {
     kuponUrl = process.env.KUPON_URL || "https://dev-api.tokokupon.com";
     tokopayUrl = process.env.TOKOPAY_BASE_URL || "https://api.tokopay.id";
     tokopayIp = process.env.TOKOPAY_IP || "178.128.104.179";
+
+    minioUrl = process.env.MINIO_URL || "127.0.0.1";
+    minioPort = parseInt(process.env.MINIO_PORT) || 9000;
+    minioUsername = process.env.MINIO_USERNAME || "gasskeuntopup";
+    minioPassword = process.env.MINIO_PASSWORD || "N0P@ssw0rd";
+
+    imageUrl = process.env.IMAGE_URL || `http://localhost:${this.port}/api/v1/get-image`;
 }

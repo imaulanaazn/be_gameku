@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -7,8 +7,8 @@ import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 
 const path = "/v1/customer/update";
-const method = "PUT";
-const auth = "guess";
+const method = APIMethod.PUT;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

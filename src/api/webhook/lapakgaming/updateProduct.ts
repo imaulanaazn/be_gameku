@@ -10,10 +10,11 @@ import { Config } from "@config/index";
 import { ProductService } from "@serviceInternal/product.service";
 import { createLogWebhook } from "@helper/logger";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/webhook/lapakgaming-product";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const main: RequestHandler = async (req, res) => {
     const client = req.client;

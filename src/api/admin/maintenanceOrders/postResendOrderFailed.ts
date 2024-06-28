@@ -1,5 +1,5 @@
 import { Config } from "@config/index";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
@@ -7,8 +7,8 @@ import { OrderService } from "@serviceInternal/order.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/order/resend";
-const method = "POST";
-const auth = "admin";
+const method = APIMethod.POST;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

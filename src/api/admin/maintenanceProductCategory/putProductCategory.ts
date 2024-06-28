@@ -10,10 +10,11 @@ import { ProductCategoryService } from "@serviceInternal/productCategory.service
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { RequestHandler } from "express";
 import { v4 as uuid } from "uuid";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/product-category";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

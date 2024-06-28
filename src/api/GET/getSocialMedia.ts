@@ -1,10 +1,11 @@
 import { RequestHandler } from "express";
 import { IApiRouter } from "@interfaces/index";
 import { SocialMediaService } from "@serviceInternal/socialMedia.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/social-media";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const main: RequestHandler = async (req, res) => {
     const socialMediaService = new SocialMediaService();

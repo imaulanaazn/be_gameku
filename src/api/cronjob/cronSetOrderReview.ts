@@ -15,10 +15,11 @@ import dayjs from "dayjs";
 import { OrderReviewEntity } from "@entity/orderReview.entity";
 import { OrderEntity } from "@entity/order.entity";
 import { createLogCronjobInternal } from "@helper/logger";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/cron-set-order-review";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const main: RequestHandler = async (req, res) => {
     const logging = createLogCronjobInternal();

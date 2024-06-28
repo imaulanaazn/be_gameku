@@ -2,14 +2,14 @@ import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { MetaService } from "@serviceInternal/meta.service";
 import { Validator } from "@helper/validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { MetaDto } from "@dto/meta.dto";
 
 const path = "/v1/meta";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

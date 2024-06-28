@@ -1,4 +1,4 @@
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { ProductService } from "@serviceInternal/product.service";
@@ -6,8 +6,8 @@ import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/product-prices";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

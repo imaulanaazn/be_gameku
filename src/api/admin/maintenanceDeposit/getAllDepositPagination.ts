@@ -1,7 +1,7 @@
 import { ProductDto } from "@dto/product.dto";
 import { CustomerEntity } from "@entity/customer.entity";
 import { OrderDetailEntity } from "@entity/orderDetail.entity";
-import { OrderStatuses, OrderType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, OrderStatuses, OrderType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -15,8 +15,8 @@ import { RequestHandler } from "express";
 import { Op, col, fn, literal } from "sequelize";
 
 const path = "/v1/deposits";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

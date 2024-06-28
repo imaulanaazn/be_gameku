@@ -6,10 +6,11 @@ import { Validator } from "@helper/validator";
 import { SysConfigEntity } from "@entity/sysConfig.entity";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { BusinessError } from "@helper/handleError";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/config";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

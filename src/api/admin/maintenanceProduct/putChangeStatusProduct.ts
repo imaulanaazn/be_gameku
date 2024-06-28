@@ -1,6 +1,6 @@
 import { GameEntity } from "@entity/game.entity";
 import { ProviderEntity } from "@entity/provider.entity";
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { KuponService } from "@serviceExternal/kupon.service";
@@ -11,8 +11,8 @@ import { RequestHandler } from "express";
 import { Op } from "sequelize";
 
 const path = "/v1/denom/archive";
-const method = "PUT";
-const auth = "guess";
+const method = APIMethod.PUT;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

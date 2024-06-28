@@ -9,10 +9,11 @@ import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.servi
 import { Config } from "@config/index";
 import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/webhook/lapakgaming";
-const method = "POST";
-const auth = "webhook-lapakgaming";
+const method = APIMethod.POST;
+const auth = APIAuth.WEBHOOK_LAPAKGAMING;
 
 const main: RequestHandler = async (req, res) => {
     const client = req.client;

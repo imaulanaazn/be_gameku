@@ -9,10 +9,11 @@ import dayjs from "dayjs";
 import { GameEntity } from "@entity/game.entity";
 import { Validator } from "@helper/validator";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/sales-overview";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

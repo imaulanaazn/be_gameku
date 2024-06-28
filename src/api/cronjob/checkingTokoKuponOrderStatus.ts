@@ -12,10 +12,11 @@ import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.servi
 import { Config } from "@config/index";
 import { OrderDetailEntity } from "@entity/orderDetail.entity";
 import { CustomerEntity } from "@entity/customer.entity";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/toko-kupon-order-statuses";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const main: RequestHandler = async (req, res) => {
     const client = req.client;

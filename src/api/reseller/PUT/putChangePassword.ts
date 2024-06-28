@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
 import { BusinessError } from "@helper/handleError";
 import dayjs from "dayjs";
@@ -9,8 +9,8 @@ import bcrypt from "bcrypt";
 import { CustomerService } from "@serviceInternal/customer.service";
 
 const path = "/v1/reseller/change-password";
-const method = "PUT";
-const auth = "reseller";
+const method = APIMethod.PUT;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

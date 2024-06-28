@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import { NextFunction, Request, Response, RequestHandler } from "express";
-import { ErrorStatusCode, ErrorType } from "@enum/index";
+import { APIAuth, ErrorStatusCode, ErrorType, JoseKey } from "@enum/index";
 import { Config } from "@config/index";
 import moment from "moment";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
@@ -8,6 +8,7 @@ import * as jwt from "jsonwebtoken";
 import { AdminDto } from "@dto/admin.dto";
 import { EncryptionService } from "@serviceInternal/jose.service";
 import { CustomerDto } from "@dto/customer.dto";
+import { string } from "joi";
 
 const config = new Config();
 
@@ -47,30 +48,104 @@ export const createSessions: RequestHandler = (req, res, next) => {
     next();
 };
 
-export const authLoginUser: RequestHandler = (req, res, next) => {
-    const session = req.session.data;
-    if (!session || !session.isLogin) {
+// export const authLoginUser: RequestHandler = (req, res, next) => {
+//     const session = req.session.data;
+//     if (!session || !session.isLogin) {
+//         return res.status(ErrorStatusCode.Authorization).send({
+//             errorCode: ErrorType.Authorization,
+//             message: "Cannot access to this resource",
+//         });
+//     }
+
+//     next();
+// };
+
+// export const authAdmin: RequestHandler = (req, res, next) => {
+//     const session = req.cookies.session_gasskeun_admin;
+//     try {
+//         const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
+//         // if (decoded.role === config.roleAdmin || decoded.role === config.roleSuperAdmin) {
+//         //     next();
+//         // } else {
+//         //     res.clearCookie("session_gasskeun_admin");
+//         //     return res.status(ErrorStatusCode.Authorization).send({
+//         //         errorCode: ErrorType.Authorization,
+//         //         message: "Cannot access to this resource",
+//         //     });
+//         // }
+//     } catch (error) {
+//         console.error(error);
+//         res.clearCookie("session_gasskeun_admin");
+//         return res.status(ErrorStatusCode.Authorization).send({
+//             errorCode: ErrorType.Authorization,
+//             message: "Cannot access to this resource",
+//         });
+//     }
+// };
+
+export const authLoginUser: RequestHandler = async (req, res, next) => {
+    const encryptService = new EncryptionService(JoseKey.USER);
+    const session = req.cookies.session_gasskeun_user;
+    try {
+        const decode = await encryptService.decryptData<CustomerDto>(session);
+        if (decode.isExpired) {
+            res.clearCookie("session_gasskeun_user");
+            return res.status(ErrorStatusCode.Authorization).send({
+                errorCode: ErrorType.Authorization,
+                message: "Cannot access to this resource",
+            });
+        }
+
+        req.user = decode;
+
+        next();
+    } catch (error) {
+        console.error(error);
+        res.clearCookie("session_gasskeun_user");
         return res.status(ErrorStatusCode.Authorization).send({
             errorCode: ErrorType.Authorization,
             message: "Cannot access to this resource",
         });
     }
-
-    next();
 };
 
-export const authAdmin: RequestHandler = (req, res, next) => {
+export interface DataEncryptAdmin {
+    id: string;
+    name: string;
+    username: string;
+    createdAt: string;
+    updatedAt: string;
+    roles: string[];
+}
+export const authAdmin = (req: Request, res: Response, next: NextFunction) => async (auth: APIAuth) => {
+    const encryptService = new EncryptionService(JoseKey.ADMIN);
     const session = req.cookies.session_gasskeun_admin;
     try {
-        const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
-        if (decoded.role === config.roleAdmin || decoded.role === config.roleSuperAdmin) {
+        const decode = await encryptService.decryptData<DataEncryptAdmin>(session);
+
+        const adminRoles = decode.data.roles;
+        if (auth === APIAuth.ALL_ADMIN) {
+            if (adminRoles.length === 0) {
+                res.clearCookie("session_gasskeun_admin");
+                return res.status(ErrorStatusCode.Authorization).send({
+                    errorCode: ErrorType.Authorization,
+                    message: "Cannot access to this resource",
+                });
+            }
+            req.admin = decode;
             next();
+            return;
+        }
+        if (adminRoles.includes(auth)) {
+            req.admin = decode;
+            next();
+            return;
         } else {
-            res.clearCookie("session_gasskeun_admin");
-            return res.status(ErrorStatusCode.Authorization).send({
+            res.status(ErrorStatusCode.Authorization).send({
                 errorCode: ErrorType.Authorization,
                 message: "Cannot access to this resource",
             });
+            return;
         }
     } catch (error) {
         console.error(error);
@@ -81,9 +156,8 @@ export const authAdmin: RequestHandler = (req, res, next) => {
         });
     }
 };
-
 export const authReseller: RequestHandler = async (req, res, next) => {
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(JoseKey.RESELLER);
     const session = req.cookies.session_gasskeun_reseller;
     try {
         const decode = await encryptService.decryptData<CustomerDto>(session);
@@ -101,28 +175,6 @@ export const authReseller: RequestHandler = async (req, res, next) => {
     } catch (error) {
         console.error(error);
         res.clearCookie("session_gasskeun_reseller");
-        return res.status(ErrorStatusCode.Authorization).send({
-            errorCode: ErrorType.Authorization,
-            message: "Cannot access to this resource",
-        });
-    }
-};
-
-export const authSuperAdmin: RequestHandler = (req, res, next) => {
-    const session = req.cookies.session_gasskeun_admin;
-    try {
-        const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
-        if (decoded.role === config.roleSuperAdmin) {
-            next();
-        } else {
-            res.clearCookie("session_gasskeun_admin");
-            return res.status(ErrorStatusCode.Authorization).send({
-                errorCode: ErrorType.Authorization,
-                message: "Cannot access to this resource",
-            });
-        }
-    } catch (error) {
-        res.clearCookie("session_gasskeun_admin");
         return res.status(ErrorStatusCode.Authorization).send({
             errorCode: ErrorType.Authorization,
             message: "Cannot access to this resource",
@@ -234,19 +286,5 @@ export const authWebhookTokopay: RequestHandler = async (req, res, next) => {
     } else {
         res.sendStatus(403);
         return;
-    }
-};
-
-export const resellerChecking: RequestHandler = async (req, res, next) => {
-    const encryptService = new EncryptionService();
-    const session = req.cookies.session_gasskeun_reseller;
-    try {
-        const decode = await encryptService.decryptData(session);
-        req.isReseller = true;
-        next();
-    } catch (error) {
-        console.log(error);
-        req.isReseller = false;
-        next();
     }
 };

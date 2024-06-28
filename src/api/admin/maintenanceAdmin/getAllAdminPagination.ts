@@ -1,79 +1,112 @@
 import { Config } from "@config/index";
 import { AdminDto } from "@dto/admin.dto";
-import { ValidatorType } from "@enum/index";
+import { AdminUserRoleEntity } from "@entity/AdminUserRole";
+import { AdminEntity } from "@entity/admin.entity";
+import { AdminRoleEntity } from "@entity/adminRole.entity";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { AdminService } from "@serviceInternal/admin.service";
+import { AdminUserRoleService } from "@serviceInternal/adminUserRole";
 import { RequestHandler } from "express";
+import { string } from "joi";
+import { Op, WhereOptions } from "sequelize";
 
 const path = "/v1/admin/admin";
-const method = "GET";
-const auth = "super-admin";
+const method = APIMethod.GET;
+const auth = APIAuth.OWNER;
 
 const schemaValidation: Validation[] = [
     {
         name: "name",
         type: "string",
+        required: false,
+    },
+    {
+        name: "roleIds",
+        type: "string",
+        required: false,
     },
 ];
 
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         name?: string;
+        roleIds?: string;
     }>(schemaValidation, ValidatorType.QUERY, true);
+    const clearQuery = JSON.parse(JSON.stringify(query));
+    delete clearQuery.isPopular;
+    delete clearQuery.page;
+    delete clearQuery.sort;
+    delete clearQuery.order;
+    delete clearQuery.limit;
 
     const adminService = new AdminService();
-    const config = new Config();
+    const adminUserRole = new AdminUserRoleService();
     const column = Object.keys(query);
 
+    const roleIds = query.roleIds ? query.roleIds.split(",") : [];
+    let where: WhereOptions<AdminEntity> = {};
+    let whereRoles: WhereOptions<AdminUserRoleEntity> = {};
     if (column.length > 4) {
-        const admin = await adminService.findManyByPagination(
-            {
-                column: column[0] as keyof AdminDto,
-                value: `%${query[column[0]]}%`,
-                operator: "like",
-            },
-            {
-                page: query.page,
-                sort: query.sort,
-                order: query.order,
-                limit: query.limit,
-            },
-            {
-                column: "role",
-                value: config.roleAdmin,
-            },
-        );
+        if (roleIds.length > 0) {
+            whereRoles["id"] = { [Op.in]: roleIds };
+        }
 
-        return res.send({
-            data: admin.rows,
-            page: query.page,
-            total: admin.count,
-            totalPage: Math.ceil(admin.count / query.limit),
-            order: query.order,
-            sort: query.sort,
-            limit: query.limit,
-        });
+        for (const key of Object.keys(clearQuery)) {
+            where[key] = { [Op.like]: `%${clearQuery[key]}%` };
+        }
     }
 
-    const admin = await adminService.findAllPagination(
-        {
-            page: query.page,
-            sort: query.sort,
-            order: query.order,
-            limit: query.limit,
+    const admin = await adminService.model.findAll({
+        limit: query.limit,
+        offset: (query.page - 1) * query.limit,
+        include: [
+            {
+                model: AdminUserRoleEntity,
+                required: false,
+                where: whereRoles,
+                include: [
+                    {
+                        model: AdminRoleEntity,
+                        required: false,
+                    },
+                ],
+            },
+        ],
+        order: [["name", "ASC"]],
+        where: {
+            ...where,
+            deleted: {
+                [Op.or]: [null, false],
+            },
         },
-        {
-            column: "role",
-            value: config.roleAdmin,
-        },
-    );
+    });
+    const newData = admin.map((item) => {
+        const { id, name, username, ...data } = item;
+        const roles = item.roles.map((role) => ({
+            id: role.role.id,
+            name: role.role.name,
+            cd: role.role.cd,
+        }));
+
+        return {
+            id,
+            name,
+            username,
+            roles,
+        };
+    });
+
+    const count = await adminService.model.count({
+        where,
+    });
 
     return res.send({
-        data: admin.data,
+        data: newData,
         page: query.page,
-        total: admin.total,
-        totalPage: Math.ceil(admin.total / query.limit),
+        total: count,
+        totalPage: Math.ceil(count / query.limit),
         order: query.order,
         sort: query.sort,
         limit: query.limit,

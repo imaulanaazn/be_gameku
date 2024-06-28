@@ -1,6 +1,6 @@
 import { GameEntity } from "@entity/game.entity";
 import { ProductEntity } from "@entity/product.entity";
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
@@ -8,8 +8,8 @@ import { RequestHandler } from "express";
 import { Op } from "sequelize";
 
 const path = "/v1/voucher-game";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

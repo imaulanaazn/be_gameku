@@ -10,10 +10,11 @@ import { ProductService } from "@serviceInternal/product.service";
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/orders";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

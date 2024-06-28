@@ -1,12 +1,12 @@
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { GameService } from "@serviceInternal/game.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/game/:id";
-const method = "DELETE";
-const auth = "admin";
+const method = APIMethod.DELETE;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

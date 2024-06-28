@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { GameService } from "@serviceInternal/game.service";
 import { GameCategoryService } from "@serviceInternal/gameCategory.service";
 import { BusinessError } from "@helper/handleError";
 import { Op, col, fn } from "sequelize";
 
 const path = "/v1/games";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

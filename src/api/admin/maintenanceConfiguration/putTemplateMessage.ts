@@ -1,4 +1,4 @@
-import { ErrorType, SysConfigCD, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, SysConfigCD, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
@@ -8,8 +8,8 @@ import { RequestHandler } from "express";
 import fs from "fs";
 
 const path = "/v1/whatsapp";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

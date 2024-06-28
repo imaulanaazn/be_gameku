@@ -9,10 +9,11 @@ import { ListServerService } from "@serviceInternal/listServer.service";
 import { ProductCategoryService } from "@serviceInternal/productCategory.service";
 import { ProductEntity } from "@entity/product.entity";
 import { Op } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/game-detail";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

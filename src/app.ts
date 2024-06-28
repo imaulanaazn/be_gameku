@@ -7,14 +7,13 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import { createSessions } from "@middleware/sessions";
-import requestIp from "request-ip";
 import { Config } from "./config";
 import requestTime from "@middleware/requestTime";
 import { Server as HttpServer, IncomingMessage, ServerResponse } from "http";
 import { Server } from "socket.io";
 import { WhatsAppService } from "@serviceExternal/whatsapp.service";
 import routerIo from "./socketIo";
-import rateLimit from "express-rate-limit";
+import { setupDI } from "@middleware/di";
 
 const getApp = async (app: Application, server: HttpServer<typeof IncomingMessage, typeof ServerResponse>) => {
     const config = new Config();
@@ -53,17 +52,7 @@ const getApp = async (app: Application, server: HttpServer<typeof IncomingMessag
         app.use(bodyParser.urlencoded({ extended: false }));
         app.use(cors(corsOptions));
 
-        app.use((req, res, next) => {
-            const clientIp = requestIp.getClientIp(req);
-            req.clientIp = clientIp;
-            next();
-        });
-
-        app.use((req: Request, res, next) => {
-            req.io = io;
-            req.client = client;
-            next();
-        });
+        app.use(setupDI(client, io));
 
         app.use(
             session({

@@ -1,12 +1,12 @@
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { ResellerConfigService } from "@serviceInternal/resellerConfig.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/reseller/config";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

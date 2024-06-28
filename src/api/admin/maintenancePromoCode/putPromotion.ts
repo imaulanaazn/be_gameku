@@ -8,10 +8,11 @@ import dayjs from "dayjs";
 import { PromotionDto } from "@dto/promotion.dto";
 import { BusinessError } from "@helper/handleError";
 import { GameService } from "@serviceInternal/game.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/promo-code";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

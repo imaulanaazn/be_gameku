@@ -39,10 +39,11 @@ import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
 import { getClientIp } from "request-ip";
 import { getIpAddress } from "@helper/getIpAddress";
 import { TokopayService } from "@serviceExternal/tokopay.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v2/order";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

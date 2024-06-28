@@ -4,10 +4,11 @@ import { VideoService } from "@serviceInternal/video.service";
 import { GameService } from "@serviceInternal/game.service";
 import { ProductService } from "@serviceInternal/product.service";
 import { GoogleAppsScript } from "@serviceExternal/googleapps.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/sync-spreadsheet";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const main: RequestHandler = async (req, res) => {
     const gameService = new GameService();

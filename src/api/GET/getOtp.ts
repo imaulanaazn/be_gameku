@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { Config } from "@config/index";
 import { Validator } from "@helper/validator";
 import { BusinessError } from "@helper/handleError";
@@ -16,8 +16,8 @@ import { CustomerEntity } from "@entity/customer.entity";
 dayjs.extend(isBetween);
 
 const path = "/v1/otp";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, JoseKey, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -13,8 +13,8 @@ import { ResellerConfigService } from "@serviceInternal/resellerConfig.service";
 import { v4 as uuid } from "uuid";
 
 const path = "/v1/reseller/login";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {
@@ -44,7 +44,7 @@ const main: RequestHandler = async (req, res) => {
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
 
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(JoseKey.RESELLER);
     // const cookie = req.cookies?.session_login_reseller;
     // if (!cookie) {
     //     res.status(400).send({

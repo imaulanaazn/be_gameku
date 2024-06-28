@@ -1,4 +1,4 @@
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, JoseKey, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -15,8 +15,8 @@ import { v4 as uuid } from "uuid";
 import { EncryptionService } from "@serviceInternal/jose.service";
 
 const path = "/v1/reseller/otp";
-const method = "POST";
-const auth = "reseller";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {
@@ -166,7 +166,7 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(JoseKey.RESELLER);
     const encrypt = await encryptService.encryptData(
         {
             email: body.email,
@@ -194,5 +194,5 @@ export const postRequestOtp: IApiRouter = {
     main,
     path,
     method,
-    auth: "guess",
+    auth,
 };

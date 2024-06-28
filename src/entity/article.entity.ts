@@ -1,15 +1,19 @@
 import {
+    BelongsTo,
     Column,
     CreatedAt,
     DataType,
+    ForeignKey,
     HasMany,
     Model,
     PrimaryKey,
     Table,
-    Unique,
     UpdatedAt,
 } from "sequelize-typescript";
-import { CommentEntity } from ".";
+import { AdminEntity, CommentEntity } from ".";
+import { ArticleCategoryArticleEntity } from "./articleCategoryArticle.entity";
+import { ArticleImageEntity } from "./articleImage.entity";
+import { ArticleButtonEntity } from "./articleButton.entity";
 
 @Table({
     tableName: "articles",
@@ -21,33 +25,33 @@ export class ArticleEntity extends Model<ArticleEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
+    @ForeignKey(() => AdminEntity)
+    @Column(DataType.STRING(255))
+    authorId!: string;
+
     @Column(DataType.STRING(255))
     title!: string;
 
     @Column(DataType.STRING(255))
-    img!: string;
+    slug!: string;
 
-    @Column(DataType.TEXT)
+    @Column(DataType.STRING(255))
     content!: string;
 
     @Column(DataType.STRING(255))
-    category!: string;
-
-    @Column(DataType.BOOLEAN)
-    isExternal!: boolean;
+    contentPreview!: string;
 
     @Column(DataType.STRING(255))
-    externalUrl!: string;
-
-    @Unique(true)
-    @Column(DataType.STRING(255))
-    slug!: string;
+    status!: string;
 
     @Column(DataType.BOOLEAN)
-    isPublished!: boolean;
+    isPopular!: boolean;
+
+    // @Column(DataType.INTEGER)
+    // seqPop!: number;
 
     @Column(DataType.DATE)
-    publishDate!: Date;
+    publishedAt!: Date;
 
     @CreatedAt
     @Column(DataType.DATE)
@@ -59,4 +63,16 @@ export class ArticleEntity extends Model<ArticleEntity> {
 
     @HasMany(() => CommentEntity, "articleId")
     comments!: CommentEntity[];
+
+    @HasMany(() => ArticleCategoryArticleEntity, "articleId")
+    articleCategoryArticles: ArticleCategoryArticleEntity[];
+
+    @HasMany(() => ArticleImageEntity, "articleId")
+    images: ArticleImageEntity[];
+
+    @HasMany(() => ArticleButtonEntity, "articleId")
+    buttons: ArticleButtonEntity[];
+
+    @BelongsTo(() => AdminEntity, "authorId")
+    author: AdminEntity;
 }

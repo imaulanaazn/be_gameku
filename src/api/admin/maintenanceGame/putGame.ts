@@ -11,10 +11,11 @@ import { MetaService } from "@serviceInternal/meta.service";
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import { v4 as uuid } from "uuid";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/game";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {
@@ -182,21 +183,21 @@ const main: RequestHandler = async (req, res) => {
         data: dataUpdate,
     });
 
-    const clearDesc = body.desc.replace(/<[^>]+>/g, " ");
-    const metaService = new MetaService();
-    await metaService.updateBy({
-        by: "slug",
-        value: game.slug,
-        data: {
-            path: `/${dataUpdate.slug}`,
-            slug: dataUpdate.slug,
-            title: dataUpdate.name,
-            icon: uploadLogoUrl || game.logoUrl,
-            image: uploadLogoUrl || game.logoUrl,
-            description: clearDesc,
-            keywords: body.keywords,
-        },
-    });
+    // const clearDesc = body.desc.replace(/<[^>]+>/g, " ");
+    // const metaService = new MetaService();
+    // await metaService.updateBy({
+    //     by: "slug",
+    //     value: game.slug,
+    //     data: {
+    //         path: `/${dataUpdate.slug}`,
+    //         slug: dataUpdate.slug,
+    //         title: dataUpdate.name,
+    //         icon: uploadLogoUrl || game.logoUrl,
+    //         image: uploadLogoUrl || game.logoUrl,
+    //         description: clearDesc,
+    //         keywords: body.keywords,
+    //     },
+    // });
 
     res.send({
         id: game.id,

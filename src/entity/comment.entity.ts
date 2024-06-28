@@ -28,11 +28,14 @@ export class CommentEntity extends Model<CommentEntity> {
     @Column(DataType.STRING(255))
     name!: string;
 
-    @Column(DataType.TEXT)
-    text!: string;
+    @Column(DataType.STRING(255))
+    email!: string;
 
-    @Column(DataType.BOOLEAN)
-    deleted!: boolean;
+    @Column(DataType.TEXT)
+    content!: string;
+
+    @Column(DataType.STRING(255))
+    status!: string;
 
     @CreatedAt
     @Column(DataType.DATE)

@@ -1,12 +1,12 @@
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { PromotionService } from "@serviceInternal/promotion.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/promo-code/:id";
-const method = "DELETE";
-const auth = "admin";
+const method = APIMethod.DELETE;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

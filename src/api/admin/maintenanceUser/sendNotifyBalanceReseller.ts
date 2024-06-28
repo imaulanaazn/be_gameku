@@ -10,10 +10,11 @@ import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import randomatic from "randomatic";
 import { col, fn } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/notify-balance-reseller";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

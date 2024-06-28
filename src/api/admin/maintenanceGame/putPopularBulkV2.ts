@@ -1,4 +1,4 @@
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { ValidatorV2 } from "@helper/validatorV2";
 import { IApiRouter } from "@interfaces/index";
 import { GameService } from "@serviceInternal/game.service";
@@ -7,8 +7,8 @@ import Joi from "joi";
 import { Op } from "sequelize";
 
 const path = "/v2/game/popular-bulk";
-const method = "POST";
-const auth = "admin";
+const method = APIMethod.POST;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation = Joi.array().items({
     gameId: Joi.string().required(),

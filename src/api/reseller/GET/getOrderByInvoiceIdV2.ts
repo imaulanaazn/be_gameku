@@ -19,10 +19,11 @@ import { OrderDetailEntity } from "@entity/orderDetail.entity";
 import { OrderReviewEntity } from "@entity/orderReview.entity";
 import { PaymentMethodEntity } from "@entity/paymentMethod.entity";
 import { ProductEntity } from "@entity/product.entity";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v2/reseller/order-detail/:invoice";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

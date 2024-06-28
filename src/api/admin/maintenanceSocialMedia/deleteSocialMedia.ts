@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { BusinessError } from "@helper/handleError";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { SocialMediaService } from "@serviceInternal/socialMedia.service";
 
 const path = "/v1/sosmed/:id";
-const method = "DELETE";
-const auth = "admin";
+const method = APIMethod.DELETE;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

@@ -13,10 +13,11 @@ import { ProductService } from "@serviceInternal/product.service";
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import { Op, col, fn, literal } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/orders";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

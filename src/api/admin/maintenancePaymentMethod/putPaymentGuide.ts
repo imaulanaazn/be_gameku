@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { ValidatorV2 } from "@helper/validatorV2";
 import { IApiRouter } from "@interfaces/index";
@@ -7,8 +7,8 @@ import { RequestHandler } from "express";
 import Joi from "joi";
 
 const path = "/v1/payment/:id";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidationBody = Joi.object({
     paymentGuide: Joi.string().required(),

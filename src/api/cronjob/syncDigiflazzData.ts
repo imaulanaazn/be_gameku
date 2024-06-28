@@ -1,5 +1,5 @@
 import { CheckGameAccount } from "@dto/apiGames.dto";
-import { ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CheckingGameIdService } from "@serviceExternal/codaShop.service";
@@ -23,8 +23,8 @@ const schemaValidation: Validation[] = [
 ];
 
 const path = "/v1/sync-product-digiflazz";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         gameCd?: string;

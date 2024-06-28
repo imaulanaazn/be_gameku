@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, JoseKey, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -8,10 +8,14 @@ import { Config } from "@config/index";
 import { AdminService } from "@serviceInternal/admin.service";
 import session from "express-session";
 import * as jwt from "jsonwebtoken";
+import { AdminUserRoleService } from "@serviceInternal/adminUserRole";
+import { AdminRoleEntity } from "@entity/adminRole.entity";
+import { EncryptionService } from "@serviceInternal/jose.service";
+import { Op } from "sequelize";
 
 const path = "/v1/admin/login";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {
@@ -32,9 +36,17 @@ const main: RequestHandler = async (req, res) => {
         password: string;
     }>(schemaValidation, ValidatorType.BODY);
     console.log(body);
+    const redis = req.redis;
     const adminService = new AdminService();
     const config = new Config();
-    const admin = await adminService.findUserWithAllAttr("username", body.username);
+    const admin = await adminService.model.scope("withPassword").findOne({
+        where: {
+            username: body.username,
+            deleted: {
+                [Op.or]: [null, false],
+            },
+        },
+    });
 
     if (!admin) {
         throw new BusinessError("Username atau Password tidak valid", ErrorType.BadRequest);
@@ -45,26 +57,41 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Username atau Password tidak valid", ErrorType.Validation);
     }
 
-    const token = jwt.sign(
+    const adminUserRoleService = new AdminUserRoleService();
+    const adminUserRole = await adminUserRoleService.model.findAll({
+        where: {
+            userId: admin.id,
+        },
+        include: [
+            {
+                model: AdminRoleEntity,
+                required: true,
+            },
+        ],
+    });
+
+    const encryptService = new EncryptionService(JoseKey.ADMIN);
+    const encrypt = await encryptService.encryptData(
         {
             ...admin.dataValues,
             password: undefined,
+            roles: adminUserRole.map((role) => role.role.cd),
         },
-        config.secretSessionAdmin,
-        { expiresIn: "24h" },
+        7,
+        "day",
     );
 
-    res.cookie("session_gasskeun_admin", token, {
+    res.cookie("session_gasskeun_admin", encrypt, {
         httpOnly: true,
         maxAge: config.maxAgeLogin * 1000,
-        // domain: config.domainAdmin,
-        // path: "/",
-        // secure: process.env.NODE_ENV.toLowerCase() === "production",
+        secure: process.env.NODE_ENV.toLowerCase() === "production",
     });
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 
     return res.send({
         ...admin.dataValues,
         password: undefined,
+        roles: adminUserRole.map((role) => role.role.cd),
     });
 };
 

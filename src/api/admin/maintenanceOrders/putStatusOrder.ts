@@ -11,10 +11,11 @@ import { ProductService } from "@serviceInternal/product.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/order/:id";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

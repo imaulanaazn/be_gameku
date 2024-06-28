@@ -18,10 +18,11 @@ import { sleep } from "@helper/index";
 import { FundService } from "@serviceInternal/fund.service";
 import { v4 as uuid } from "uuid";
 import { Config } from "@config/index";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/webhook/qris";
-const method = "POST";
-const auth = "webhook-xendit";
+const method = APIMethod.POST;
+const auth = APIAuth.WEBHOOK_XENDIT;
 
 const main: RequestHandler = async (req, res) => {
     const client = req.client;

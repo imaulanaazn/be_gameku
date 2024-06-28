@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import validator from "validator";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "./handleError";
 import { Validation } from "@interfaces/index";
 

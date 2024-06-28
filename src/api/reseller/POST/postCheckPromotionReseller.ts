@@ -10,10 +10,11 @@ import { Op } from "sequelize";
 import { OrderService } from "@serviceInternal/order.service";
 import { OrderEntity } from "@entity/order.entity";
 import { CustomerService } from "@serviceInternal/customer.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/check-promotion";
-const method = "POST";
-const auth = "reseller";
+const method = APIMethod.POST;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

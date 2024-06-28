@@ -9,10 +9,11 @@ import fetch from "node-fetch";
 import { GameService } from "@serviceInternal/index";
 import { ListServerService } from "@serviceInternal/listServer.service";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/products";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

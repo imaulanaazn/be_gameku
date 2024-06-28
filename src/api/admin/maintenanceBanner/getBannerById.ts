@@ -1,14 +1,14 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { BusinessError } from "@helper/handleError";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Validator } from "@helper/validator";
 import { BannerService } from "@serviceInternal/banner.service";
 
 const path = "/v1/banner/:id";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

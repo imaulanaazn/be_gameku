@@ -12,10 +12,11 @@ import { OrderEntity } from "@entity/order.entity";
 import { CustomerService } from "@serviceInternal/customer.service";
 import { getIpAddress } from "@helper/getIpAddress";
 import { Config } from "@config/index";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/check-promotion";
-const method = "POST";
-const auth = "guess";
+const method = APIMethod.POST;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

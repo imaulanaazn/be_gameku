@@ -10,13 +10,14 @@ import { OrderDetailEntity } from "@entity/orderDetail.entity";
 import { ProductEntity } from "@entity/product.entity";
 import { Validator } from "@helper/validator";
 import { BusinessError } from "@helper/handleError";
+import { APIAuth, APIMethod } from "@enum/index";
 // import isoWeek from "dayjs/plugin/weekday";
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrBefore);
 
 const path = "/v1/reseller/chart-overview";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

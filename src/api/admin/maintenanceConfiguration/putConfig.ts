@@ -1,4 +1,4 @@
-import { ErrorType, SysConfigCD, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, ErrorType, SysConfigCD, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
@@ -7,8 +7,8 @@ import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { RequestHandler } from "express";
 
 const path = "/v1/config";
-const method = "PUT";
-const auth = "admin";
+const method = APIMethod.PUT;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {
@@ -29,8 +29,8 @@ const main: RequestHandler = async (req, res) => {
         type: "logo" | "bg_login" | "bg_register" | "bg_checkorder" | "website_status" | "bg_profile" | "logo_footer";
         value: string;
     }>(schemaValidation, ValidatorType.QUERY);
-    console.log(query)
-    console.log(req.file)
+    console.log(query);
+    console.log(req.file);
 
     const sysConfigService = new SysConfigService();
     const config = await sysConfigService.findOneBy({

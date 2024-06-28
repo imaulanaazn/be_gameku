@@ -10,10 +10,11 @@ import { InvoiceService } from "@serviceInternal/invoice.service";
 import dayjs from "dayjs";
 import { Config } from "@config/index";
 import { Op } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/order-history";
-const method = "GET";
-const auth = "guess";
+const method = APIMethod.GET;
+const auth = APIAuth.GUEST;
 
 const schemaValidation: Validation[] = [
     {

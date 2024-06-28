@@ -14,10 +14,11 @@ import { CustomerService } from "@serviceInternal/customer.service";
 import { CustomerEntity } from "@entity/customer.entity";
 import { OrderDto } from "@dto/order.dto";
 import { OrderEntity } from "@entity/order.entity";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/download-report-order";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {

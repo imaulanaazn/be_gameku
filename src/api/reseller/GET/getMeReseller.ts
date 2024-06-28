@@ -1,9 +1,10 @@
 import { RequestHandler } from "express";
 import { IApiRouter } from "@interfaces/index";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/reseller/me";
-const method = "GET";
-const auth = "reseller";
+const method = APIMethod.GET;
+const auth = APIAuth.RESELLER;
 
 const main: RequestHandler = async (req, res) => {
     const session = req.reseller.data;

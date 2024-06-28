@@ -7,10 +7,11 @@ import { InvoiceService } from "@serviceInternal/invoice.service";
 import { Config } from "@config/index";
 import { OrderEntity } from "@entity/order.entity";
 import { CustomerEntity } from "@entity/customer.entity";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/webhook/tokopay";
-const method = "POST";
-const auth = "webhook-tokopay";
+const method = APIMethod.POST;
+const auth = APIAuth.WEBHOOK_TOKOPAY;
 
 interface PaymentData {
     created_at: string;

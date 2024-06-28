@@ -7,10 +7,11 @@ import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { CustomerService } from "@serviceInternal/customer.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import { Config } from "@config/index";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/webhook/digiflazz";
-const method = "POST";
-const auth = "webhook-digiflazz";
+const method = APIMethod.POST;
+const auth = APIAuth.WEBHOOK_DIGIFLAZZ;
 
 const main: RequestHandler = async (req, res) => {
     const client = req.client;

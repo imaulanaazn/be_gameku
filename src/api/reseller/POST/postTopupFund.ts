@@ -10,9 +10,11 @@ import { OrderService } from "@serviceInternal/order.service";
 import { InvoiceService } from "@serviceInternal/invoice.service";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { Op } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
+
 const path = "/v1/reseller/topup";
-const method = "POST";
-const auth = "reseller";
+const method = APIMethod.POST;
+const auth = APIAuth.RESELLER;
 
 const schemaValidation: Validation[] = [
     {

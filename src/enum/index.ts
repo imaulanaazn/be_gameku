@@ -141,3 +141,33 @@ export enum OrderScope {
     WITH_AMT_BUY = "withAmtBuy",
     LOGGING = "logging",
 }
+
+export enum APIAuth {
+    ALL_ADMIN = "all_admin",
+    OWNER = "owner",
+    ADMIN = "admin",
+    WRITER = "writer",
+    GUEST = "guest",
+    USER = "user",
+    COOKIE = "cookie",
+    WEBHOOK_XENDIT = "webhook-xendit",
+    WEBHOOK_APIGAMES = "webhook-apigames",
+    RESELLER = "reseller",
+    WEBHOOK_DIGIFLAZZ = "webhook-digiflazz",
+    WEBHOOK_LAPAKGAMING = "webhook-lapakgaming",
+    WEBHOOK_TOKOPAY = "webhook-tokopay",
+    WEBHOOK_INTERNAL = "webhook-internal",
+}
+
+export enum APIMethod {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    DELETE = "DELETE",
+}
+
+export enum JoseKey {
+    USER = "key_user",
+    RESELLER = "key_reseller",
+    ADMIN = "key_admin",
+}

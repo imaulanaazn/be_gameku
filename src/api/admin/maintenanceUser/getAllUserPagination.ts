@@ -7,10 +7,11 @@ import { FundService } from "@serviceInternal/fund.service";
 import { OrderService, PaymentMethodService } from "@serviceInternal/index";
 import { RequestHandler } from "express";
 import { Op, col, fn } from "sequelize";
+import { APIAuth, APIMethod } from "@enum/index";
 
 const path = "/v1/user";
-const method = "GET";
-const auth = "admin";
+const method = APIMethod.GET;
+const auth = APIAuth.ADMIN;
 
 const schemaValidation: Validation[] = [
     {
