@@ -30,6 +30,7 @@ interface IParamSendMessage {
     targetNumber: string;
     message: WhatsappTemplateEntity;
     isTest: boolean;
+    noNeedConsole?: boolean;
 }
 
 interface IParamsSendNotifyAdmin {
@@ -232,7 +233,7 @@ export class WhatsAppService {
                 .replace(/\[link\]/g, data.data.link)
                 .replace(/\[total_discount\]/g, data.data.discAmt.toString());
             await this.client.sendMessage(numb, textMessage.replace(/\\n/g, "\n") + replaceTemplate);
-            console.log("[WHATSAPP] - SEND MESSAGE ORDER TO : " + data.targetNumber);
+            !data.noNeedConsole && console.log("[WHATSAPP] - SEND MESSAGE ORDER TO : " + data.targetNumber);
             return {
                 success: true,
                 msg: "",

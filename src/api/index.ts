@@ -163,6 +163,7 @@ import { updateArticle } from "./admin/maintenanceArticle/updateArticle";
 import { updateStatusArticle } from "./admin/maintenanceArticle/updateStatusArticle";
 import { getArticleBySlug } from "./GET/getArticleBySlug";
 import { getListArticles } from "./GET/getListArticles";
+import { sendMessagePendingOrder } from "./cronjob/sendMessagePendingOrder";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -334,6 +335,7 @@ const apis = [
     cronSetOrderReview,
     checkingTokoKuponOrderStatus,
     syncTokoKuponData,
+    sendMessagePendingOrder,
 
     /**
      * Start for reseller API
