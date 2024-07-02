@@ -22,7 +22,6 @@ import { getBannerById } from "./admin/maintenanceBanner/getBannerById";
 import { putActivationPaymentMethod } from "./admin/maintenancePayment/putActivationPaymentMethod";
 import { getGameByCategory } from "./GET/getGameByCategory";
 // import { postArticle } from "./admin/maintenanceArticle/postArticle";
-import { getLastArticels } from "./GET/getArticles";
 import { getVideos } from "./GET/getVideos";
 import { postRegistration } from "./POST/postRegistration";
 import { getUserProfile } from "./GET/getUserProfile";
@@ -298,7 +297,6 @@ const apis = [
     // GET
     getBanners,
     getGameByCategory,
-    getLastArticels,
     getVideos,
     getUserProfile,
     getProducts,

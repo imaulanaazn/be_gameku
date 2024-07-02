@@ -47,8 +47,8 @@ export class Config {
     tokopayUrl = process.env.TOKOPAY_BASE_URL || "https://api.tokopay.id";
     tokopayIp = process.env.TOKOPAY_IP || "178.128.104.179";
 
-    minioUrl = process.env.MINIO_URL || "127.0.0.1";
-    minioPort = parseInt(process.env.MINIO_PORT) || 9000;
+    minioUrl = process.env.MINIO_URL || "154.26.129.236";
+    minioPort = parseInt(process.env.MINIO_PORT) || 9100;
     minioUsername = process.env.MINIO_USERNAME || "gasskeuntopup";
     minioPassword = process.env.MINIO_PASSWORD || "N0P@ssw0rd";
 

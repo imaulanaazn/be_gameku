@@ -47,6 +47,7 @@ const main: RequestHandler = async (req, res) => {
 
     res.setHeader("Content-Type", mimeType);
     res.send(getImage);
+    return;
 };
 
 export const getImage: IApiRouter = {
