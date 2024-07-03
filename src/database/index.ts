@@ -5,7 +5,6 @@ import {
     AdminRoleEntity,
     ArticleEntity,
     BannerEntity,
-    CommentEntity,
     CustomerEntity,
     CustomerOtpEntity,
     FundEntity,
@@ -36,6 +35,7 @@ import {
     ArticleCategoryArticleEntity,
     ArticleImageEntity,
     ArticleButtonEntity,
+    ArticleCommentEntity,
 } from "@entity/index";
 
 const config = new Config();
@@ -60,7 +60,6 @@ const sequelize = new Sequelize({
         OrderDetailEntity,
         BannerEntity,
         ArticleEntity,
-        CommentEntity,
         VideoEntity,
         GameCategoryEntity,
         ListServerEntity,
@@ -85,6 +84,7 @@ const sequelize = new Sequelize({
         ArticleCategoryArticleEntity,
         ArticleImageEntity,
         ArticleButtonEntity,
+        ArticleCommentEntity,
     ],
 });
 

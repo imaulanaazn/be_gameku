@@ -165,6 +165,8 @@ import { getListArticles } from "./GET/getListArticles";
 import { sendMessagePendingOrder } from "./cronjob/sendMessagePendingOrder";
 import { postUploadImage } from "./admin/maintenanceImage/postUploadImage";
 import { deleteImage } from "./admin/maintenanceImage/deleteImage";
+import { postArticleComment } from "./POST/postArticleComment";
+import { getArticleComments } from "./GET/getArticleComments";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -299,6 +301,7 @@ const apis = [
     postLogin,
     postCheckPromoCode,
     postCreateOrderReview,
+    postArticleComment,
 
     // GET
     getBanners,
@@ -321,6 +324,7 @@ const apis = [
     getImage,
     getArticleBySlug,
     getListArticles,
+    getArticleComments,
 
     // DELETE
     deleteLogout,

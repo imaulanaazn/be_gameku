@@ -10,7 +10,7 @@ import { ArticleButtonService } from "@serviceInternal/articleButton.service";
 import { ArticleCategoryService } from "@serviceInternal/articleCategory.service";
 import { ArticleCategoryArticleService } from "@serviceInternal/articleCategoryArticle.service";
 import { ArticleImageService } from "@serviceInternal/articleImage.service";
-import { CommentService } from "@serviceInternal/comment.service";
+import { ArticleCommentService } from "@serviceInternal/articleComment.service";
 import { NextFunction, Request, Response } from "express";
 
 type SingleImageData = {
@@ -94,5 +94,5 @@ export interface IDI {
     articleCategoryArticleService: ArticleCategoryArticleService;
     articleButtonService: ArticleButtonService;
     articleImageService: ArticleImageService;
-    commentService: CommentService;
+    articleCommentService: ArticleCommentService;
 }

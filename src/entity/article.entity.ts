@@ -10,7 +10,7 @@ import {
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import { AdminEntity, CommentEntity } from ".";
+import { AdminEntity, ArticleCommentEntity } from ".";
 import { ArticleCategoryArticleEntity } from "./articleCategoryArticle.entity";
 import { ArticleImageEntity } from "./articleImage.entity";
 import { ArticleButtonEntity } from "./articleButton.entity";
@@ -61,8 +61,8 @@ export class ArticleEntity extends Model<ArticleEntity> {
     @Column(DataType.DATE)
     updatedAt!: Date;
 
-    @HasMany(() => CommentEntity, "articleId")
-    comments!: CommentEntity[];
+    @HasMany(() => ArticleCommentEntity, "articleId")
+    comments!: ArticleCommentEntity[];
 
     @HasMany(() => ArticleCategoryArticleEntity, "articleId")
     articleCategoryArticles: ArticleCategoryArticleEntity[];

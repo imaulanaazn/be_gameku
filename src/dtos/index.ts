@@ -8,7 +8,7 @@ export * from "./invoice.dto";
 export * from "./orderDetail.dto";
 export * from "./banner.dto";
 export * from "./article.dto";
-export * from "./comment.dto";
+export * from "./articleComment.dto";
 export * from "./video.dto";
 export * from "./gameCategory.dto";
 export * from "./listServer.dto";

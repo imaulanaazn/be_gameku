@@ -11,7 +11,7 @@ import { ArticleButtonService } from "@serviceInternal/articleButton.service";
 import { ArticleCategoryService } from "@serviceInternal/articleCategory.service";
 import { ArticleCategoryArticleService } from "@serviceInternal/articleCategoryArticle.service";
 import { ArticleImageService } from "@serviceInternal/articleImage.service";
-import { CommentService } from "@serviceInternal/comment.service";
+import { ArticleCommentService } from "@serviceInternal/articleComment.service";
 import { Request, Response, NextFunction } from "express";
 import requestIp from "request-ip";
 import { Server } from "socket.io";
@@ -30,7 +30,7 @@ export const setupDI = (client: WhatsAppService, io: Server) => {
             articleCategoryArticleService: new ArticleCategoryArticleService(),
             articleButtonService: new ArticleButtonService(),
             articleImageService: new ArticleImageService(),
-            commentService: new CommentService(),
+            articleCommentService: new ArticleCommentService(),
         };
 
         const clientIp = requestIp.getClientIp(req);

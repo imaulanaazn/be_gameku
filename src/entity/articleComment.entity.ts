@@ -12,11 +12,11 @@ import {
 import { ArticleEntity } from "./article.entity";
 
 @Table({
-    tableName: "comments",
+    tableName: "article_comments",
     timestamps: true,
     underscored: true,
 })
-export class CommentEntity extends Model<CommentEntity> {
+export class ArticleCommentEntity extends Model<ArticleCommentEntity> {
     @PrimaryKey
     @Column(DataType.STRING(40))
     id!: string;
@@ -36,6 +36,9 @@ export class CommentEntity extends Model<CommentEntity> {
 
     @Column(DataType.STRING(255))
     status!: string;
+
+    @Column(DataType.STRING(255))
+    ip!: string;
 
     @CreatedAt
     @Column(DataType.DATE)
