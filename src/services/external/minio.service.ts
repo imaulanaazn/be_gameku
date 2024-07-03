@@ -26,7 +26,8 @@ export class MinioService {
             accessKey: config.minioUsername,
             secretKey: config.minioPassword,
         });
-        this.uploadDir = path.join(__dirname, "uploads");
+        this.uploadDir = path.join(process.cwd(), "uploads");
+        this.ensureUploadDir();
     }
 
     private async ensureUploadDir() {

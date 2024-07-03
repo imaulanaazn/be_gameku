@@ -31,7 +31,9 @@ const main: RequestHandler = async (req, res) => {
     const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     const mimeType = mime.lookup(filename);
     if (!mimeType || !allowedMimeTypes.includes(mimeType)) {
-        res.status(415).send("Unsupported Media Type");
+        res.status(415).send({
+            message: "Unsupported Media Type",
+        });
         return;
     }
 

@@ -14,9 +14,19 @@ import { Server } from "socket.io";
 import { WhatsAppService } from "@serviceExternal/whatsapp.service";
 import routerIo from "./socketIo";
 import { setupDI } from "@middleware/di";
+import * as fs from "fs";
+import * as path from "path";
 
 const getApp = async (app: Application, server: HttpServer<typeof IncomingMessage, typeof ServerResponse>) => {
     const config = new Config();
+    const resolvedPath = path.resolve("uploads");
+
+    if (!fs.existsSync(resolvedPath)) {
+        fs.mkdirSync(resolvedPath, { recursive: true });
+        console.log(`Folder created at: ${resolvedPath}`);
+    } else {
+        console.log(`Folder already exists at: ${resolvedPath}`);
+    }
     const allowOrigin = config.originCors.split(",");
 
     try {

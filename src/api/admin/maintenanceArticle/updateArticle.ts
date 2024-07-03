@@ -167,50 +167,31 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const savedArticleImage: ArticleImageDto[] = [];
-    console.log(req.files);
-    if (req.files && !Array.isArray(req.files)) {
-        if (req.files?.banner) {
-            const uploadNewBanner = di.minioService.uploadFile({
+    if (req?.file?.fieldname === "banner") {
+        const articleImageBefore = article.images.find((item) => item.type === "banner")?.path;
+        if (articleImageBefore) {
+            await di.minioService.deleteFile({
                 bucketName: "gasskeuntopup",
-                filename: req.files.banner[0].filename,
-                folder: "article-image",
-                filePath: req.files.banner[0].path,
-            });
-            uploadPromises.push(uploadNewBanner);
-            savedArticleImage.push({
-                id: uuid(),
-                articleId: article.id,
-                path: `article-image/${req.files.banner[0].filename}`,
-                type: "banner",
+                filename: articleImageBefore,
             });
         }
+        await di.minioService.uploadFile({
+            bucketName: "gasskeuntopup",
+            filename: req.file.filename,
+            folder: "article-image",
+            filePath: req.file.path,
+        });
 
-        if (req.files?.imageContent) {
-            const uploadNewImageContentPromises = req.files.imageContent.map((image) => {
-                savedArticleImage.push({
-                    id: uuid(),
-                    articleId: article.id,
-                    path: `article-image/${image.filename}`,
-                    type: "image_content",
-                });
-
-                return di.minioService.uploadFile({
-                    bucketName: "gasskeuntopup",
-                    filename: image.filename,
-                    folder: "article-image",
-                    filePath: image.path,
-                });
-            });
-            uploadPromises.push(...uploadNewImageContentPromises);
-        }
+        await di.articleImageService.updateBy({
+            by: "id",
+            value: article.id,
+            data: {
+                path: `article-image/${req.file.filename}`,
+            },
+        });
     }
 
     await Promise.all(uploadPromises);
-    console.log(savedArticleImage);
-    if (savedArticleImage.length > 0) {
-        await di.articleImageService.model.bulkCreate(savedArticleImage);
-    }
 
     if (body?.button) {
         const buttons: { name: string; url: string }[] = JSON.parse(body.button);
@@ -245,10 +226,6 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const deletedMinioFilename = [article.content, article.contentPreview];
-    for (const imageContent of article.images) {
-        deletedMinioFilename.push(imageContent.path);
-    }
-
     const deleteBulkMinioFile = deletedMinioFilename.map((item) => {
         di.minioService.deleteFile({
             bucketName: "gasskeuntopup",
@@ -256,17 +233,6 @@ const main: RequestHandler = async (req, res) => {
         });
     });
     await Promise.all(deleteBulkMinioFile);
-
-    const oldImagesId = article.images.map((item) => item.id);
-    if (oldImagesId.length > 0) {
-        await di.articleImageService.model.destroy({
-            where: {
-                id: {
-                    [Op.in]: oldImagesId,
-                },
-            },
-        });
-    }
 
     const oldButtonIds = article.buttons.map((item) => item.id);
     if (oldButtonIds.length > 0) {
@@ -299,7 +265,7 @@ export const updateArticle: IApiRouter = {
     auth,
     isUploadImage: true,
     dataImg: {
-        field: ["imageContent", "banner"],
-        single: false,
+        field: "banner",
+        single: true,
     },
 };

@@ -163,6 +163,8 @@ import { updateStatusArticle } from "./admin/maintenanceArticle/updateStatusArti
 import { getArticleBySlug } from "./GET/getArticleBySlug";
 import { getListArticles } from "./GET/getListArticles";
 import { sendMessagePendingOrder } from "./cronjob/sendMessagePendingOrder";
+import { postUploadImage } from "./admin/maintenanceImage/postUploadImage";
+import { deleteImage } from "./admin/maintenanceImage/deleteImage";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -285,6 +287,10 @@ const apis = [
 
     // Maintenance Menu
     getListAdminMenu,
+
+    // Maintenance Image
+    postUploadImage,
+    deleteImage,
 
     // POST
     postOrder,

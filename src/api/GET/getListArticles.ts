@@ -9,6 +9,7 @@ import { ValidatorV2 } from "@helper/validatorV2";
 import { IApiRouter } from "@interfaces/index";
 import { RequestHandler } from "express";
 import Joi from "joi";
+import { Op } from "sequelize";
 
 const path = "/v1/articles";
 const method = APIMethod.GET;
@@ -42,8 +43,7 @@ const main: RequestHandler = async (req, res) => {
     const di = req.di;
     const { sort, limit, order, page, ...filteredQuery } = query;
 
-    let articles;
-
+    let articleIds: any = [];
     if (query.categorySlug) {
         const categoryArticle = await di.articleCategoryService.model.findOne({
             where: {
@@ -61,16 +61,35 @@ const main: RequestHandler = async (req, res) => {
             throw new BusinessError("Kategory Artikel tidak valid", ErrorType.NotFound);
         }
 
-        res.send(categoryArticle);
-        return;
+        const articleId = await di.articleCategoryArticleService.model.findAll({
+            where: {
+                articleCategoryId: categoryArticle.id,
+            },
+            attributes: ["articleId"],
+        });
+
+        if (articleId.length === 0) {
+            return res.send({
+                data: [],
+                page: query.page,
+                total: 0,
+                totalPage: Math.ceil(0 / query.limit),
+                order: query.order,
+                sort: query.sort,
+                limit: query.limit,
+            });
+        }
+
+        articleIds = articleId.map((item) => item.articleId);
     }
 
-    articles = await di.articleService.model.findAndCountAll({
+    const articles = await di.articleService.model.findAndCountAll({
         limit,
         offset: (page - 1) * limit,
         where: {
             status: "PUBLISH",
             ...(query.isPopular ? { isPopular: query.isPopular } : {}),
+            ...(articleIds.length > 0 ? { id: { [Op.in]: articleIds } } : {}),
         },
         order: [[sort, order]],
         include: [
@@ -85,15 +104,11 @@ const main: RequestHandler = async (req, res) => {
             },
             {
                 model: ArticleCategoryArticleEntity,
-                required: true,
+                required: false,
                 include: [
                     {
                         model: ArticleCategoryEntity,
-                        required: true,
-                        where: {
-                            ...(query.categorySlug ? { slug: query.categorySlug } : {}),
-                        },
-                        as: "articleCategory",
+                        required: false,
                     },
                 ],
             },
@@ -104,20 +119,12 @@ const main: RequestHandler = async (req, res) => {
         ],
     });
 
-    res.send(articles);
-    return;
-
+    const imageUrl = di.config.imageUrl;
     const newDataPromises = articles.rows.map(async (article) => {
-        const imageUrl = di.config.imageUrl;
         const bannerData = article.images.find((image) => image.type === "banner");
         const bannerImage = bannerData
             ? `${imageUrl}/${article.images.find((image) => image.type === "banner").path}`
             : "";
-
-        const contentImageDatas = article.images.filter((image) => !(image.type === "banner"));
-        const contentImage =
-            contentImageDatas.length > 0 ? contentImageDatas.map((image) => `${imageUrl}/${image.path}`) : [];
-
         const categories = article.articleCategoryArticles.map((category) => ({
             name: category.articleCategory.name,
             slug: category.articleCategory.slug,
@@ -129,16 +136,22 @@ const main: RequestHandler = async (req, res) => {
             result: "string",
         });
 
+        const content = await di.minioService.getFile({
+            bucketName: "gasskeuntopup",
+            filename: article.content,
+            result: "string",
+        });
+
         return {
             id: article.id,
             author: article.author.name,
             title: article.title,
             slug: article.slug,
+            content,
             contentPreview,
             status: article.status,
             isPopular: article.isPopular,
             bannerImage,
-            contentImage,
             buttons: article.buttons,
             categories,
             publishedAt: article.publishedAt,

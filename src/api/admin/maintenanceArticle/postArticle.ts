@@ -71,7 +71,7 @@ const main: RequestHandler = async (req, res) => {
         status: "DRAFT" | "PUBLISH" | "ARCHIVE";
         isPopular: boolean;
     }>(schemaValidation, ValidatorType.BODY);
-    console.log(req.files);
+    console.log(req.file || req.files);
     console.log(body);
     const di = req.di;
     const admin = req.admin.data;
@@ -117,48 +117,23 @@ const main: RequestHandler = async (req, res) => {
         isPopular: body.isPopular,
     });
 
-    const savedArticleImage: ArticleImageDto[] = [];
-    if (req.files && !Array.isArray(req.files)) {
-        if (req.files?.banner) {
-            const uploadBanner = di.minioService.uploadFile({
-                bucketName: "gasskeuntopup",
-                filename: req.files.banner[0].filename,
-                folder: "article-image",
-                filePath: req.files.banner[0].path,
-            });
-            uploadPromises.push(uploadBanner);
-            savedArticleImage.push({
-                id: uuid(),
-                articleId: articleId,
-                path: `article-image/${req.files.banner[0].filename}`,
-                type: "banner",
-            });
-        }
+    if (req?.file?.fieldname === "banner") {
+        await di.minioService.uploadFile({
+            bucketName: "gasskeuntopup",
+            filename: req.file.filename,
+            folder: "article-image",
+            filePath: req.file.path,
+        });
 
-        if (req.files?.imageContent) {
-            const uploadImageContentPromises = req.files.imageContent.map((image) => {
-                savedArticleImage.push({
-                    id: uuid(),
-                    articleId: articleId,
-                    path: `article-image/${image.filename}`,
-                    type: "image_content",
-                });
-
-                return di.minioService.uploadFile({
-                    bucketName: "gasskeuntopup",
-                    filename: image.filename,
-                    folder: "article-image",
-                    filePath: image.path,
-                });
-            });
-            uploadPromises.push(...uploadImageContentPromises);
-        }
+        await di.articleImageService.create({
+            id: uuid(),
+            articleId: articleId,
+            path: `article-image/${req.file.filename}`,
+            type: "banner",
+        });
     }
 
     await Promise.all(uploadPromises);
-    if (savedArticleImage.length > 0) {
-        await di.articleImageService.model.bulkCreate(savedArticleImage);
-    }
 
     if (body?.button) {
         const buttons: { name: string; url: string }[] = JSON.parse(body.button);
@@ -202,7 +177,7 @@ export const postArticle: IApiRouter = {
     auth,
     isUploadImage: true,
     dataImg: {
-        field: ["imageContent", "banner"],
-        single: false,
+        field: "banner",
+        single: true,
     },
 };

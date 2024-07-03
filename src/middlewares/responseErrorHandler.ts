@@ -9,6 +9,25 @@ const responseHandler = (error: Error, res: Response, req: Request) => {
             fs.unlinkSync(req.file.path);
         }
 
+        if (req.files) {
+            if (Array.isArray(req.files)) {
+                req.files.forEach((file) => {
+                    if (fs.existsSync(file.path)) {
+                        fs.unlinkSync(file.path);
+                    }
+                });
+            } else {
+                Object.keys(req.files).forEach((fieldName) => {
+                    const files = req.files[fieldName];
+                    files.forEach((file) => {
+                        if (fs.existsSync(file.path)) {
+                            fs.unlinkSync(file.path);
+                        }
+                    });
+                });
+            }
+        }
+
         switch (error.name) {
             case ErrorType.Authentication:
                 res.status(ErrorStatusCode.Authentication);
