@@ -30,7 +30,9 @@ const main: RequestHandler = async (req, res) => {
     const admin = await adminService.model.findOne({
         where: {
             id: body.adminId,
-            deleted: false,
+            deleted: {
+                [Op.in]: [null, false],
+            },
         },
     });
 
