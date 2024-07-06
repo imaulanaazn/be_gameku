@@ -84,7 +84,7 @@ const main: RequestHandler = async (req, res) => {
         status: "DRAFT" | "PUBLISH" | "ARCHIVE";
         isPopular: boolean;
     }>(schemaValidation, ValidatorType.BODY);
-    console.log(req.files);
+    console.log(req.files || req.file);
     console.log(body);
     const di = req.di;
 
@@ -168,11 +168,26 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (req?.file?.fieldname === "banner") {
-        const articleImageBefore = article.images.find((item) => item.type === "banner")?.path;
+        const articleImageBefore = article.images.find((item) => item.type === "banner");
         if (articleImageBefore) {
             await di.minioService.deleteFile({
                 bucketName: "gasskeuntopup",
-                filename: articleImageBefore,
+                filename: articleImageBefore.path,
+            });
+
+            await di.articleImageService.updateBy({
+                by: "id",
+                value: articleImageBefore.id,
+                data: {
+                    path: `article-image/${req.file.filename}`,
+                },
+            });
+        } else {
+            await di.articleImageService.create({
+                id: uuid(),
+                articleId: article.id,
+                path: `article-image/${req.file.filename}`,
+                type: "banner",
             });
         }
         await di.minioService.uploadFile({
@@ -180,14 +195,6 @@ const main: RequestHandler = async (req, res) => {
             filename: req.file.filename,
             folder: "article-image",
             filePath: req.file.path,
-        });
-
-        await di.articleImageService.updateBy({
-            by: "id",
-            value: article.id,
-            data: {
-                path: `article-image/${req.file.filename}`,
-            },
         });
     }
 
