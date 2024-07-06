@@ -139,18 +139,11 @@ const main: RequestHandler = async (req, res) => {
             result: "string",
         });
 
-        const content = await di.minioService.getFile({
-            bucketName: "gasskeuntopup",
-            filename: article.content,
-            result: "string",
-        });
-
         return {
             id: article.id,
             author: article.author.name,
             title: article.title,
             slug: article.slug,
-            content,
             contentPreview,
             status: article.status,
             isPopular: article.isPopular,
