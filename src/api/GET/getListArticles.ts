@@ -13,7 +13,7 @@ import { Op } from "sequelize";
 
 const path = "/v1/articles";
 const method = APIMethod.GET;
-const auth = APIAuth.WRITER;
+const auth = APIAuth.GUEST;
 
 const booleanStringSchema = Joi.string()
     .valid("true", "false")
