@@ -33,12 +33,14 @@ const booleanStringSchema = Joi.string()
 const schemaValidation = Joi.object({
     categorySlug: Joi.string().optional(),
     isPopular: booleanStringSchema,
+    title: Joi.string().optional(),
 });
 
 const main: RequestHandler = async (req, res) => {
     const query = new ValidatorV2(req, res).process<{
         categorySlug: string;
         isPopular: boolean;
+        title: string;
     }>(schemaValidation, ValidatorType.QUERY, true);
     const di = req.di;
     const { sort, limit, order, page, ...filteredQuery } = query;
@@ -90,6 +92,7 @@ const main: RequestHandler = async (req, res) => {
             status: "PUBLISH",
             ...(query.isPopular ? { isPopular: query.isPopular } : {}),
             ...(articleIds.length > 0 ? { id: { [Op.in]: articleIds } } : {}),
+            ...(query.title ? { title: { [Op.like]: `%${query.title}%` } } : {}),
         },
         order: [[sort, order]],
         include: [

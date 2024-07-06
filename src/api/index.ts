@@ -167,6 +167,11 @@ import { postUploadImage } from "./admin/maintenanceImage/postUploadImage";
 import { deleteImage } from "./admin/maintenanceImage/deleteImage";
 import { postArticleComment } from "./POST/postArticleComment";
 import { getArticleComments } from "./GET/getArticleComments";
+import { createArticleCategory } from "./admin/maintenanceArticleCategory/createArticleCategory";
+import { updateArticleCategory } from "./admin/maintenanceArticleCategory/updateArticleCategory";
+import { deleteArticleCategory } from "./admin/maintenanceArticleCategory/deleteArticleCategory";
+import { getArticleCategoryById } from "./admin/maintenanceArticleCategory/getArticleCategoryById";
+import { getListArticleCategory } from "./admin/maintenanceArticleCategory/getListArticleCategory";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -293,6 +298,13 @@ const apis = [
     // Maintenance Image
     postUploadImage,
     deleteImage,
+
+    // Maintenance Article Category
+    createArticleCategory,
+    updateArticleCategory,
+    deleteArticleCategory,
+    getArticleCategoryById,
+    getListArticleCategory,
 
     // POST
     postOrder,

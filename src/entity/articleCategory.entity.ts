@@ -20,6 +20,9 @@ export class ArticleCategoryEntity extends Model<ArticleCategoryEntity> {
     @Column(DataType.STRING(255))
     description!: string;
 
+    @Column(DataType.BOOLEAN)
+    deleted!: boolean;
+
     @CreatedAt
     @Column(DataType.DATE)
     createdAt!: Date;
