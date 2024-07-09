@@ -35,7 +35,7 @@ const main: RequestHandler = async (req, res) => {
             {
                 model: ArticleButtonEntity,
                 required: false,
-                attributes: ["name", "url"],
+                attributes: ["id", "name", "url"],
             },
             {
                 model: ArticleCategoryArticleEntity,
