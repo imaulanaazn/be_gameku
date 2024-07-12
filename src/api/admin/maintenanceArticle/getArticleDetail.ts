@@ -67,6 +67,7 @@ const main: RequestHandler = async (req, res) => {
         contentImageDatas.length > 0 ? contentImageDatas.map((image) => `${imageUrl}/${image.path}`) : [];
 
     const categories = article.articleCategoryArticles.map((category) => ({
+        id: category.articleCategory.id,
         name: category.articleCategory.name,
         slug: category.articleCategory.slug,
     }));

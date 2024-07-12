@@ -35,6 +35,7 @@ const main: RequestHandler = async (req, res) => {
 
     const comments = await di.articleCommentService.model.findAndCountAll({
         where: {
+            articleId: article.id,
             status: "active",
         },
         limit,
