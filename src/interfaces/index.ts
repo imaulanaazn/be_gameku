@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 
 type SingleImageData = {
     field: string;
@@ -34,6 +34,7 @@ export interface IApiRouterWithImage {
         | "webhook-tokopay";
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 export interface IApiRouterWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
@@ -53,6 +54,7 @@ export interface IApiRouterWithoutImage {
         | "webhook-tokopay";
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 
 interface IApiRouterWebhookInternalWithImage {
@@ -63,6 +65,7 @@ interface IApiRouterWebhookInternalWithImage {
     xApiKey: string;
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 interface IApiRouterWebhookInternalWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
@@ -72,6 +75,7 @@ interface IApiRouterWebhookInternalWithoutImage {
     xApiKey: string;
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 
 export interface Validation {

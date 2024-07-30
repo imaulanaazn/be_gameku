@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { IApiRouter, Validation } from "@interfaces/index";
-import { ErrorType, ValidatorType } from "@enum/index";
+import { CustomerStatuses, ErrorType, ValidatorType } from "@enum/index";
 import { Config } from "@config/index";
 import { Validator } from "@helper/validator";
 import { BusinessError } from "@helper/handleError";
@@ -13,6 +13,7 @@ import isBetween from "dayjs/plugin/isBetween";
 import { CustomerService } from "@serviceInternal/customer.service";
 import { Op } from "sequelize";
 import { CustomerEntity } from "@entity/customer.entity";
+import { getCustomerStatuses } from "@helper/checkCustomerStatuses";
 dayjs.extend(isBetween);
 
 const path = "/v1/otp";
@@ -88,12 +89,16 @@ const main: RequestHandler = async (req, res) => {
                     },
                 ],
                 isRegistered: true,
-                isActive: true,
             },
         });
 
         if (!customer) {
             throw new BusinessError("Nomor handphone belum terdaftar", ErrorType.BadRequest);
+        }
+
+        const customerStatus = getCustomerStatuses(customer);
+        if (!customerStatus.valid) {
+            throw new BusinessError(customerStatus.message, ErrorType.Locked);
         }
     }
 

@@ -31,6 +31,9 @@ const responseHandler = (error: Error, res: Response, req: Request) => {
             case ErrorType.BadRequest:
                 res.status(ErrorStatusCode.BadRequest);
                 break;
+            case ErrorType.Locked:
+                res.status(ErrorStatusCode.Locked);
+                break;
             default:
                 res.status(ErrorStatusCode.Internal);
                 break;

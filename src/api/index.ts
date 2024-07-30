@@ -10,7 +10,6 @@ import {
     authWehbookAPIGames,
     authWehbookInternal,
     authWehbookXendit,
-    resellerChecking,
 } from "../middlewares/sessions";
 import responseErrorHandler from "@middleware/responseErrorHandler";
 import { IApiRouter } from "src/interfaces";
@@ -151,7 +150,7 @@ import { putPopularBulkV2 } from "./admin/maintenanceGame/putPopularBulkV2";
 import { postOrderV2 } from "./POST/postOrderV2";
 import { getOrderDetailV2 } from "./GET/getOrderDetailV2";
 import { webhookTokopay } from "./webhook/tokopay";
-import { putPaymentGuide } from "./admin/maintenancePaymentMethod/putPaymentGuide";
+import { putPaymentGuide } from "./admin/maintenancePayment/putPaymentGuide";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -420,10 +419,12 @@ const apisWebhook = [
 ];
 
 for (const api of apisWebhook) {
-    let { path, method, auth } = api as IApiRouter;
+    let { path, method, auth, middlewares } = api as IApiRouter;
     if (!path.startsWith("/api")) {
         path = "/api" + path;
     }
+
+    middlewares = middlewares || [];
 
     let authorization;
     if (auth === "webhook-internal") {
@@ -451,9 +452,13 @@ for (const api of apisWebhook) {
         });
 
     if (auth === "guess") {
-        webhook[method.toLowerCase()](path, main);
+        webhook[method.toLowerCase()](path, ...middlewares, main);
     } else {
-        webhook[method.toLowerCase()](path, authorization, main);
+        if (authorization) {
+            webhook[method.toLowerCase()](path, ...middlewares, authorization, main);
+        } else {
+            webhook[method.toLowerCase()](path, ...middlewares, main);
+        }
     }
 }
 

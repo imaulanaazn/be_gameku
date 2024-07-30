@@ -6,6 +6,10 @@ import { Validator } from "@helper/validator";
 import { SysConfigEntity } from "@entity/sysConfig.entity";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { BusinessError } from "@helper/handleError";
+import RedisService from "@serviceExternal/externalRedis.service";
+import { selectFields } from "@helper/selectedField";
+import { SysConfigDto } from "@dto/sysConfig.dto";
+import { Op } from "sequelize";
 
 const path = "/v1/config";
 const method = "GET";
@@ -30,27 +34,53 @@ const main: RequestHandler = async (req, res) => {
         type: string;
         detail?: "true" | "false" | undefined;
     }>(schemaValidation, ValidatorType.QUERY);
-    if (query.type === "webhook_key" || query.type === "api_key") {
-        return res.sendStatus(200);
+    const notInclude = [
+        "username_digiflazz",
+        "api_key",
+        "api_key_lapakgaming",
+        "tokopay_merchant_id",
+        "api_key_digiflazz",
+        "kupon_apikey",
+        "tokopay_secret_key",
+        "api_games_merchant_id",
+        "webhook_key",
+        "api_games_secret_key",
+    ];
+    if (notInclude.includes(query.type)) {
+        return res.send([]);
     }
 
     const sysConfigService = new SysConfigService();
+    const redisService = new RedisService();
     const type = query.type.split(",");
-    const config = await sysConfigService.findManyBy({
-        column: "cd",
-        value: type,
-        operator: "in",
+    let redisKey = "config";
+    const isDetail = !!query.detail;
+
+    const dataPromises = type.map(async (item) => {
+        const redisItemKey = `${redisKey}${isDetail ? ":detail" : ""}:${item}`;
+        const getData = await redisService.getJson<SysConfigDto>(redisItemKey);
+
+        if (getData) {
+            return getData;
+        } else {
+            const data = await sysConfigService.model.findOne({
+                where: {
+                    cd: item,
+                },
+                attributes: isDetail ? undefined : ["value", "cd"],
+            });
+
+            if (data) {
+                await redisService.setJson(redisItemKey, { value: data.value });
+                return data;
+            }
+
+            return null;
+        }
     });
 
-    if (query.detail === "true") {
-        return res.send(config);
-    }
-
-    return res.send(
-        config.map((item) => {
-            return { value: item.value };
-        }),
-    );
+    const allDataFromRedis = await Promise.all(dataPromises);
+    return res.send(isDetail ? allDataFromRedis : selectFields(allDataFromRedis, ["value"]));
 };
 
 export const getConfig: IApiRouter = {

@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { EncryptJoseType, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -44,14 +44,7 @@ const main: RequestHandler = async (req, res) => {
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
 
-    const encryptService = new EncryptionService();
-    // const cookie = req.cookies?.session_login_reseller;
-    // if (!cookie) {
-    //     res.status(400).send({
-    //         errorMessage: "OTP Kadaluarsa, Silahkan request OTP kembali",
-    //     });
-    //     return;
-    // }
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
 
     const userService = new CustomerService();
     const config = new Config();

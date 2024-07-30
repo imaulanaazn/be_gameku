@@ -1,4 +1,4 @@
-import { ValidatorType } from "@enum/index";
+import { EncryptJoseType, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -166,7 +166,7 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     const encrypt = await encryptService.encryptData(
         {
             email: body.email,

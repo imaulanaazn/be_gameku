@@ -10,13 +10,11 @@ const method = "GET";
 const auth = "admin";
 
 const main: RequestHandler = async (req, res) => {
+    const session = req.admin.data;
     const config = new Config();
-    const session = req.cookies.session_gasskeun_admin;
-    const decoded = jwt.verify(session, config.secretSessionAdmin) as AdminDto;
-
     return res.send({
-        roleName: decoded.role === config.roleAdmin ? "admin" : "super-admin",
-        ...decoded,
+        roleName: session.roleId === config.roleSuperAdmin ? "super-admin" : "admin",
+        ...session,
     });
 };
 

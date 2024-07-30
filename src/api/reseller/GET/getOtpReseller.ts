@@ -1,4 +1,5 @@
 import { Config } from "@config/index";
+import { EncryptJoseType } from "@enum/index";
 import { IApiRouter } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
 import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
@@ -79,7 +80,7 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const encryptService = new EncryptionService();
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     const encrypt = await encryptService.encryptData(
         {
             email: reseller.email,

@@ -6,18 +6,18 @@ class RedisService {
 
     constructor() {
         const config = new Config();
+
         this.redisClient = createClient({
-            url: config.redisUri,
+            host: config.redisHost,
+            port: config.redisPort,
         });
 
-        this.redisClient.on("error", (error) => {
-            console.error(error);
-        });
+        this.redisClient.on("error", (err) => console.error("Redis Client Error", err));
     }
 
     public async setJson(key: string, value: any, ttl?: number): Promise<any> {
         if (!ttl) {
-            ttl = 60 * 60 * 24 * 7;
+            ttl = 60 * 5;
         }
         const jsonValue = JSON.stringify(value);
         return await this.set(key, jsonValue, ttl);
@@ -76,6 +76,27 @@ class RedisService {
                 }
             });
         });
+    }
+
+    public async scanKeys(pattern: string): Promise<string[]> {
+        const foundKeys: string[] = [];
+        let cursor = "0";
+
+        do {
+            const result = await new Promise<{ cursor: string; keys: string[] }>((resolve, reject) => {
+                this.redisClient.scan(cursor, "MATCH", pattern, "COUNT", 100, (error, response) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve({ cursor: response[0], keys: response[1] });
+                    }
+                });
+            });
+            cursor = result.cursor;
+            foundKeys.push(...result.keys);
+        } while (cursor !== "0");
+
+        return foundKeys;
     }
 }
 

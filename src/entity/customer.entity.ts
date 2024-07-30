@@ -33,8 +33,11 @@ export class CustomerEntity extends Model<CustomerEntity> {
     @Column(DataType.STRING(40))
     id!: string;
 
-    @Column(DataType.STRING(40))
+    @Column(DataType.STRING(10))
     roleId!: string;
+
+    @Column(DataType.STRING(40))
+    status!: string;
 
     @Default(false)
     @Column(DataType.BOOLEAN)
@@ -56,9 +59,11 @@ export class CustomerEntity extends Model<CustomerEntity> {
     @Column(DataType.STRING(255))
     password!: string;
 
-    @Default(false)
-    @Column(DataType.BOOLEAN)
-    isActive!: boolean;
+    @Column(DataType.INTEGER)
+    loginAttemps!: number;
+
+    @Column(DataType.DATE)
+    lockUntil!: string;
 
     @CreatedAt
     @Column(DataType.DATE)

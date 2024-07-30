@@ -1,4 +1,4 @@
-import { ErrorType, ValidatorType } from "@enum/index";
+import { EncryptJoseType, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -8,6 +8,7 @@ import { Config } from "@config/index";
 import { AdminService } from "@serviceInternal/admin.service";
 import session from "express-session";
 import * as jwt from "jsonwebtoken";
+import { EncryptionService } from "@serviceInternal/jose.service";
 
 const path = "/v1/admin/login";
 const method = "POST";
@@ -54,12 +55,22 @@ const main: RequestHandler = async (req, res) => {
         { expiresIn: "24h" },
     );
 
-    res.cookie("session_gasskeun_admin", token, {
+    const encryptService = new EncryptionService(EncryptJoseType.ADMIN);
+    const encrypt = await encryptService.encryptData(
+        {
+            ...admin.dataValues,
+            password: undefined,
+        },
+        7,
+        "day",
+    );
+
+    res.cookie("session_gasskeun_admin", encrypt, {
         httpOnly: true,
         maxAge: config.maxAgeLogin * 1000,
-        // domain: config.domainAdmin,
-        // path: "/",
-        // secure: process.env.NODE_ENV.toLowerCase() === "production",
+        // domain: config.domainReseller,
+        // path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/reseller",
+        secure: process.env.NODE_ENV.toLowerCase() === "production",
     });
 
     return res.send({

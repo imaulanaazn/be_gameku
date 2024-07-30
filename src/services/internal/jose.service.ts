@@ -2,7 +2,7 @@ import { CompactJWEHeaderParameters, KeyLike } from "jose";
 import fs from "fs";
 import * as jose from "jose";
 import { BusinessError } from "@helper/handleError";
-import { ErrorType } from "@enum/index";
+import { EncryptJoseType, ErrorType } from "@enum/index";
 import dayjs from "dayjs";
 import path from "path";
 
@@ -12,11 +12,11 @@ export class EncryptionService {
     private privateKey: string;
     private publicKey: string;
 
-    constructor() {
+    constructor(type: EncryptJoseType) {
         const runningFolder = process.env.NODE_ENV.toLowerCase() === "production" ? "dist" : "src";
         const keyPath = path.join(process.cwd(), runningFolder, "key");
-        this.privateKey = fs.readFileSync(path.join(keyPath, "private.pem"), "utf8");
-        this.publicKey = fs.readFileSync(path.join(keyPath, "public.pem"), "utf8");
+        this.privateKey = fs.readFileSync(path.join(keyPath, `private_key_${type}.pem`), "utf8");
+        this.publicKey = fs.readFileSync(path.join(keyPath, `public_key_${type}.pem`), "utf8");
     }
 
     private async getSecretKey(): Promise<{ privateKey: KeyLike; publicKey: KeyLike }> {

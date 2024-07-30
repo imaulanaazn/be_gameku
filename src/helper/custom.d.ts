@@ -26,5 +26,17 @@ declare module "express-serve-static-core" {
             expiredAt: string;
             createdAt: string;
         };
+        user?: {
+            isExpired: boolean;
+            data: CustomerDto;
+            expiredAt: string;
+            createdAt: string;
+        };
+        admin?: {
+            isExpired: boolean;
+            data: CustomerDto;
+            expiredAt: string;
+            createdAt: string;
+        };
     }
 }

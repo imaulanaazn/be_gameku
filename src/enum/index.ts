@@ -7,6 +7,7 @@ export enum ErrorType {
     Internal = "InternalServerError",
     Duplicate = "DuplicateError",
     ToManyRequest = "ToManyRequest",
+    Locked = "LockedError",
 }
 
 export enum ErrorStatusCode {
@@ -18,6 +19,7 @@ export enum ErrorStatusCode {
     Internal = 500,
     Duplicate = 409,
     ToManyRequest = 429,
+    Locked = 423,
 }
 export enum OrderStatuses {
     PENDING_PAYMENT = "1",
@@ -96,6 +98,12 @@ export enum PaymentsCategory {
     PULSA = "6",
 }
 
+export enum EncryptJoseType {
+    RESELLER = "reseller",
+    ADMIN = "admin",
+    USER = "user",
+}
+
 export enum TypeOverview {
     DAYLY = 1,
     WEEKLY = 7,
@@ -140,4 +148,10 @@ export enum GameProvider {
 export enum OrderScope {
     WITH_AMT_BUY = "withAmtBuy",
     LOGGING = "logging",
+}
+
+export enum CustomerStatuses {
+    ACTIVE = "active",
+    FREEZE = "freeze",
+    SUSPENDED = "suspended",
 }

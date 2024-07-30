@@ -15,7 +15,8 @@ export class Config {
 
     feUrl = process.env.FE_URL || "http://localhost:3000";
 
-    redisUri = process.env.REDIS_URI;
+    redisHost = process.env.REDIS_HOST || "localhost";
+    redisPort = parseInt(process.env.REDIS_PORT) || 6379;
 
     // xenditSecretKey = process.env.XENDIT_SECRET_KEY;
     xenditBaseUrl = process.env.XENDIT_BASE_URL;
