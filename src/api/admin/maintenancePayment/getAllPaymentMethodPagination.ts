@@ -63,6 +63,9 @@ const main: RequestHandler = async (req, res) => {
         order: [[query.sort, query.order]],
         where: {
             deleted: false,
+            providerCd: {
+                [Op.not]: "INTERNAL",
+            },
             ...where,
         },
     });

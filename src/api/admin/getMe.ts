@@ -12,7 +12,11 @@ const auth = APIAuth.ALL_ADMIN;
 
 const main: RequestHandler = async (req, res) => {
     const session = req.admin.data;
-    return res.send(session);
+    const config = new Config();
+    return res.send({
+        roleName: session.roleId === config.roleSuperAdmin ? "super-admin" : "admin",
+        ...session,
+    });
 };
 
 export const getMeAdmin: IApiRouter = {

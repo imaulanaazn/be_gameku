@@ -30,13 +30,13 @@ declare module "express-serve-static-core" {
             expiredAt: string;
             createdAt: string;
         };
-        admin?: {
+        user?: {
             isExpired: boolean;
-            data: DataEncryptAdmin;
+            data: CustomerDto;
             expiredAt: string;
             createdAt: string;
         };
-        user?: {
+        admin?: {
             isExpired: boolean;
             data: CustomerDto;
             expiredAt: string;

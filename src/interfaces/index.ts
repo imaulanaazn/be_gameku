@@ -11,7 +11,7 @@ import { ArticleCategoryService } from "@serviceInternal/articleCategory.service
 import { ArticleCategoryArticleService } from "@serviceInternal/articleCategoryArticle.service";
 import { ArticleImageService } from "@serviceInternal/articleImage.service";
 import { ArticleCommentService } from "@serviceInternal/articleComment.service";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, RequestHandler } from "express";
 
 type SingleImageData = {
     field: string;
@@ -36,6 +36,7 @@ export interface IApiRouterWithImage {
     auth: Exclude<APIAuth, APIAuth.WEBHOOK_INTERNAL>;
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 export interface IApiRouterWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
@@ -44,6 +45,7 @@ export interface IApiRouterWithoutImage {
     auth: Exclude<APIAuth, APIAuth.WEBHOOK_INTERNAL>;
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 
 interface IApiRouterWebhookInternalWithImage {
@@ -54,6 +56,7 @@ interface IApiRouterWebhookInternalWithImage {
     xApiKey: string;
     isUploadImage?: true;
     dataImg: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 interface IApiRouterWebhookInternalWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
@@ -63,6 +66,7 @@ interface IApiRouterWebhookInternalWithoutImage {
     xApiKey: string;
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
+    middlewares?: RequestHandler[];
 }
 
 export interface Validation {

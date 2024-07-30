@@ -9,25 +9,8 @@ const method = APIMethod.GET;
 const auth = APIAuth.USER;
 
 const main: RequestHandler = async (req, res) => {
-    const sessions = req.session.data;
-    if (!sessions.isLogin) {
-        return res.sendStatus(ErrorStatusCode.Authorization);
-    }
-
-    const duplicateData = sessions.userData as any;
-    const roleId = duplicateData.role || duplicateData.roleId;
-
-    const config = new Config();
-
-    let role = "guest";
-    if (roleId === config.roleUser) {
-        role = "user";
-    }
-
-    res.send({
-        roleName: role,
-        ...sessions.userData,
-    });
+    const session = req.user.data;
+    return res.send(session);
 };
 
 export const getUserProfile: IApiRouter = {

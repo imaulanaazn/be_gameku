@@ -9,6 +9,7 @@ import {
 } from "@serviceInternal/index";
 import { Config } from "@config/index";
 import {
+    CustomerStatuses,
     DiscountType,
     ErrorType,
     FeeType,
@@ -162,6 +163,9 @@ const main: RequestHandler = async (req, res) => {
             mobileNumber: convertedNumber,
             isActive: true,
             isRegistered: false,
+            status: CustomerStatuses.ACTIVE,
+            loginAttemps: 0,
+            lockUntil: null,
         });
     }
     const payment = await paymentMethodService.model.findOne({

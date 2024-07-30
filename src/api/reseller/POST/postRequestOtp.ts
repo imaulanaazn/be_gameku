@@ -1,4 +1,4 @@
-import { APIAuth, APIMethod, JoseKey, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, JoseKey, ValidatorType, EncryptJoseType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -166,7 +166,7 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const encryptService = new EncryptionService(JoseKey.RESELLER);
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     const encrypt = await encryptService.encryptData(
         {
             email: body.email,

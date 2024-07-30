@@ -84,6 +84,8 @@ const main: RequestHandler = async (req, res) => {
     res.cookie("session_gasskeun_admin", encrypt, {
         httpOnly: true,
         maxAge: config.maxAgeLogin * 1000,
+        // domain: config.domainReseller,
+        // path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/reseller",
         secure: process.env.NODE_ENV.toLowerCase() === "production",
     });
     res.setHeader("Access-Control-Allow-Credentials", "true");

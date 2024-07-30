@@ -148,7 +148,6 @@ import { putPopularBulkV2 } from "./admin/maintenanceGame/putPopularBulkV2";
 import { postOrderV2 } from "./POST/postOrderV2";
 import { getOrderDetailV2 } from "./GET/getOrderDetailV2";
 import { webhookTokopay } from "./webhook/tokopay";
-import { putPaymentGuide } from "./admin/maintenancePaymentMethod/putPaymentGuide";
 import { APIAuth } from "@enum/index";
 import { getListRoles } from "./admin/maintenanceRole/getListRole";
 import { putAssignRole } from "./admin/maintenanceRole/putAssignRole";
@@ -172,6 +171,7 @@ import { updateArticleCategory } from "./admin/maintenanceArticleCategory/update
 import { deleteArticleCategory } from "./admin/maintenanceArticleCategory/deleteArticleCategory";
 import { getArticleCategoryById } from "./admin/maintenanceArticleCategory/getArticleCategoryById";
 import { getListArticleCategory } from "./admin/maintenanceArticleCategory/getListArticleCategory";
+import { putPaymentGuide } from "./admin/maintenancePayment/putPaymentGuide";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -471,10 +471,12 @@ const apisWebhook = [
 ];
 
 for (const api of apisWebhook) {
-    let { path, method, auth } = api as IApiRouter;
+    let { path, method, auth, middlewares } = api as IApiRouter;
     if (!path.startsWith("/api")) {
         path = "/api" + path;
     }
+
+    middlewares = middlewares || [];
 
     let authorization;
     if (auth === APIAuth.WEBHOOK_INTERNAL) {
@@ -502,9 +504,13 @@ for (const api of apisWebhook) {
         });
 
     if (auth === APIAuth.GUEST) {
-        webhook[method.toLowerCase()](path, main);
+        webhook[method.toLowerCase()](path, ...middlewares, main);
     } else {
-        webhook[method.toLowerCase()](path, authorization, main);
+        if (authorization) {
+            webhook[method.toLowerCase()](path, ...middlewares, authorization, main);
+        } else {
+            webhook[method.toLowerCase()](path, ...middlewares, main);
+        }
     }
 }
 
