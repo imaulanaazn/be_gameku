@@ -8,6 +8,7 @@ import { CustomerService } from "@serviceInternal/customer.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import { Config } from "@config/index";
 import { APIAuth, APIMethod } from "@enum/index";
+import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
 const path = "/v1/webhook/digiflazz";
 const method = APIMethod.POST;
@@ -58,6 +59,14 @@ const main: RequestHandler = async (req, res) => {
         column: "orderId",
         value: order.id,
     });
+
+    const paymentMethodService = new PaymentMethodService();
+    const paymentMethod = await paymentMethodService.model.findOne({
+        where: {
+            id: order.paymentMethodId,
+        },
+    });
+
     const webhookCount = (orderDetail.webhookCount ?? 0) + 1;
     console.log(`Webhook DIGIFLAZZ diterima [${orderId}] ${webhookCount} dari ${orderDetail.quantity}`);
 
@@ -72,11 +81,14 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (body.data.status === DigiflazzStatuses.FAILED) {
+        const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
         await orderService.updateBy({
             by: "id",
             value: order.id,
             data: {
-                status: OrderStatuses.FAILED,
+                ...(refundCd.includes(paymentMethod.cd)
+                    ? { status: OrderStatuses.REFUNDED }
+                    : { status: OrderStatuses.FAILED }),
             },
         });
         io.emit("order:failed", order.id);
@@ -105,24 +117,24 @@ const main: RequestHandler = async (req, res) => {
         });
         io.emit("order:success", order.id);
 
-        client.sendNotifyOrder({
-            targetNumber: customer.mobileNumber,
-            message: whatsappTemplate,
-            isTest: false,
-            data: {
-                invoiceId: order.invoiceId,
-                link: `${config.feUrl}/payment/${order.invoiceId}`,
-                quantity: orderDetail.quantity || 1,
-                mobileNumber: customer.mobileNumber,
-                amount: orderDetail.amount,
-                game: order.game,
-                productName: order.productName,
-                paymentMethod: order.paymentMethod,
-                feeAmt: order.feeAmt,
-                totalAmt: order.totalAmt,
-                discAmt: order.discAmt,
-            },
-        });
+        // client.sendNotifyOrder({
+        //     targetNumber: customer.mobileNumber,
+        //     message: whatsappTemplate,
+        //     isTest: false,
+        //     data: {
+        //         invoiceId: order.invoiceId,
+        //         link: `${config.feUrl}/payment/${order.invoiceId}`,
+        //         quantity: orderDetail.quantity || 1,
+        //         mobileNumber: customer.mobileNumber,
+        //         amount: orderDetail.amount,
+        //         game: order.game,
+        //         productName: order.productName,
+        //         paymentMethod: order.paymentMethod,
+        //         feeAmt: order.feeAmt,
+        //         totalAmt: order.totalAmt,
+        //         discAmt: order.discAmt,
+        //     },
+        // });
         return res.sendStatus(200);
     }
 

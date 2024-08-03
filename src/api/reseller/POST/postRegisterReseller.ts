@@ -1,4 +1,4 @@
-import { APIAuth, APIMethod, ErrorType, JoseKey, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, CustomerStatuses, EncryptJoseType, ErrorType, JoseKey, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -61,7 +61,7 @@ const main: RequestHandler = async (req, res) => {
     console.log(req.headers["x-forwarded-for"]);
     const io = req.io;
 
-    const encryptService = new EncryptionService(JoseKey.RESELLER);
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     // const cookie = req.cookies?.session_register_reseller;
     // if (!cookie) {
     //     res.status(400).send({
@@ -130,6 +130,9 @@ const main: RequestHandler = async (req, res) => {
         password: hash,
         isActive: true,
         createdAt: moment().toDate(),
+        status: CustomerStatuses.ACTIVE,
+        loginAttemps: 0,
+        lockUntil: null,
     };
 
     const newReseller = await userService.create(dataReseller);

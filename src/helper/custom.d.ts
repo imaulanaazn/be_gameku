@@ -12,7 +12,7 @@ declare module "express-session" {
             roleId: string;
             isLogin: boolean;
             ip: string;
-            userData?: CustomerDto | AdminDto;
+            userData?: CustomerDto;
         };
     }
 }
@@ -30,13 +30,13 @@ declare module "express-serve-static-core" {
             expiredAt: string;
             createdAt: string;
         };
-        user?: {
+        admin?: {
             isExpired: boolean;
-            data: CustomerDto;
+            data: DataEncryptAdmin;
             expiredAt: string;
             createdAt: string;
         };
-        admin?: {
+        user?: {
             isExpired: boolean;
             data: CustomerDto;
             expiredAt: string;

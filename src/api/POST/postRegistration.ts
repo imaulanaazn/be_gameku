@@ -1,4 +1,4 @@
-import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, CustomerStatuses, EncryptJoseType, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -12,6 +12,7 @@ import moment from "moment";
 import { CustomerEntity } from "@entity/customer.entity";
 import { CustomerOtpService } from "@serviceInternal/customerOtp.service";
 import dayjs from "dayjs";
+import { EncryptionService } from "@serviceInternal/jose.service";
 
 const path = "/v1/customer/registration";
 const method = APIMethod.POST;
@@ -111,6 +112,9 @@ const main: RequestHandler = async (req, res) => {
         password: hash,
         isActive: true,
         createdAt: moment().toDate(),
+        status: CustomerStatuses.ACTIVE,
+        loginAttemps: 0,
+        lockUntil: null,
     };
 
     let user: CustomerEntity;
@@ -134,17 +138,34 @@ const main: RequestHandler = async (req, res) => {
         });
     }
 
-    req.session.cookie.maxAge = config.maxAgeLogin * 1000;
-    delete req.session.data;
+    const encryptService = new EncryptionService(EncryptJoseType.USER);
+    const encrypt = await encryptService.encryptData(
+        {
+            ...user.dataValues,
+            password: undefined,
+        },
+        1,
+        "week",
+    );
 
-    if (!req.session.data) {
-        req.session.data = {
-            roleId: user.roleId || config.roleUser,
-            isLogin: true,
-            ip: req.clientIp,
-            userData: user,
-        };
-    }
+    io.emit("count:register");
+    res.cookie("session_gasskeun_user", encrypt, {
+        httpOnly: true,
+        maxAge: config.maxAgeLogin * 1000,
+        // domain: config.domainReseller,
+        // path: "/",
+        // secure: process.env.NODE_ENV.toLowerCase() === "production",
+        // sameSite: "none",
+    });
+
+    const expiredAtOneYearAgo = dayjs().subtract(1, "year").toDate();
+    await otpService.updateBy({
+        by: "id",
+        value: otp.id,
+        data: {
+            expiredAt: expiredAtOneYearAgo,
+        },
+    });
 
     io.emit("count:register");
 

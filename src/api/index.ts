@@ -172,6 +172,10 @@ import { deleteArticleCategory } from "./admin/maintenanceArticleCategory/delete
 import { getArticleCategoryById } from "./admin/maintenanceArticleCategory/getArticleCategoryById";
 import { getListArticleCategory } from "./admin/maintenanceArticleCategory/getListArticleCategory";
 import { putPaymentGuide } from "./admin/maintenancePayment/putPaymentGuide";
+import { getOrderHistoryUser } from "./GET/getOrderHistoryUser";
+import { postTopupFundUser } from "./POST/postTopupFundUser";
+import { postOrderV3 } from "./POST/postOrderV3";
+import { getUserBalance } from "./GET/getUserBalance";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -314,6 +318,8 @@ const apis = [
     postCheckPromoCode,
     postCreateOrderReview,
     postArticleComment,
+    postTopupFundUser,
+    postOrderV3,
 
     // GET
     getBanners,
@@ -337,6 +343,9 @@ const apis = [
     getArticleBySlug,
     getListArticles,
     getArticleComments,
+    getOrderHistoryUser,
+    getUserBalance,
+    getOrderHistoryUser,
 
     // DELETE
     deleteLogout,

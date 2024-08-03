@@ -42,7 +42,7 @@ import { getIpAddress } from "@helper/getIpAddress";
 import { TokopayService } from "@serviceExternal/tokopay.service";
 import { APIAuth, APIMethod } from "@enum/index";
 
-const path = "/v2/order";
+const path = "/v3/order";
 const method = APIMethod.POST;
 const auth = APIAuth.GUEST;
 
@@ -108,7 +108,6 @@ const main: RequestHandler = async (req, res) => {
         cashtag?: string;
         customerId?: string;
     }>(schemaValidation, ValidatorType.BODY);
-    // throw new BusinessError("API version v2 is no longer supported. Please use v3", ErrorType.BadRequest);
     console.log("REQUEST BODY ORDER");
     console.log(body);
     console.log(req.headers["x-forwarded-for"]);
@@ -195,6 +194,19 @@ const main: RequestHandler = async (req, res) => {
 
     if (payment.cd === "ID_JENIUSPAY" && !body.cashtag) {
         throw new BusinessError("Cashtag harus di isi jika memilih pembayaran via Jenius pay", ErrorType.Validation);
+    }
+
+    let balance;
+    if (payment.cd === "GASSKEUN_USER") {
+        const cookie = req.cookies.session_gasskeun_reseller;
+        const reqbalance = await fetch(`http://localhost:${config.port}/api/v1/user/balance`, {
+            headers: {
+                cookie: "session_gasskeun_user=" + cookie,
+            },
+        });
+
+        const resBalance = await reqbalance.json();
+        balance = resBalance;
     }
 
     const product = await productService.findOneBy({
@@ -370,6 +382,10 @@ const main: RequestHandler = async (req, res) => {
             "Pembayaran tidak dapat diproses karena tidak memenuhi syarat jumlah pembayaran.",
             ErrorType.BadRequest,
         );
+    }
+
+    if (payment.cd === "GASSKEUN_USER" && amount > balance.value) {
+        throw new BusinessError("Saldo kamu tidak mencukupi untuk melakukan transaksi", ErrorType.BadRequest);
     }
 
     if (payment.providerCd === "TOKOPAY" && payment.category === "6") {
@@ -618,6 +634,23 @@ const main: RequestHandler = async (req, res) => {
                 expiration_date: expiredAt.toISOString(),
                 is_single_use: payment.isSingleUse,
             });
+        } else if (payment.category === PaymentsCategory.INTERNAL) {
+            try {
+                await fetch(`http://localhost:${config.port}/api/v1/gasskeun/process-order-success`, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json",
+                        "x-gasskeun-key": config.xApiKeyProcessOrder,
+                    },
+                    body: JSON.stringify({
+                        customerId: customer.id,
+                        orderId: order.id,
+                        invoiceId: invoiceId,
+                    }),
+                });
+            } catch (error) {
+                throw error;
+            }
         } else {
             await orderService.updateBy({
                 by: "id",
@@ -694,37 +727,39 @@ const main: RequestHandler = async (req, res) => {
         mobileNumber: customer.mobileNumber,
     });
 
-    const whatsappTemplateService = new WhatsappTemplateService();
-    const template = await whatsappTemplateService.findOneBy({
-        column: "cd",
-        value: "order_pending",
-    });
+    if (payment.cd !== "GASSKEUN_USER") {
+        const whatsappTemplateService = new WhatsappTemplateService();
+        const template = await whatsappTemplateService.findOneBy({
+            column: "cd",
+            value: "order_pending",
+        });
 
-    client.sendNotifyOrder({
-        targetNumber: customer.mobileNumber,
-        message: template,
-        isTest: false,
-        data: {
-            invoiceId,
-            link: `${config.feUrl}/payment/${invoiceId}`,
-            quantity: body.quantity,
-            mobileNumber: customer.mobileNumber,
-            amount: product.price,
-            game: order.game,
-            productName: order.productName,
-            paymentMethod: order.paymentMethod,
-            feeAmt: fee,
-            totalAmt: amount,
-            discAmt: order.discAmt,
-        },
-    });
+        // client.sendNotifyOrder({
+        //     targetNumber: customer.mobileNumber,
+        //     message: template,
+        //     isTest: false,
+        //     data: {
+        //         invoiceId,
+        //         link: `${config.feUrl}/payment/${invoiceId}`,
+        //         quantity: body.quantity,
+        //         mobileNumber: customer.mobileNumber,
+        //         amount: product.price,
+        //         game: order.game,
+        //         productName: order.productName,
+        //         paymentMethod: order.paymentMethod,
+        //         feeAmt: fee,
+        //         totalAmt: amount,
+        //         discAmt: order.discAmt,
+        //     },
+        // });
+    }
     return res.send({
         invoice: invoiceId,
         expiredAt,
     });
 };
 
-export const postOrderV2: IApiRouter = {
+export const postOrderV3: IApiRouter = {
     path,
     method,
     main,

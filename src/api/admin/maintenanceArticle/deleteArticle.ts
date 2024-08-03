@@ -87,6 +87,11 @@ const main: RequestHandler = async (req, res) => {
         });
     }
 
+    await di.articleCommentService.deleteBy({
+        by: "articleId",
+        value: article.id,
+    });
+
     await di.articleService.deleteBy({
         by: "id",
         value: article.id,

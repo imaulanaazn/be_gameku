@@ -4,7 +4,6 @@ import { Validator } from "@helper/validator";
 import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
-import RedisService from "@serviceExternal/externalRedis.service";
 import { MetaService } from "@serviceInternal/meta.service";
 import { MetaDto } from "@dto/meta.dto";
 import dayjs from "dayjs";
@@ -28,19 +27,19 @@ const schemaValidation: Validation[] = [
 ];
 
 const main: RequestHandler = async (req, res) => {
+    const di = req.di;
     const query = new Validator(req, res).process<{
         path: string;
         only: string;
     }>(schemaValidation, ValidatorType.QUERY);
-    const redisService = new RedisService();
     const metaService = new MetaService();
     const dateNow = dayjs();
 
     const redisKey = `meta:${query.path}`;
     if (!query.path) {
-        const allKeysFromRedis = await redisService.scanKeys(`meta:*`);
+        const allKeysFromRedis = await di.redisService.scanKeys(`meta:*`);
         if (allKeysFromRedis.length > 0) {
-            const mappingData = allKeysFromRedis.map(async (item) => await redisService.getJson<MetaDto>(item));
+            const mappingData = allKeysFromRedis.map(async (item) => await di.redisService.getObject<MetaDto>(item));
             const allMetasFromRedis = await Promise.all(mappingData);
             const only: any = query.only && query.only.split(",");
             return res.send(query.only ? selectFields(allMetasFromRedis, ["id", ...only]) : allMetasFromRedis);
@@ -50,26 +49,15 @@ const main: RequestHandler = async (req, res) => {
             ...(query.only && { attributes: ["id", ...query.only.split(",")] }),
         });
 
-        const modifiedTitle = meta.map((item) => {
-            if ("title" in item) {
-                return {
-                    ...item.dataValues,
-                    title: `${item.title} ${dateNow.format("MMMM YYYY")}`,
-                };
-            }
-            return item;
-        });
-
-        return res.send(modifiedTitle);
         if (!query.only) {
-            const setToRedis = meta.map((data) => redisService.setJson(`meta:${data.path}`, data));
+            const setToRedis = meta.map((data) => di.redisService.setObject(`meta:${data.path}`, data));
             Promise.all(setToRedis);
         }
 
         return res.send(meta);
     }
 
-    const metaFromRedis = await redisService.getJson(redisKey);
+    const metaFromRedis = await di.redisService.getObject(redisKey);
     if (metaFromRedis) {
         return res.send(metaFromRedis);
     }
@@ -88,7 +76,7 @@ const main: RequestHandler = async (req, res) => {
         value: "logo",
     });
 
-    await redisService.setJson(redisKey, meta);
+    await di.redisService.setObject(redisKey, meta);
 
     return res.send({
         ...meta.dataValues,

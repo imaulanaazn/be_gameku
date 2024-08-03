@@ -16,7 +16,7 @@ export class Config {
 
     feUrl = process.env.FE_URL || "http://localhost:3000";
 
-    redisHost = process.env.REDIS_HOST || "127.0.0.1";
+    redisHost = process.env.REDIS_HOST || "localhost";
     redisPort = parseInt(process.env.REDIS_PORT) || 6379;
     redisPassword = process.env.REDIS_PASSWORD || "N0P@ss0wrd";
 

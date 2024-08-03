@@ -1,5 +1,5 @@
 import { Config } from "@config/index";
-import { APIAuth, APIMethod, JoseKey, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, EncryptJoseType, JoseKey, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -36,7 +36,7 @@ const main: RequestHandler = async (req, res) => {
         ...reseller,
         name: body.name,
     });
-    const encryptService = new EncryptionService(JoseKey.RESELLER);
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     const config = new Config();
     const encrypt = await encryptService.encryptData(
         {

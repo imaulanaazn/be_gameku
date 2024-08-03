@@ -1,4 +1,4 @@
-import { APIAuth, APIMethod, ErrorType, JoseKey, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, EncryptJoseType, ErrorType, JoseKey, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -70,7 +70,7 @@ const main: RequestHandler = async (req, res) => {
         ],
     });
 
-    const encryptService = new EncryptionService(JoseKey.ADMIN);
+    const encryptService = new EncryptionService(EncryptJoseType.ADMIN);
     const encrypt = await encryptService.encryptData(
         {
             ...admin.dataValues,
@@ -85,7 +85,7 @@ const main: RequestHandler = async (req, res) => {
         httpOnly: true,
         maxAge: config.maxAgeLogin * 1000,
         // domain: config.domainReseller,
-        // path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/reseller",
+        // path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/v1",
         secure: process.env.NODE_ENV.toLowerCase() === "production",
     });
     res.setHeader("Access-Control-Allow-Credentials", "true");

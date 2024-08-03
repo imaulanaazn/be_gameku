@@ -63,7 +63,10 @@ export class CustomerEntity extends Model<CustomerEntity> {
     loginAttemps!: number;
 
     @Column(DataType.DATE)
-    lockUntil!: string;
+    lockUntil!: Date;
+
+    @Column(DataType.BOOLEAN)
+    isActive!: boolean;
 
     @CreatedAt
     @Column(DataType.DATE)

@@ -5,7 +5,7 @@ import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Config } from "@config/index";
 import { v4 as uuid } from "uuid";
 import { EncryptionService } from "@serviceInternal/jose.service";
-import { APIAuth, APIMethod, JoseKey } from "@enum/index";
+import { APIAuth, APIMethod, EncryptJoseType, JoseKey } from "@enum/index";
 
 const path = "/v1/reseller/image";
 const method = APIMethod.PUT;
@@ -37,7 +37,7 @@ const main: RequestHandler = async (req, res) => {
         data: updateData,
     });
 
-    const encryptService = new EncryptionService(JoseKey.RESELLER);
+    const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     const encrypt = await encryptService.encryptData(
         {
             ...reseller,

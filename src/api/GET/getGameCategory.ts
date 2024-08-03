@@ -3,7 +3,6 @@ import { IApiRouter, Validation } from "@interfaces/index";
 import { Validator } from "@helper/validator";
 import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { GameCategoryService } from "@serviceInternal/gameCategory.service";
-import RedisService from "@serviceExternal/externalRedis.service";
 import { GameCategoryDto } from "@dto/gameCategory.dto";
 
 const path = "/v1/games-category";
@@ -27,6 +26,7 @@ const schemaValidation: Validation[] = [
 ];
 
 const main: RequestHandler = async (req, res) => {
+    const di = req.di;
     const query = new Validator(req, res).process<{
         limit: number;
         withGame: "true" | "false";
@@ -34,10 +34,9 @@ const main: RequestHandler = async (req, res) => {
 
     const gameCategoryService = new GameCategoryService();
     let redisKey = "game-categories";
-    const redisService = new RedisService();
 
     if (query.withGame === "false") {
-        const dataFromRedis = await redisService.getJson<GameCategoryDto[]>(redisKey);
+        const dataFromRedis = await di.redisService.getObject<GameCategoryDto[]>(redisKey);
         if (dataFromRedis && dataFromRedis.length > 0) {
             return res.send(dataFromRedis);
         }
@@ -49,20 +48,20 @@ const main: RequestHandler = async (req, res) => {
             order: "ASC",
         });
 
-        await redisService.setJson(redisKey, gameCategory.data);
+        await di.redisService.setObject(redisKey, gameCategory.data);
 
         return res.send(gameCategory.data);
     }
 
     redisKey += "-with-game";
-    const dataFromRedis = await redisService.getJson<GameCategoryDto[]>(redisKey);
+    const dataFromRedis = await di.redisService.getObject<GameCategoryDto[]>(redisKey);
     if (dataFromRedis && dataFromRedis.length > 0) {
         return res.send(dataFromRedis);
     }
 
     const gameCategory = await gameCategoryService.findGameCategoryWithGame(parseInt(query.limit.toString()));
 
-    await redisService.setJson(redisKey, gameCategory);
+    await di.redisService.setObject(redisKey, gameCategory);
     return res.send(gameCategory);
 };
 

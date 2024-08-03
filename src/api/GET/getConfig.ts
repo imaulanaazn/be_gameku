@@ -7,7 +7,6 @@ import { SysConfigEntity } from "@entity/sysConfig.entity";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
 import { BusinessError } from "@helper/handleError";
 import { APIAuth, APIMethod } from "@enum/index";
-import RedisService from "@serviceExternal/externalRedis.service";
 import { selectFields } from "@helper/selectedField";
 import { SysConfigDto } from "@dto/sysConfig.dto";
 import { Op } from "sequelize";
@@ -31,6 +30,7 @@ const schemaValidation: Validation[] = [
 ];
 
 const main: RequestHandler = async (req, res) => {
+    const di = req.di;
     const query = new Validator(req, res).process<{
         type: string;
         detail?: "true" | "false" | undefined;
@@ -52,14 +52,13 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const sysConfigService = new SysConfigService();
-    const redisService = new RedisService();
     const type = query.type.split(",");
     let redisKey = "config";
     const isDetail = !!query.detail;
 
     const dataPromises = type.map(async (item) => {
         const redisItemKey = `${redisKey}${isDetail ? ":detail" : ""}:${item}`;
-        const getData = await redisService.getJson<SysConfigDto>(redisItemKey);
+        const getData = await di.redisService.getObject<SysConfigDto>(redisItemKey);
 
         if (getData) {
             return getData;
@@ -72,7 +71,7 @@ const main: RequestHandler = async (req, res) => {
             });
 
             if (data) {
-                await redisService.setJson(redisItemKey, { value: data.value });
+                await di.redisService.setObject(redisItemKey, { value: data.value });
                 return data;
             }
 

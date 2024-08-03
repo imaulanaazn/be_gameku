@@ -20,6 +20,7 @@ import { LapakGamingService } from "@serviceExternal/lapakgaming.service";
 import { KuponService } from "@serviceExternal/kupon.service";
 import { OrderPending3rdPartyService } from "@serviceInternal/orderPending3rdParty.service";
 import { APIAuth, APIMethod } from "@enum/index";
+import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
 const path = "/v1/gasskeun/process-order-success";
 const method = APIMethod.POST;
@@ -55,6 +56,7 @@ const main: RequestHandler = async (req, res) => {
     const config = new Config();
     const invoiceService = new InvoiceService();
     const orderService = new OrderService();
+    const paymentMethodService = new PaymentMethodService();
     const sysConfigService = new SysConfigService();
     const configDb = await sysConfigService.findManyBy({
         column: "cd",
@@ -72,6 +74,12 @@ const main: RequestHandler = async (req, res) => {
     const order = await orderService.findOneBy({
         column: "id",
         value: body.orderId,
+    });
+
+    const paymentMethod = await paymentMethodService.model.findOne({
+        where: {
+            id: order.paymentMethodId,
+        },
     });
 
     const invoice = await invoiceService.findOneBy({
@@ -202,7 +210,7 @@ const main: RequestHandler = async (req, res) => {
                     quantity: orderDetail.quantity,
                     invoiceId: order.invoiceId,
                 });
-                const resendCodeStatus = ["TIMEOUT"];
+                const resendCodeStatus = ["TIMEOUT", "INSUFFICIENT_BALANCE"];
                 console.log(createTrxLapakgaming);
                 if (createTrxLapakgaming.code === "SUCCESS") {
                     await orderService.updateBy({
@@ -223,11 +231,14 @@ const main: RequestHandler = async (req, res) => {
                         },
                     });
                 } else {
+                    const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
+
                     await orderService.updateBy({
                         by: "id",
                         value: order.id,
                         data: {
-                            isError: true,
+                            ...(refundCd.includes(paymentMethod.cd) ? { status: OrderStatuses.REFUNDED } : {}),
+                            isError: false,
                             isCanResend: false,
                             remark: createTrxLapakgaming.code + " (Infokan developer)",
                         },

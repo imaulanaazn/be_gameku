@@ -1,4 +1,4 @@
-import { APIAuth, APIMethod, ErrorType, ValidatorType } from "@enum/index";
+import { APIAuth, APIMethod, EncryptJoseType, ErrorType, ValidatorType } from "@enum/index";
 import { BusinessError } from "@helper/handleError";
 import { Validator } from "@helper/validator";
 import { Validation, IApiRouter } from "@interfaces/index";
@@ -7,6 +7,7 @@ import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import { FirebaseService } from "@serviceExternal/firebase.service";
 import { Config } from "@config/index";
+import { EncryptionService } from "@serviceInternal/jose.service";
 
 const path = "/v1/customer/image";
 const method = APIMethod.PUT;
@@ -54,17 +55,25 @@ const main: RequestHandler = async (req, res) => {
         image: upload,
     };
 
-    req.session.cookie.maxAge = config.maxAgeLogin * 1000;
-    delete req.session.data;
+    const encryptService = new EncryptionService(EncryptJoseType.USER);
+    const encrypt = await encryptService.encryptData(
+        {
+            ...customer.dataValues,
+            password: undefined,
+            ...updateData,
+        },
+        1,
+        "week",
+    );
 
-    if (!req.session.data) {
-        req.session.data = {
-            roleId: customer.roleId || config.roleUser,
-            isLogin: true,
-            ip: req.clientIp,
-            userData: { ...customer.dataValues, password: undefined },
-        };
-    }
+    res.cookie("session_gasskeun_user", encrypt, {
+        httpOnly: true,
+        maxAge: config.maxAgeLogin * 1000,
+        // domain: config.domainReseller,
+        // path: "/",
+        // secure: process.env.NODE_ENV.toLowerCase() === "production",
+        // sameSite: "none",
+    });
 
     await customerService.updateBy({
         by: "id",

@@ -10,6 +10,7 @@ import { Config } from "@config/index";
 import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
 import { APIAuth, APIMethod } from "@enum/index";
+import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 
 const path = "/v1/webhook/lapakgaming";
 const method = APIMethod.POST;
@@ -80,6 +81,13 @@ const main: RequestHandler = async (req, res) => {
         value: order.customerId,
     });
 
+    const paymentMethodService = new PaymentMethodService();
+    const paymentMethod = await paymentMethodService.model.findOne({
+        where: {
+            id: order.paymentMethodId,
+        },
+    });
+
     res.send(200);
     if (body.data.status === "SUCCESS") {
         await orderService.updateBy({
@@ -92,24 +100,24 @@ const main: RequestHandler = async (req, res) => {
         });
 
         io.emit("order:success", order.id);
-        client.sendNotifyOrder({
-            targetNumber: customer.mobileNumber,
-            message: whatsappTemplate,
-            isTest: false,
-            data: {
-                invoiceId: order.invoiceId,
-                link: `${config.feUrl}/payment/${order.invoiceId}`,
-                quantity: orderDetail.quantity || 1,
-                mobileNumber: customer.mobileNumber,
-                amount: orderDetail.amount,
-                game: order.game,
-                productName: order.productName,
-                paymentMethod: order.paymentMethod,
-                feeAmt: order.feeAmt,
-                totalAmt: order.totalAmt,
-                discAmt: order.discAmt,
-            },
-        });
+        // client.sendNotifyOrder({
+        //     targetNumber: customer.mobileNumber,
+        //     message: whatsappTemplate,
+        //     isTest: false,
+        //     data: {
+        //         invoiceId: order.invoiceId,
+        //         link: `${config.feUrl}/payment/${order.invoiceId}`,
+        //         quantity: orderDetail.quantity || 1,
+        //         mobileNumber: customer.mobileNumber,
+        //         amount: orderDetail.amount,
+        //         game: order.game,
+        //         productName: order.productName,
+        //         paymentMethod: order.paymentMethod,
+        //         feeAmt: order.feeAmt,
+        //         totalAmt: order.totalAmt,
+        //         discAmt: order.discAmt,
+        //     },
+        // });
 
         if (game.type === "voucher" && game.voucherType === VoucherType.EXTERNAL) {
             const vouchers = body.data?.transactions?.map((item) => item.voucher_code);
@@ -119,16 +127,16 @@ const main: RequestHandler = async (req, res) => {
                     value: "voucher",
                 });
 
-                client.sendNotifyVoucher({
-                    targetNumber: customer.mobileNumber,
-                    message: whatsappTemplate,
-                    isTest: false,
-                    data: {
-                        gameName: game.name,
-                        voucher: vouchers,
-                        productName: product.name,
-                    },
-                });
+                // client.sendNotifyVoucher({
+                //     targetNumber: customer.mobileNumber,
+                //     message: whatsappTemplate,
+                //     isTest: false,
+                //     data: {
+                //         gameName: game.name,
+                //         voucher: vouchers,
+                //         productName: product.name,
+                //     },
+                // });
             }
 
             await orderDetailService.updateBy({
@@ -152,11 +160,14 @@ const main: RequestHandler = async (req, res) => {
 
         return;
     } else {
+        const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
         await orderService.updateBy({
             by: "id",
             value: order.id,
             data: {
-                status: OrderStatuses.FAILED,
+                ...(refundCd.includes(paymentMethod.cd)
+                    ? { status: OrderStatuses.REFUNDED }
+                    : { status: OrderStatuses.FAILED }),
             },
         });
         io.emit("order:failed", order.id);

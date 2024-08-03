@@ -28,6 +28,7 @@ export enum OrderStatuses {
     FAILED = "4",
     EXPIRED = "5",
     PROCESSING = "6",
+    REFUNDED = "7",
 }
 
 export enum APIGamesStatuses {

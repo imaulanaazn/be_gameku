@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import { NextFunction, Request, Response, RequestHandler } from "express";
-import { EncryptJoseType, ErrorStatusCode, ErrorType } from "@enum/index";
+import { APIAuth, EncryptJoseType, ErrorStatusCode, ErrorType } from "@enum/index";
 import { Config } from "@config/index";
 import moment from "moment";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
@@ -74,23 +74,49 @@ export const authLoginUser: RequestHandler = async (req, res, next) => {
     }
 };
 
-export const authAdmin: RequestHandler = async (req, res, next) => {
+export interface DataEncryptAdmin {
+    id: string;
+    name: string;
+    username: string;
+    createdAt: string;
+    updatedAt: string;
+    roles: string[];
+}
+export const authAdmin = (req: Request, res: Response, next: NextFunction) => async (auth: APIAuth) => {
     const encryptService = new EncryptionService(EncryptJoseType.ADMIN);
     const session = req.cookies.session_gasskeun_admin;
     try {
-        const decode = await encryptService.decryptData<CustomerDto>(session);
-        if (decode.isExpired) {
-            res.clearCookie("session_gasskeun_admin");
-            return res.status(ErrorStatusCode.Authorization).send({
+        const decode = await encryptService.decryptData<DataEncryptAdmin>(session);
+        console.log(decode);
+
+        const adminRoles = decode.data.roles;
+        if (auth === APIAuth.ALL_ADMIN) {
+            if (adminRoles.length === 0) {
+                res.clearCookie("session_gasskeun_admin");
+                return res.status(ErrorStatusCode.Authorization).send({
+                    errorCode: ErrorType.Authorization,
+                    message: "Cannot access to this resource",
+                });
+            }
+            req.admin = decode;
+            next();
+            return;
+        }
+        console.log(adminRoles);
+        console.log(auth);
+        console.log(adminRoles.includes(auth));
+        if (adminRoles.includes(auth)) {
+            req.admin = decode;
+            console.log(req.admin);
+            next();
+            return;
+        } else {
+            res.status(ErrorStatusCode.Authorization).send({
                 errorCode: ErrorType.Authorization,
                 message: "Cannot access to this resource",
             });
             return;
         }
-
-        req.admin = decode;
-
-        next();
     } catch (error) {
         console.error(error);
         res.clearCookie("session_gasskeun_admin");
@@ -100,6 +126,7 @@ export const authAdmin: RequestHandler = async (req, res, next) => {
         });
     }
 };
+
 export const authReseller: RequestHandler = async (req, res, next) => {
     const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
     const session = req.cookies.session_gasskeun_reseller;

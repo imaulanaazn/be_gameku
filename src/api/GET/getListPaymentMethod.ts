@@ -1,7 +1,6 @@
 import { APIAuth, APIMethod, ValidatorType } from "@enum/index";
 import { PaymentMethodDto } from "@dto/paymentMethod.dto";
 import { Validator } from "@helper/validator";
-import RedisService from "@serviceExternal/externalRedis.service";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 import { RequestHandler } from "express";
 import { Op } from "sequelize";
@@ -17,24 +16,36 @@ const schemaValidation: Validation[] = [
         required: false,
         type: "string",
     },
+    {
+        name: "type",
+        required: false,
+        type: "string",
+        enum: ["payment", "deposit"],
+        default: "payment",
+    },
 ];
 
 const main: RequestHandler = async (req, res) => {
+    const di = req.di;
     const query = new Validator(req, res).process<{
         query: string;
+        type: "payment" | "deposit";
     }>(schemaValidation, ValidatorType.QUERY);
     console.log(req.path);
     const paymentMethodService = new PaymentMethodService();
-
-    const redisService = new RedisService();
     let redisKey = `payments`;
 
     if (query?.query && query.query === "9") {
         redisKey += `:9`;
-        const paymentFromRedis = await redisService.getJson<PaymentMethodDto[]>(redisKey);
+        const paymentFromRedis = await di.redisService.getObject<PaymentMethodDto[]>(redisKey);
         if (paymentFromRedis && paymentFromRedis.length > 0) {
             res.send(paymentFromRedis);
             return;
+        }
+
+        const filter = ["GASSKEUN", "GASSKEUN_DEPOSIT"];
+        if (query.type === "deposit") {
+            filter.push("GASSKEUN_USER");
         }
 
         const paymentMethod = await paymentMethodService.model.findAll({
@@ -42,16 +53,16 @@ const main: RequestHandler = async (req, res) => {
                 isActive: true,
                 deleted: false,
                 cd: {
-                    [Op.notIn]: ["GASSKEUN", "GASSKEUN_DEPOSIT"],
+                    [Op.notIn]: filter,
                 },
             },
         });
 
-        await redisService.setJson(redisKey, paymentMethod);
+        await di.redisService.setObject(redisKey, paymentMethod);
         res.send(paymentMethod);
     } else {
         redisKey += ":all";
-        const paymentFromRedis = await redisService.getJson<PaymentMethodDto[]>(redisKey);
+        const paymentFromRedis = await di.redisService.getObject<PaymentMethodDto[]>(redisKey);
         if (paymentFromRedis && paymentFromRedis.length > 0) {
             res.send(paymentFromRedis);
             return;
@@ -64,7 +75,7 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
-        await redisService.setJson(redisKey, paymentMethod);
+        await di.redisService.setObject(redisKey, paymentMethod);
         res.send(paymentMethod);
     }
     return;

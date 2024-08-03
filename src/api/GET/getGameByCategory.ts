@@ -6,7 +6,6 @@ import { GameService } from "@serviceInternal/game.service";
 import { GameCategoryService } from "@serviceInternal/gameCategory.service";
 import { BusinessError } from "@helper/handleError";
 import { Op, col, fn } from "sequelize";
-import RedisService from "@serviceExternal/externalRedis.service";
 import { GameDto } from "@dto/game.dto";
 
 const path = "/v1/games";
@@ -39,6 +38,7 @@ const schemaValidation: Validation[] = [
 ];
 
 const main: RequestHandler = async (req, res) => {
+    const di = req.di;
     const query = new Validator(req, res).process<{
         categoryId?: string;
         isPopular?: "true" | "false";
@@ -46,13 +46,12 @@ const main: RequestHandler = async (req, res) => {
         distinct?: "true" | "false";
     }>(schemaValidation, ValidatorType.QUERY);
 
-    const redisService = new RedisService();
     const gameService = new GameService();
     const gameCategoryService = new GameCategoryService();
     let redisKey = "games";
     if (query.isPopular === "true") {
         redisKey += ":isPopular";
-        const gamePopularFromRedis = await redisService.getJson<GameDto[]>(redisKey);
+        const gamePopularFromRedis = await di.redisService.getObject<GameDto[]>(redisKey);
         if (gamePopularFromRedis && gamePopularFromRedis.length > 0) {
             const filteredGames = query.search
                 ? gamePopularFromRedis.filter((item) => new RegExp(query.search, "i").test(item.name))
@@ -77,7 +76,7 @@ const main: RequestHandler = async (req, res) => {
         });
 
         if (!query.search) {
-            await redisService.setJson(redisKey, games);
+            await di.redisService.setObject(redisKey, games);
         }
 
         return res.send(games);
@@ -94,7 +93,7 @@ const main: RequestHandler = async (req, res) => {
         }
 
         redisKey += `:category:${category.id}`;
-        const gamesFromRedis = await redisService.getJson<GameDto[]>(redisKey);
+        const gamesFromRedis = await di.redisService.getObject<GameDto[]>(redisKey);
         if (gamesFromRedis && gamesFromRedis.length > 0) {
             const filteredGames = query.search
                 ? gamesFromRedis.filter((item) => new RegExp(query.search, "i").test(item.name))
@@ -119,7 +118,7 @@ const main: RequestHandler = async (req, res) => {
         });
 
         if (!query.search) {
-            await redisService.setJson(redisKey, games);
+            await di.redisService.setObject(redisKey, games);
         }
 
         return res.send(games);
@@ -127,7 +126,7 @@ const main: RequestHandler = async (req, res) => {
 
     if (query.distinct) {
         redisKey += `:distinct`;
-        const gamesFromRedis = await redisService.getJson<GameDto[]>(redisKey);
+        const gamesFromRedis = await di.redisService.getObject<GameDto[]>(redisKey);
         if (gamesFromRedis && gamesFromRedis.length > 0) {
             const filteredGames = gamesFromRedis.filter((item) => new RegExp(query.search, "i").test(item.name));
             return res.send(filteredGames.sort((a, b) => a.name.localeCompare(b.name)));
@@ -145,7 +144,7 @@ const main: RequestHandler = async (req, res) => {
     }
 
     redisKey += `:all`;
-    const gamesFromRedis = await redisService.getJson<GameDto[]>(redisKey);
+    const gamesFromRedis = await di.redisService.getObject<GameDto[]>(redisKey);
     if (gamesFromRedis && gamesFromRedis.length > 0) {
         const filteredGames = gamesFromRedis.filter((item) => new RegExp(query.search, "i").test(item.name));
         return res.send(filteredGames.sort((a, b) => a.name.localeCompare(b.name)));
@@ -167,7 +166,7 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (!query.search) {
-        await redisService.setJson(redisKey, games);
+        await di.redisService.setObject(redisKey, games);
     }
 
     return res.send(games);
