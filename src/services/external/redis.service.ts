@@ -24,7 +24,7 @@ export class RedisService {
         if (expirySeconds) {
             await this.client.set(key, jsonString, { EX: expirySeconds });
         } else {
-            await this.client.set(key, jsonString);
+            await this.client.set(key, jsonString, { EX: 600 });
         }
     }
 
@@ -40,7 +40,7 @@ export class RedisService {
         if (expirySeconds) {
             await this.client.set(key, value, { EX: expirySeconds });
         } else {
-            await this.client.set(key, value);
+            await this.client.set(key, value, { EX: 600 });
         }
     }
 
