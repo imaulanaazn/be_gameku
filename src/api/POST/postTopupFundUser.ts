@@ -24,7 +24,7 @@ import { Op } from "sequelize";
 import { APIAuth, APIMethod } from "@enum/index";
 import { TokopayService } from "@serviceExternal/tokopay.service";
 
-const path = "/v2/reseller/topup";
+const path = "/v1/user/topup";
 const method = APIMethod.POST;
 const auth = APIAuth.RESELLER;
 
