@@ -26,7 +26,7 @@ import { TokopayService } from "@serviceExternal/tokopay.service";
 
 const path = "/v1/user/topup";
 const method = APIMethod.POST;
-const auth = APIAuth.RESELLER;
+const auth = APIAuth.USER;
 
 const schemaValidation: Validation[] = [
     {
