@@ -72,11 +72,11 @@ const main: RequestHandler = async (req, res) => {
                     {
                         model: PaymentMethodEntity,
                         required: true,
-                        where: {
-                            providerCd: {
-                                [Op.notIn]: ["INTERNAL"],
-                            },
-                        },
+                        // where: {
+                        //     providerCd: {
+                        //         [Op.notIn]: ["INTERNAL"],
+                        //     },
+                        // },
                     },
                     {
                         model: OrderReviewEntity,
@@ -111,9 +111,10 @@ const main: RequestHandler = async (req, res) => {
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.findManyBy({
         column: "cd",
-        value: ["api_key", "tokopay_merchant_id", "tokopay_secret_key"],
+        value: ["api_key", "tokopay_merchant_id", "tokopay_secret_key", "logo"],
         operator: "in",
     });
+    const logo = sysConfig.find((item) => item.cd === "logo");
 
     let paymentData = {
         mobileNumber: undefined,
@@ -206,15 +207,16 @@ const main: RequestHandler = async (req, res) => {
             expiredAt: invoice.expiredAt,
         },
         product: {
-            name: invoice.order.orderDetail.product.name,
+            name: invoice.order.orderDetail?.product?.name || "Topup Gasskeun Coin",
             logoDenom:
-                invoice.order.orderDetail.product.logoDenom ||
-                invoice.order.orderDetail.product.game.logoDenom ||
-                invoice.order.orderDetail.product.game.logoUrl,
+                invoice.order.orderDetail?.product?.logoDenom ||
+                invoice.order.orderDetail?.product?.game?.logoDenom ||
+                invoice.order.orderDetail?.product?.game?.logoUrl ||
+                logo.value,
         },
         game: {
-            name: invoice.order.orderDetail.product.game.name,
-            logoUrl: invoice.order.orderDetail.product.game.logoUrl,
+            name: invoice.order.orderDetail.product?.game?.name || "Gasskeun Coin",
+            logoUrl: invoice.order.orderDetail.product?.game?.logoUrl || logo.value,
         },
     });
 };

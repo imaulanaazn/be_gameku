@@ -144,7 +144,7 @@ const main: RequestHandler = async (req, res) => {
                 : {}),
         },
         product: {
-            name: invoice.order.orderDetail?.product?.name || "Topup Gasskeun Cash",
+            name: invoice.order.orderDetail?.product?.name || "Topup Gasskeun Coin",
             logoDenom:
                 invoice.order.orderDetail?.product?.logoDenom ||
                 invoice.order.orderDetail?.product?.game?.logoDenom ||
@@ -152,7 +152,7 @@ const main: RequestHandler = async (req, res) => {
                 logo.value,
         },
         game: {
-            name: invoice.order.orderDetail.product?.game?.name || "Gasskeun Cash",
+            name: invoice.order.orderDetail.product?.game?.name || "Gasskeun Coin",
             logoUrl: invoice.order.orderDetail.product?.game?.logoUrl || logo.value,
         },
     });
