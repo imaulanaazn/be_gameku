@@ -113,9 +113,10 @@ const main: RequestHandler = async (req, res) => {
     if (order.type === OrderType.TOPUP) {
         console.log("@@ Process order Topup");
         const productService = new ProductService();
-        const product = await productService.findOneBy({
-            column: "id",
-            value: orderDetail.productId,
+        const product = await productService.model.scope("withPriceBuy").findOne({
+            where: {
+                id: orderDetail.productId,
+            },
         });
 
         const gameService = new GameService();

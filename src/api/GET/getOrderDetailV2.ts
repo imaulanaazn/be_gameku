@@ -51,7 +51,7 @@ const main: RequestHandler = async (req, res) => {
                 required: true,
                 where: {
                     type: {
-                        [Op.in]: [OrderType.TOPUP, null],
+                        [Op.in]: [OrderType.TOPUP, null, OrderType.BUY],
                     },
                 },
                 attributes: [
@@ -89,7 +89,7 @@ const main: RequestHandler = async (req, res) => {
                         include: [
                             {
                                 model: ProductEntity,
-                                required: true,
+                                required: false,
                                 include: [
                                     {
                                         model: GameEntity,
@@ -165,6 +165,8 @@ const main: RequestHandler = async (req, res) => {
             paymentCode: invoice.order.payment.cd,
             totalAmt: invoice.order.totalAmt,
         });
+
+        console.log(order);
 
         if (invoice.order.payment.category === PaymentsCategory.PULSA) {
             paymentData.checkoutUrl = order.data.checkout_url;
