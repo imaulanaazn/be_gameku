@@ -1,5 +1,5 @@
 import { Config } from "@config/index";
-import { OrderStatuses, ValidatorType } from "@enum/index";
+import { OrderStatuses, ResponseCodeDigiflazzOrder, ValidatorType } from "@enum/index";
 import { Validator } from "@helper/validator";
 import { IApiRouter, Validation } from "@interfaces/index";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -11,6 +11,7 @@ import { ProductService } from "@serviceInternal/product.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import dayjs from "dayjs";
 import { RequestHandler } from "express";
+import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
 
 const path = "/v1/gasskeun/process-voucher-internal";
 const method = "POST";
@@ -128,6 +129,7 @@ const main: RequestHandler = async (req, res) => {
             completedAt: dayjs().format("YYYY-MM-DD HH:mm:ss"),
         },
     });
+
     io.emit("order:success", order.id);
 
     const whatsappTemplateService = new WhatsappTemplateService();
@@ -135,16 +137,21 @@ const main: RequestHandler = async (req, res) => {
         column: "cd",
         value: "voucher",
     });
-    client.sendNotifyVoucher({
-        targetNumber: customer.mobileNumber,
-        message: whatsappTemplate,
-        isTest: false,
-        data: {
-            gameName: game.name,
-            voucher: vouchers,
-            productName: product.name,
-        },
-    });
+
+    if (order.isSellerDigiflazz) {
+        await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.SUCCESS);
+    } else {
+        client.sendNotifyVoucher({
+            targetNumber: customer.mobileNumber,
+            message: whatsappTemplate,
+            isTest: false,
+            data: {
+                gameName: game.name,
+                voucher: vouchers,
+                productName: product.name,
+            },
+        });
+    }
 
     res.sendStatus(200);
 };

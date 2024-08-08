@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter } from "src/interfaces";
 import { OrderService } from "@serviceInternal/order.service";
-import { OrderStatuses, DigiflazzStatuses, VoucherType } from "@enum/index";
+import { OrderStatuses, DigiflazzStatuses, VoucherType, ResponseCodeDigiflazzOrder } from "@enum/index";
 import dayjs from "dayjs";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -9,6 +9,7 @@ import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.servi
 import { Config } from "@config/index";
 import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
+import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
 
 const path = "/v1/webhook/lapakgaming";
 const method = "POST";
@@ -91,24 +92,24 @@ const main: RequestHandler = async (req, res) => {
         });
 
         io.emit("order:success", order.id);
-        client.sendNotifyOrder({
-            targetNumber: customer.mobileNumber,
-            message: whatsappTemplate,
-            isTest: false,
-            data: {
-                invoiceId: order.invoiceId,
-                link: `${config.feUrl}/payment/${order.invoiceId}`,
-                quantity: orderDetail.quantity || 1,
-                mobileNumber: customer.mobileNumber,
-                amount: orderDetail.amount,
-                game: order.game,
-                productName: order.productName,
-                paymentMethod: order.paymentMethod,
-                feeAmt: order.feeAmt,
-                totalAmt: order.totalAmt,
-                discAmt: order.discAmt,
-            },
-        });
+        // client.sendNotifyOrder({
+        //     targetNumber: customer.mobileNumber,
+        //     message: whatsappTemplate,
+        //     isTest: false,
+        //     data: {
+        //         invoiceId: order.invoiceId,
+        //         link: `${config.feUrl}/payment/${order.invoiceId}`,
+        //         quantity: orderDetail.quantity || 1,
+        //         mobileNumber: customer.mobileNumber,
+        //         amount: orderDetail.amount,
+        //         game: order.game,
+        //         productName: order.productName,
+        //         paymentMethod: order.paymentMethod,
+        //         feeAmt: order.feeAmt,
+        //         totalAmt: order.totalAmt,
+        //         discAmt: order.discAmt,
+        //     },
+        // });
 
         if (game.type === "voucher" && game.voucherType === VoucherType.EXTERNAL) {
             const vouchers = body.data?.transactions?.map((item) => item.voucher_code);
@@ -139,6 +140,10 @@ const main: RequestHandler = async (req, res) => {
             });
         }
 
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.SUCCESS);
+        }
+
         return;
     } else if (body.data.status === "PENDING") {
         await orderService.updateBy({
@@ -149,6 +154,10 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.PROCESS);
+        }
+
         return;
     } else {
         await orderService.updateBy({
@@ -156,8 +165,16 @@ const main: RequestHandler = async (req, res) => {
             value: order.id,
             data: {
                 status: OrderStatuses.FAILED,
+                remark:
+                    body.data.transactions.map((item) => item.note).join(" | ") ||
+                    "Failed to process order due to an unknown error",
             },
         });
+
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.FAILED);
+        }
+
         io.emit("order:failed", order.id);
     }
 };

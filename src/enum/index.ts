@@ -140,3 +140,21 @@ export enum OrderScope {
     WITH_AMT_BUY = "withAmtBuy",
     LOGGING = "logging",
 }
+
+export enum DigiflazzOrderStatuses {
+    PENDING = "0",
+    SUCCESS = "1",
+    FAILED = "2",
+}
+
+export enum ResponseCodeDigiflazzOrder {
+    SUCCESS = "00",
+    TRANSACTION_NOT_FOUND = "06",
+    FAILED = "07",
+    CUSTOMER_NUMBER_BLOCKED = "13",
+    INCORRECT_DESTINATION_NUMBER = "14",
+    CODE_NOT_FOUND = "20",
+    PROCESS = "39",
+    PRODUCT_OUT_OF_SERVICE = "106",
+    WRONG_AUTHENTICATION = "204",
+}

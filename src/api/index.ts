@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, Router } from "express";
 import {
     authAdmin,
+    authDigiflazzOrder,
     authLoginUser,
     authReseller,
     authSuperAdmin,
@@ -428,6 +429,8 @@ for (const api of apisWebhook) {
         authorization = authWebhookDigiflazz;
     } else if (auth === "webhook-lapakgaming") {
         authorization = authWebhookLapakgaming;
+    } else if (auth === "digiflazz-order") {
+        authorization = authDigiflazzOrder;
     }
 
     const main = (req: Request, res: Response, next: NextFunction) =>
