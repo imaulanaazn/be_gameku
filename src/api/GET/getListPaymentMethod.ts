@@ -36,7 +36,7 @@ const main: RequestHandler = async (req, res) => {
     let redisKey = `payments`;
 
     if (query?.query && query.query === "9") {
-        redisKey += `:9`;
+        redisKey += `:9:${query.type}`;
         const paymentFromRedis = await di.redisService.getObject<PaymentMethodDto[]>(redisKey);
         if (paymentFromRedis && paymentFromRedis.length > 0) {
             res.send(paymentFromRedis);

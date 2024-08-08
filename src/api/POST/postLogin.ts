@@ -60,6 +60,8 @@ const main: RequestHandler = async (req, res) => {
         user = await userService.findUserWithPasswordBy("mobileNumber", convertedNumber);
     }
 
+    console.log(user);
+
     if (!user) {
         throw new BusinessError("Email/Nomor Whatsapp atau password tidak valid", ErrorType.Validation);
     }

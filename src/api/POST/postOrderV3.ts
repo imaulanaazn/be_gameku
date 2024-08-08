@@ -11,6 +11,8 @@ import { Config } from "@config/index";
 import {
     CustomerStatuses,
     DiscountType,
+    EncryptJoseType,
+    ErrorStatusCode,
     ErrorType,
     FeeType,
     InvoiceStatuses,
@@ -41,6 +43,8 @@ import { getClientIp } from "request-ip";
 import { getIpAddress } from "@helper/getIpAddress";
 import { TokopayService } from "@serviceExternal/tokopay.service";
 import { APIAuth, APIMethod } from "@enum/index";
+import { EncryptionService } from "@serviceInternal/jose.service";
+import { CustomerDto } from "@dto/customer.dto";
 
 const path = "/v3/order";
 const method = APIMethod.POST;
@@ -152,27 +156,55 @@ const main: RequestHandler = async (req, res) => {
         throw new BusinessError("Nomor Whatsapp tidak valid", ErrorType.BadRequest);
     }
 
-    let customer = await customerService.model.findOne({
-        where: {
-            mobileNumber: convertedNumber,
-            roleId: {
-                [Op.in]: [config.roleGuest, config.roleUser],
-            },
-        },
-    });
+    let customer;
 
-    if (!customer) {
-        customer = await customerService.create({
-            id: uuid(),
-            roleId: config.roleGuest,
-            mobileNumber: convertedNumber,
-            isActive: true,
-            isRegistered: false,
-            status: CustomerStatuses.ACTIVE,
-            loginAttemps: 0,
-            lockUntil: null,
+    const session = req.cookies.session_gasskeun_user;
+    if (session) {
+        const encryptService = new EncryptionService(EncryptJoseType.USER);
+        try {
+            const decode = await encryptService.decryptData<CustomerDto>(session);
+            if (decode.isExpired) {
+                res.clearCookie("session_gasskeun_user");
+                return res.status(ErrorStatusCode.Authorization).send({
+                    errorCode: ErrorType.Authorization,
+                    message: "Cannot access to this resource",
+                });
+            }
+            customer = decode.data;
+        } catch (error) {
+            console.error(error);
+            res.clearCookie("session_gasskeun_user");
+            return res.status(ErrorStatusCode.Authorization).send({
+                errorCode: ErrorType.Authorization,
+                message: "Cannot access to this resource",
+            });
+        }
+    } else {
+        customer = await customerService.model.findOne({
+            where: {
+                mobileNumber: convertedNumber,
+                roleId: {
+                    [Op.in]: [config.roleGuest, config.roleUser],
+                },
+            },
         });
+
+        if (!customer) {
+            customer = await customerService.create({
+                id: uuid(),
+                roleId: config.roleGuest,
+                mobileNumber: convertedNumber,
+                isActive: true,
+                isRegistered: false,
+                status: CustomerStatuses.ACTIVE,
+                loginAttemps: 0,
+                lockUntil: null,
+            });
+        }
     }
+
+    console.log(customer);
+
     const payment = await paymentMethodService.model.findOne({
         where: {
             id: body.paymentId,
@@ -205,7 +237,15 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
+        if (!reqbalance.ok) {
+            throw new BusinessError(
+                "Metode Pembayaran Gasskeun Coin hanya bisa digunakan ketika login",
+                ErrorType.Authorization,
+            );
+        }
+
         const resBalance = await reqbalance.json();
+        console.log(resBalance);
         balance = resBalance;
     }
 
@@ -285,18 +325,18 @@ const main: RequestHandler = async (req, res) => {
         }
 
         let customerId = [];
-        const customer = await customerService.findOneBy({
-            column: "mobileNumber",
-            value: convertedNumber,
-        });
+        // const customer = await customerService.findOneBy({
+        //     column: "mobileNumber",
+        //     value: convertedNumber,
+        // });
 
         if (customer) {
             customerId.push(customer.id);
         }
 
-        if (body.customerId) {
-            customerId.push(body.customerId);
-        }
+        // if (body.customerId) {
+        //     customerId.push(body.customerId);
+        // }
         const order = await orderService.model.findAll({
             where: {
                 [Op.or]: [
@@ -634,23 +674,6 @@ const main: RequestHandler = async (req, res) => {
                 expiration_date: expiredAt.toISOString(),
                 is_single_use: payment.isSingleUse,
             });
-        } else if (payment.category === PaymentsCategory.INTERNAL) {
-            try {
-                await fetch(`http://localhost:${config.port}/api/v1/gasskeun/process-order-success`, {
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json",
-                        "x-gasskeun-key": config.xApiKeyProcessOrder,
-                    },
-                    body: JSON.stringify({
-                        customerId: customer.id,
-                        orderId: order.id,
-                        invoiceId: invoiceId,
-                    }),
-                });
-            } catch (error) {
-                throw error;
-            }
         } else {
             await orderService.updateBy({
                 by: "id",
@@ -702,6 +725,23 @@ const main: RequestHandler = async (req, res) => {
                 xenditId: charge.id,
             },
         });
+    } else if (payment.providerCd === "INTERNAL") {
+        try {
+            await fetch(`http://localhost:${config.port}/api/v1/gasskeun/process-order-success`, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    "x-gasskeun-key": config.xApiKeyProcessOrder,
+                },
+                body: JSON.stringify({
+                    customerId: customer.id,
+                    orderId: order.id,
+                    invoiceId: invoiceId,
+                }),
+            });
+        } catch (error) {
+            throw error;
+        }
     }
 
     io.emit("order:new", {

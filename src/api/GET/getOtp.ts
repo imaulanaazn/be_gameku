@@ -80,17 +80,21 @@ const main: RequestHandler = async (req, res) => {
 
         customer = await customerService.model.findOne({
             where: {
-                [Op.or]: [
-                    {
-                        mobileNumber: query.mobileNumber || "",
-                    },
-                    {
-                        email: query.email || "",
-                    },
-                ],
+                ...(query.mobileNumber ? { mobileNumber: query.mobileNumber } : {}),
+                ...(query.email ? { email: query.email } : {}),
                 isRegistered: true,
+                roleId: config.roleUser,
             },
         });
+
+        console.log({
+            ...(query.mobileNumber ? { mobileNumber: query.mobileNumber } : {}),
+            ...(query.email ? { email: query.email } : {}),
+            isRegistered: true,
+            roleId: config.roleUser,
+        });
+
+        console.log(customer);
 
         if (!customer) {
             throw new BusinessError("Nomor handphone belum terdaftar", ErrorType.BadRequest);
