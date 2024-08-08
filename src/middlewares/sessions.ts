@@ -1,6 +1,13 @@
 import * as crypto from "crypto";
 import { NextFunction, Request, Response, RequestHandler } from "express";
-import { APIAuth, EncryptJoseType, ErrorStatusCode, ErrorType } from "@enum/index";
+import {
+    APIAuth,
+    DigiflazzOrderStatuses,
+    EncryptJoseType,
+    ErrorStatusCode,
+    ErrorType,
+    ResponseCodeDigiflazzOrder,
+} from "@enum/index";
 import { Config } from "@config/index";
 import moment from "moment";
 import { SysConfigService } from "@serviceInternal/sysConfig.service";
@@ -8,7 +15,7 @@ import * as jwt from "jsonwebtoken";
 import { AdminDto } from "@dto/admin.dto";
 import { EncryptionService } from "@serviceInternal/jose.service";
 import { CustomerDto } from "@dto/customer.dto";
-import { string } from "joi";
+import { Op } from "sequelize";
 
 const config = new Config();
 
@@ -258,4 +265,38 @@ export const authWebhookTokopay: RequestHandler = async (req, res, next) => {
         res.sendStatus(403);
         return;
     }
+};
+
+export const authDigiflazzOrder: RequestHandler = async (req, res, next) => {
+    const sysConfigService = new SysConfigService();
+    const sysConfig = await sysConfigService.model.findAll({
+        where: {
+            cd: {
+                [Op.in]: ["api_key_seller_digiflazz", "username_seller_digiflazz"],
+            },
+        },
+    });
+
+    const username = sysConfig.find((item) => item.cd === "username_seller_digiflazz").value;
+    const apiKey = sysConfig.find((item) => item.cd === "api_key_seller_digiflazz").value;
+    const signature = crypto.createHash("md5").update(`${username}${apiKey}:${req.body.ref_id}`).digest("hex");
+    if (signature !== req.body.sign) {
+        res.send({
+            data: {
+                ref_id: req.body.ref_id,
+                status: DigiflazzOrderStatuses.FAILED,
+                code: req.body.pulsa_code,
+                hp: req.body.hp,
+                price: "0",
+                message: "Invalid Signature",
+                balance: "0",
+                tr_id: "",
+                rc: ResponseCodeDigiflazzOrder.WRONG_AUTHENTICATION,
+                sn: "",
+            },
+        });
+        return;
+    }
+
+    next();
 };

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, Router } from "express";
 import {
     authAdmin,
+    authDigiflazzOrder,
     authLoginUser,
     authReseller,
     authWebhookDigiflazz,
@@ -503,6 +504,8 @@ for (const api of apisWebhook) {
         authorization = authWebhookDigiflazz;
     } else if (auth === APIAuth.WEBHOOK_LAPAKGAMING) {
         authorization = authWebhookLapakgaming;
+    } else if (auth === "digiflazz-order") {
+        authorization = authDigiflazzOrder;
     } else if (auth === APIAuth.WEBHOOK_TOKOPAY) {
         authorization = authWebhookTokopay;
     }

@@ -24,4 +24,5 @@ export class OrderDto extends MainDto {
     ipAddress?: string;
     isNew: boolean;
     countMessagePending?: number;
+    isSellerDigiflazz?: boolean;
 }

@@ -42,7 +42,18 @@ export interface IApiRouterWithoutImage {
     main: (req: Request, res: Response, next?: NextFunction) => any;
     method: APIMethod;
     path: string;
-    auth: Exclude<APIAuth, APIAuth.WEBHOOK_INTERNAL>;
+    auth:
+        | "guess"
+        | "user"
+        | "admin"
+        | "cookie"
+        | "webhook-xendit"
+        | "super-admin"
+        | "webhook-apigames"
+        | "reseller"
+        | "webhook-digiflazz"
+        | "webhook-lapakgaming"
+        | "digiflazz-order";
     isUploadImage?: false;
     dataImg?: SingleImageData | MultipleImageData;
     middlewares?: RequestHandler[];

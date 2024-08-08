@@ -1,13 +1,14 @@
 import { RequestHandler } from "express";
 import { IApiRouter } from "src/interfaces";
 import { OrderService } from "@serviceInternal/order.service";
-import { APIGamesStatuses, OrderStatuses } from "@enum/index";
+import { APIAuth, APIGamesStatuses, APIMethod, OrderStatuses, ResponseCodeDigiflazzOrder } from "@enum/index";
 import dayjs from "dayjs";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { CustomerService } from "@serviceInternal/customer.service";
 import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.service";
 import { Config } from "@config/index";
-import { APIAuth, APIMethod } from "@enum/index";
+import { OrderEntity } from "@entity/order.entity";
+import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
 
 const path = "/v1/webhook/apigames";
 const method = APIMethod.POST;
@@ -80,8 +81,13 @@ const main: RequestHandler = async (req, res) => {
             value: order.id,
             data: {
                 status: OrderStatuses.FAILED,
+                remark: "Failed to process order due to an unknown error",
             },
         });
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.FAILED);
+        }
+
         io.emit("order:failed", order.id);
         return res.sendStatus(200);
     }
@@ -94,6 +100,11 @@ const main: RequestHandler = async (req, res) => {
                 webhookCount,
             },
         });
+
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.PROCESS);
+        }
+
         return;
     }
 
@@ -106,26 +117,31 @@ const main: RequestHandler = async (req, res) => {
                 completedAt: dayjs().format("YYYY-MM-DD HH:mm:ss"),
             },
         });
+
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.SUCCESS);
+        }
+
         io.emit("order:success", order.id);
 
-        client.sendNotifyOrder({
-            targetNumber: customer.mobileNumber,
-            message: whatsappTemplate,
-            isTest: false,
-            data: {
-                invoiceId: order.invoiceId,
-                link: `${config.feUrl}/payment/${order.invoiceId}`,
-                quantity: orderDetail.quantity || 1,
-                mobileNumber: customer.mobileNumber,
-                amount: orderDetail.amount,
-                game: order.game,
-                productName: order.productName,
-                paymentMethod: order.paymentMethod,
-                feeAmt: order.feeAmt,
-                totalAmt: order.totalAmt,
-                discAmt: order.discAmt,
-            },
-        });
+        // client.sendNotifyOrder({
+        //     targetNumber: customer.mobileNumber,
+        //     message: whatsappTemplate,
+        //     isTest: false,
+        //     data: {
+        //         invoiceId: order.invoiceId,
+        //         link: `${config.feUrl}/payment/${order.invoiceId}`,
+        //         quantity: orderDetail.quantity || 1,
+        //         mobileNumber: customer.mobileNumber,
+        //         amount: orderDetail.amount,
+        //         game: order.game,
+        //         productName: order.productName,
+        //         paymentMethod: order.paymentMethod,
+        //         feeAmt: order.feeAmt,
+        //         totalAmt: order.totalAmt,
+        //         discAmt: order.discAmt,
+        //     },
+        // });
         return res.sendStatus(200);
     }
 

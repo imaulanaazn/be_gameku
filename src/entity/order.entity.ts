@@ -12,6 +12,7 @@ import {
     DefaultScope,
     HasMany,
     HasOne,
+    Default,
 } from "sequelize-typescript";
 import { OrderStatuses, OrderType } from "@enum/index";
 import {
@@ -117,6 +118,10 @@ export class OrderEntity extends Model<OrderEntity> {
 
     @Column(DataType.INTEGER)
     countMessagePending!: number;
+
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    isSellerDigiflazz!: boolean;
 
     @Column(DataType.DATE)
     completedAt!: Date | string;

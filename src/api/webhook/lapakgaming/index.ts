@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { IApiRouter } from "src/interfaces";
 import { OrderService } from "@serviceInternal/order.service";
-import { OrderStatuses, DigiflazzStatuses, VoucherType } from "@enum/index";
+import { OrderStatuses, DigiflazzStatuses, VoucherType, ResponseCodeDigiflazzOrder } from "@enum/index";
 import dayjs from "dayjs";
 import { OrderDetailService } from "@serviceInternal/orderDetail.service";
 import { CustomerService } from "@serviceInternal/customer.service";
@@ -11,6 +11,7 @@ import { ProductService } from "@serviceInternal/product.service";
 import { GameService } from "@serviceInternal/game.service";
 import { APIAuth, APIMethod } from "@enum/index";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
+import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
 
 const path = "/v1/webhook/lapakgaming";
 const method = APIMethod.POST;
@@ -148,6 +149,10 @@ const main: RequestHandler = async (req, res) => {
             });
         }
 
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.SUCCESS);
+        }
+
         return;
     } else if (body.data.status === "PENDING") {
         await orderService.updateBy({
@@ -158,6 +163,10 @@ const main: RequestHandler = async (req, res) => {
             },
         });
 
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.PROCESS);
+        }
+
         return;
     } else {
         const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
@@ -165,11 +174,17 @@ const main: RequestHandler = async (req, res) => {
             by: "id",
             value: order.id,
             data: {
-                ...(refundCd.includes(paymentMethod.cd)
-                    ? { status: OrderStatuses.REFUNDED }
-                    : { status: OrderStatuses.FAILED }),
+                status: OrderStatuses.FAILED,
+                remark:
+                    body.data.transactions.map((item) => item.note).join(" | ") ||
+                    "Failed to process order due to an unknown error",
             },
         });
+
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.FAILED);
+        }
+
         io.emit("order:failed", order.id);
     }
 };
