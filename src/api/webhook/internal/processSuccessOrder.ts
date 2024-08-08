@@ -133,17 +133,17 @@ const main: RequestHandler = async (req, res) => {
 
         console.log(productProvider?.dataValues);
 
-        // if (process.env.NODE_ENV.toLowerCase() === "development" || !process.env.NODE_ENV) {
-        //     await orderService.updateBy({
-        //         by: "id",
-        //         value: order.id,
-        //         data: {
-        //             status: OrderStatuses.SUCCESS,
-        //         },
-        //     });
+        if (process.env.NODE_ENV.toLowerCase() === "development" || !process.env.NODE_ENV) {
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.SUCCESS,
+                },
+            });
 
-        //     return;
-        // }
+            return;
+        }
 
         if (product.automatically) {
             await orderService.updateBy({

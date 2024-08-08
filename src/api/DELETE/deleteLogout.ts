@@ -8,19 +8,7 @@ const method = APIMethod.DELETE;
 const auth = APIAuth.USER;
 
 const main: RequestHandler = async (req, res) => {
-    const config = new Config();
-    req.session.regenerate((err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            req.session.data = {
-                roleId: config.roleUser,
-                isLogin: false,
-                ip: req.clientIp,
-            };
-        }
-    });
-
+    res.clearCookie("session_gasskeun_user");
     return res.sendStatus(200);
 };
 
