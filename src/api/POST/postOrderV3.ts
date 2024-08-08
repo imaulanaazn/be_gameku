@@ -198,7 +198,7 @@ const main: RequestHandler = async (req, res) => {
 
     let balance;
     if (payment.cd === "GASSKEUN_USER") {
-        const cookie = req.cookies.session_gasskeun_reseller;
+        const cookie = req.cookies.session_gasskeun_user;
         const reqbalance = await fetch(`http://localhost:${config.port}/api/v1/user/balance`, {
             headers: {
                 cookie: "session_gasskeun_user=" + cookie,
