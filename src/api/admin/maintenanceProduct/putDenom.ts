@@ -52,6 +52,11 @@ const schemaValidation: Validation[] = [
         required: false,
         enum: ["active", "archive"],
     },
+    {
+        name: "digiflazzPrice",
+        type: "string",
+        required: false,
+    },
     // {
     //     name: "provider",
     //     type: "string",
@@ -73,6 +78,7 @@ const main: RequestHandler = async (req, res) => {
         price: VoucherType;
         gameId: "true" | "false";
         status: "active" | "archive";
+        digiflazzPrice: string;
         // provider: string;
         // categoryId: string;
     }>(schemaValidation, ValidatorType.BODY);
@@ -133,13 +139,17 @@ const main: RequestHandler = async (req, res) => {
         isDisplayed: body.status === "active",
         deleted: false,
         resellerPrice: prices - discReseller,
+
         // categoryId: body.categoryId,
     };
 
     await productService.updateBy({
         by: "id",
         value: body.id,
-        data: dataUpdate,
+        data: {
+            ...dataUpdate,
+            digiflazzPrice: parseInt(body.digiflazzPrice),
+        },
     });
 
     return res.send({
