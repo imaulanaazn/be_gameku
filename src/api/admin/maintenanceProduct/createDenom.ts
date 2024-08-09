@@ -37,6 +37,11 @@ const schemaValidation: Validation[] = [
         required: false,
     },
     {
+        name: "digiflazzPrice",
+        type: "string",
+        required: false,
+    },
+    {
         name: "gameId",
         type: "string",
         required: false,
@@ -64,7 +69,8 @@ const main: RequestHandler = async (req, res) => {
         name: string;
         priceBuy: string;
         code: string;
-        price: VoucherType;
+        price: string;
+        digiflazzPrice: string;
         gameId: "true" | "false";
         status: "active" | "archive";
         provider: string;
@@ -113,7 +119,8 @@ const main: RequestHandler = async (req, res) => {
         isDisplayed: body.status === "active",
         deleted: false,
         resellerPrice: prices - discReseller,
-        categoryId: body.categoryId,
+        categoryId: null,
+        digiflazzPrice: parseInt(body.digiflazzPrice) || 0,
     });
 
     return res.send(product);

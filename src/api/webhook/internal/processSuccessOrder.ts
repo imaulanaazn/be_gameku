@@ -21,6 +21,8 @@ import { KuponService } from "@serviceExternal/kupon.service";
 import { OrderPending3rdPartyService } from "@serviceInternal/orderPending3rdParty.service";
 import { APIAuth, APIMethod } from "@enum/index";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
+import dayjs from "dayjs";
+import { CustomerService } from "@serviceInternal/customer.service";
 
 const path = "/v1/gasskeun/process-order-success";
 const method = APIMethod.POST;
@@ -71,9 +73,10 @@ const main: RequestHandler = async (req, res) => {
         operator: "in",
     });
 
-    const order = await orderService.findOneBy({
-        column: "id",
-        value: body.orderId,
+    const order = await orderService.model.scope("withAmtBuy").findOne({
+        where: {
+            id: body.orderId,
+        },
     });
 
     const paymentMethod = await paymentMethodService.model.findOne({
@@ -134,13 +137,52 @@ const main: RequestHandler = async (req, res) => {
         console.log(productProvider?.dataValues);
 
         if (process.env.NODE_ENV.toLowerCase() === "development" || !process.env.NODE_ENV) {
-            await orderService.updateBy({
-                by: "id",
-                value: order.id,
-                data: {
-                    status: OrderStatuses.SUCCESS,
+            // await orderService.updateBy({
+            //     by: "id",
+            //     value: order.id,
+            //     data: {
+            //         status: OrderStatuses.SUCCESS,
+            //     },
+            // });
+
+            // return;
+            const customerService = new CustomerService();
+            const customer = await customerService.model.findOne({
+                where: {
+                    id: order.customerId,
                 },
             });
+            if (customer.isRegistered) {
+                const fundService = new FundService();
+                let fund = await fundService.findOneBy({
+                    column: "customerId",
+                    value: customer.id,
+                });
+
+                if (!fund) {
+                    await fundService.create({
+                        id: uuid(),
+                        customerId: customer.id,
+                        name: "Gasskeun Coin",
+                        value: 0,
+                    });
+
+                    fund = await fundService.findOneBy({
+                        column: "customerId",
+                        value: customer.id,
+                    });
+                }
+
+                console.log(fund.value);
+                console.log(order.amtBuy);
+                // await fundService.updateBy({
+                //     by: "customerId",
+                //     value: customer.id,
+                //     data: {
+                //         value: Math.ceil(fund.value + order.amtBuy),
+                //     },
+                // });
+            }
 
             return;
         }
@@ -294,6 +336,14 @@ const main: RequestHandler = async (req, res) => {
             }
         }
     } else if (order.type === OrderType.BUY) {
+        await orderService.updateBy({
+            by: "id",
+            value: order.id,
+            data: {
+                status: OrderStatuses.PROCESSING,
+            },
+        });
+
         const fundService = new FundService();
         const fund = await fundService.findOneBy({
             column: "customerId",
@@ -317,6 +367,15 @@ const main: RequestHandler = async (req, res) => {
             value: fund.id,
             data: {
                 value: balance,
+            },
+        });
+
+        await orderService.updateBy({
+            by: "id",
+            value: order.id,
+            data: {
+                status: OrderStatuses.SUCCESS,
+                completedAt: dayjs().toDate(),
             },
         });
 

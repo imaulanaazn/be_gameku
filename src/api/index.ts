@@ -177,6 +177,9 @@ import { getOrderHistoryUser } from "./GET/getOrderHistoryUser";
 import { postTopupFundUser } from "./POST/postTopupFundUser";
 import { postOrderV3 } from "./POST/postOrderV3";
 import { getUserBalance } from "./GET/getUserBalance";
+import { postOrderDigiflazzSeller } from "./webhook/digiflazz/sellerDigiflazz";
+import { dropdownProductCategoryPagination } from "./admin/maintenanceProductCategory/getDropdownProductCategory";
+import { dropdownGameCategory } from "./admin/maintenanceGameCategory/dropdownGameCategory";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -261,6 +264,7 @@ const apis = [
     putPopularBulk,
     putPopularBulkV2,
     deleteGame,
+    dropdownGameCategory,
 
     // Maintenance Banner
     getAllBannerPagination,
@@ -292,6 +296,7 @@ const apis = [
     getAllProductCategoryPagination,
     putProductCategory,
     deleteProductCategory,
+    dropdownProductCategoryPagination,
 
     // Maintenance Role
     getListRoles,
@@ -471,6 +476,7 @@ const apisWebhook = [
 
     // DIGIFLAZZ
     webhookDigiflazz,
+    postOrderDigiflazzSeller,
 
     // LAPAKGAMING
     webhookLapakGaming,
@@ -504,7 +510,7 @@ for (const api of apisWebhook) {
         authorization = authWebhookDigiflazz;
     } else if (auth === APIAuth.WEBHOOK_LAPAKGAMING) {
         authorization = authWebhookLapakgaming;
-    } else if (auth === "digiflazz-order") {
+    } else if (auth === APIAuth.DIGIFLAZZ_SELLER) {
         authorization = authDigiflazzOrder;
     } else if (auth === APIAuth.WEBHOOK_TOKOPAY) {
         authorization = authWebhookTokopay;

@@ -61,6 +61,9 @@ export class ProductEntity extends Model<ProductEntity> {
     resellerPrice: number;
 
     @Column(DataType.INTEGER)
+    digiflazzPrice: number;
+
+    @Column(DataType.INTEGER)
     priceBuy!: number;
 
     @AllowNull(true)

@@ -123,6 +123,10 @@ export class OrderEntity extends Model<OrderEntity> {
     @Column(DataType.BOOLEAN)
     isSellerDigiflazz!: boolean;
 
+    @Default(false)
+    @Column(DataType.BOOLEAN)
+    isGuest!: boolean;
+
     @Column(DataType.DATE)
     completedAt!: Date | string;
 

@@ -9,6 +9,8 @@ import { WhatsappTemplateService } from "@serviceInternal/whatsappTemplate.servi
 import { Config } from "@config/index";
 import { APIAuth, APIMethod } from "@enum/index";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
+import { FundService } from "@serviceInternal/fund.service";
+import { v4 as uuid } from "uuid";
 
 const path = "/v1/webhook/digiflazz";
 const method = APIMethod.POST;
@@ -45,9 +47,10 @@ const main: RequestHandler = async (req, res) => {
     const whatsappTemplateService = new WhatsappTemplateService();
     const config = new Config();
 
-    const order = await orderService.findOneBy({
-        column: "id",
-        value: orderId,
+    const order = await orderService.model.scope("withAmtBuy").findOne({
+        where: {
+            id: orderId,
+        },
     });
 
     if (!order) {
@@ -81,16 +84,42 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (body.data.status === DigiflazzStatuses.FAILED) {
-        const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
         await orderService.updateBy({
             by: "id",
             value: order.id,
             data: {
-                ...(refundCd.includes(paymentMethod.cd)
-                    ? { status: OrderStatuses.REFUNDED }
-                    : { status: OrderStatuses.FAILED }),
+                status: OrderStatuses.FAILED,
             },
         });
+
+        if (paymentMethod.cd !== "GASSKEUN_USER" && paymentMethod.cd !== "GASSKEUN" && !order.isGuest) {
+            const fundService = new FundService();
+            let fund = await fundService.findOneBy({
+                column: "customerId",
+                value: customer.id,
+            });
+
+            if (!fund) {
+                await fundService.create({
+                    id: uuid(),
+                    customerId: customer.id,
+                    name: "Gasskeun Coin",
+                    value: 0,
+                });
+
+                fund = await fundService.findOneBy({
+                    column: "customerId",
+                    value: customer.id,
+                });
+            }
+            await fundService.updateBy({
+                by: "customerId",
+                value: customer.id,
+                data: {
+                    value: Math.ceil(fund.value + order.amtBuy),
+                },
+            });
+        }
         io.emit("order:failed", order.id);
         return res.sendStatus(200);
     }

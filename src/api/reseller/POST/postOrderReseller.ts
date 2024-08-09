@@ -344,6 +344,7 @@ const main: RequestHandler = async (req, res) => {
         amtBuy: Math.ceil(prices * body.quantity),
         type: OrderType.TOPUP,
         isNew: checkingOrder <= 0,
+        isGuest: false,
     });
 
     const orderDetail = await orderDetailService.create({

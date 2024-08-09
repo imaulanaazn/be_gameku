@@ -25,4 +25,5 @@ export class OrderDto extends MainDto {
     isNew: boolean;
     countMessagePending?: number;
     isSellerDigiflazz?: boolean;
+    isGuest?: boolean;
 }

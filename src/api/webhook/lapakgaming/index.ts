@@ -12,6 +12,8 @@ import { GameService } from "@serviceInternal/game.service";
 import { APIAuth, APIMethod } from "@enum/index";
 import { PaymentMethodService } from "@serviceInternal/paymentMethod.service";
 import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
+import { FundService } from "@serviceInternal/fund.service";
+import { v4 as uuid } from "uuid";
 
 const path = "/v1/webhook/lapakgaming";
 const method = APIMethod.POST;
@@ -48,7 +50,7 @@ const main: RequestHandler = async (req, res) => {
         column: "cd",
         value: "order_success",
     });
-    const order = await orderService.model.findOne({
+    const order = await orderService.model.scope("withAmtBuy").findOne({
         where: {
             invoiceId: body.data.reference_id,
             extTrxId,
@@ -169,7 +171,6 @@ const main: RequestHandler = async (req, res) => {
 
         return;
     } else {
-        const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
         await orderService.updateBy({
             by: "id",
             value: order.id,
@@ -183,6 +184,35 @@ const main: RequestHandler = async (req, res) => {
 
         if (order.isSellerDigiflazz) {
             await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.FAILED);
+        }
+
+        if (paymentMethod.cd !== "GASSKEUN_USER" && paymentMethod.cd !== "GASSKEUN" && !order.isGuest) {
+            const fundService = new FundService();
+            let fund = await fundService.findOneBy({
+                column: "customerId",
+                value: customer.id,
+            });
+
+            if (!fund) {
+                await fundService.create({
+                    id: uuid(),
+                    customerId: customer.id,
+                    name: "Gasskeun Coin",
+                    value: 0,
+                });
+
+                fund = await fundService.findOneBy({
+                    column: "customerId",
+                    value: customer.id,
+                });
+            }
+            await fundService.updateBy({
+                by: "customerId",
+                value: customer.id,
+                data: {
+                    value: Math.ceil(fund.value + order.amtBuy),
+                },
+            });
         }
 
         io.emit("order:failed", order.id);

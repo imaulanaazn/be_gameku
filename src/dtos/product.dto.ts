@@ -8,6 +8,7 @@ export class ProductDto extends MainDto {
     code: string;
     price: number;
     resellerPrice: number;
+    digiflazzPrice?: number;
     priceBuy?: number;
     logoDenom: string;
     isActive?: boolean;

@@ -84,18 +84,25 @@ const main: RequestHandler = async (req, res) => {
     const userService = new CustomerService();
     const config = new Config();
 
-    const userByEmail = await userService.findOneBy({
-        column: "email",
-        value: body.email,
+    const userByEmail = await userService.model.findOne({
+        where: {
+            email: body.email,
+            mobileNumber: body.mobileNumber,
+            roleId: config.roleUser,
+            isRegistered: true,
+        },
     });
 
     if (userByEmail) {
         throw new BusinessError("Email sudah terdaftar", ErrorType.Duplicate);
     }
 
-    const userByMobile = await userService.findOneBy({
-        column: "mobileNumber",
-        value: body.mobileNumber,
+    const userByMobile = await userService.model.findOne({
+        where: {
+            mobileNumber: body.mobileNumber,
+            roleId: config.roleUser,
+            isRegistered: true,
+        },
     });
 
     if (userByMobile && userByMobile.isRegistered) {

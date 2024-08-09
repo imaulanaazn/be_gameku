@@ -203,8 +203,6 @@ const main: RequestHandler = async (req, res) => {
         }
     }
 
-    console.log(customer);
-
     const payment = await paymentMethodService.model.findOne({
         where: {
             id: body.paymentId,
@@ -226,6 +224,13 @@ const main: RequestHandler = async (req, res) => {
 
     if (payment.cd === "ID_JENIUSPAY" && !body.cashtag) {
         throw new BusinessError("Cashtag harus di isi jika memilih pembayaran via Jenius pay", ErrorType.Validation);
+    }
+
+    if (payment.cd === "GASSKEUN_USER" && !session) {
+        throw new BusinessError(
+            "Metode Pembayaran Gasskeun Coin hanya bisa digunakan ketika login",
+            ErrorType.Authorization,
+        );
     }
 
     let balance;
@@ -513,6 +518,7 @@ const main: RequestHandler = async (req, res) => {
         type: OrderType.TOPUP,
         ipAddress: clientIp,
         isNew: checkingOrder <= 0,
+        isGuest: !session,
     });
 
     const orderDetail = await orderDetailService.create({

@@ -2,6 +2,8 @@ import { RequestHandler } from "express";
 import { GameService, OrderService, PaymentMethodService, ProductService } from "@serviceInternal/index";
 import { Config } from "@config/index";
 import {
+    APIAuth,
+    APIMethod,
     DigiflazzOrderStatuses,
     InvoiceStatuses,
     OrderStatuses,
@@ -23,8 +25,8 @@ import APIGamesService from "@serviceExternal/apiGames.service";
 import { GameVoucherService } from "@serviceInternal/gameVoucher.service";
 
 const path = "/v1/digiflazz/order";
-const method = "POST";
-const auth = "digiflazz-order";
+const method = APIMethod.POST;
+const auth = APIAuth.DIGIFLAZZ_SELLER;
 
 export function getStatus(order: OrderEntity) {
     const SUCCESS = [OrderStatuses.SUCCESS];
@@ -233,8 +235,18 @@ const main: RequestHandler = async (req, res) => {
         expiredAt,
     });
 
+    const sysConfigService = new SysConfigService();
+    const configApiGames = await sysConfigService.findManyBy({
+        column: "cd",
+        value: ["api_games_merchant_id", "api_games_secret_key", "percentage_digiflazz"],
+        operator: "in",
+    });
+
     const customerId = "9ab547e7-3aef-4f9a-b073-6c6806389d85";
-    const amount = Math.ceil(product.price);
+    const percentageDigiflazzPrice = configApiGames.find((item) => item.cd === "percentage_digiflazz").value;
+    const amount = Math.ceil(
+        product.digiflazzPrice || product.price - Math.ceil(product.price * parseFloat(percentageDigiflazzPrice)) / 100,
+    );
     const newOrder = await orderService.create({
         id: uuid(),
         promoId: null,
@@ -271,12 +283,6 @@ const main: RequestHandler = async (req, res) => {
     });
 
     if (game.needCheckId) {
-        const sysConfigService = new SysConfigService();
-        const configApiGames = await sysConfigService.findManyBy({
-            column: "cd",
-            value: ["api_games_merchant_id", "api_games_secret_key"],
-            operator: "in",
-        });
         const merchantId = configApiGames.find((item) => item.cd === "api_games_merchant_id");
         const secretKey = configApiGames.find((item) => item.cd === "api_games_secret_key");
         const apiGameService = new APIGamesService({
@@ -396,7 +402,7 @@ const main: RequestHandler = async (req, res) => {
     return;
 };
 
-export const postOrderDigiflazz: IApiRouter = {
+export const postOrderDigiflazzSeller: IApiRouter = {
     path,
     method,
     main,
