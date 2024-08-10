@@ -117,6 +117,7 @@ const main: RequestHandler = async (req, res) => {
         logoDenom: uploadLogoDenom,
         gameId: game.id,
         isDisplayed: body.status === "active",
+        isActive: true,
         deleted: false,
         resellerPrice: prices - discReseller,
         categoryId: null,

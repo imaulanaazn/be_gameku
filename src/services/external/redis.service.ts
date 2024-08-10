@@ -2,6 +2,7 @@ import { Config } from "@config/index";
 import { createClient, RedisClientType } from "redis";
 
 export class RedisService {
+    private static instance: RedisService;
     private client: RedisClientType;
 
     constructor() {
@@ -41,6 +42,13 @@ export class RedisService {
         } else {
             await this.client.set(key, value, { EX: 600 });
         }
+    }
+
+    public static getInstance(): RedisService {
+        if (!RedisService.instance) {
+            RedisService.instance = new RedisService();
+        }
+        return RedisService.instance;
     }
 
     async get(key: string): Promise<string | null> {

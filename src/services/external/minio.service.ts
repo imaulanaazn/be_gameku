@@ -14,6 +14,7 @@ interface UploadFileParams {
 }
 
 export class MinioService {
+    private static instance: MinioService;
     private minioClient: Client;
     private uploadDir: string;
 
@@ -34,6 +35,13 @@ export class MinioService {
         if (!fs.existsSync(this.uploadDir)) {
             await mkdir(this.uploadDir, { recursive: true });
         }
+    }
+
+    public static getInstance(): MinioService {
+        if (!MinioService.instance) {
+            MinioService.instance = new MinioService();
+        }
+        return MinioService.instance;
     }
 
     public async uploadFile(data: UploadFileParams) {
