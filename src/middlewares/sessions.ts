@@ -279,7 +279,7 @@ export const authDigiflazzOrder: RequestHandler = async (req, res, next) => {
 
     const username = sysConfig.find((item) => item.cd === "username_seller_digiflazz").value;
     const apiKey = sysConfig.find((item) => item.cd === "api_key_seller_digiflazz").value;
-    const signature = crypto.createHash("md5").update(`${username}${apiKey}:${req.body.ref_id}`).digest("hex");
+    const signature = crypto.createHash("md5").update(`${username}${apiKey}${req.body.ref_id}`).digest("hex");
     if (signature !== req.body.sign) {
         res.send({
             data: {

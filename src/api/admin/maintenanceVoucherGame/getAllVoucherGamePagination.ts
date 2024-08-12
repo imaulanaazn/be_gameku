@@ -64,7 +64,9 @@ const main: RequestHandler = async (req, res) => {
             ? [[{ model: GameEntity, as: "game" }, "name", query.order]]
             : [[query.sort, query.order]];
 
-    let where: any = {};
+    let where: any = {
+        deleted: false,
+    };
     if (column.length > 4) {
         if (query.used) {
             where.used = query.used === "true";

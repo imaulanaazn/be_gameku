@@ -32,14 +32,14 @@ const main: RequestHandler = async (req, res) => {
         },
     });
 
-    const gameService = new GameService();
-    await gameService.updateBy({
-        by: "id",
-        value: gameVoucherId,
-        data: {
-            deleted: true,
-        },
-    });
+    // const gameService = new GameService();
+    // await gameService.updateBy({
+    //     by: "id",
+    //     value: gameVoucherId,
+    //     data: {
+    //         deleted: true,
+    //     },
+    // });
     res.sendStatus(200);
 };
 

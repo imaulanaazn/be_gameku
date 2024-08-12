@@ -107,6 +107,8 @@ const main: RequestHandler = async (req, res) => {
         );
     }
 
+    console.log(vouchers);
+
     if (vouchers.length < orderDetail.quantity) {
         const nullCount = orderDetail.quantity - vouchers.length;
         for (let i = 0; i < nullCount; i++) {

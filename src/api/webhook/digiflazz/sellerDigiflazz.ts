@@ -55,32 +55,37 @@ const schemaValidation: Validation[] = [
     {
         name: "username",
         type: "string",
-        required: true,
+        required: false,
     },
     {
         name: "commands",
         type: "string",
-        required: true,
+        required: false,
     },
     {
         name: "ref_id",
         type: "string",
-        required: true,
+        required: false,
     },
     {
         name: "hp",
         type: "string",
-        required: true,
+        required: false,
+    },
+    {
+        name: "price",
+        type: "number",
+        required: false,
     },
     {
         name: "pulsa_code",
         type: "string",
-        required: true,
+        required: false,
     },
     {
         name: "sign",
         type: "string",
-        required: true,
+        required: false,
     },
 ];
 const main: RequestHandler = async (req, res) => {
@@ -92,10 +97,12 @@ const main: RequestHandler = async (req, res) => {
         hp: string;
         pulsa_code: string;
         sign: string;
+        price: number;
     }>(schemaValidation, ValidatorType.BODY);
     const io = req.io;
-
+    console.log(body);
     const orderService = new OrderService();
+
     const order = await orderService.model.findOne({
         where: {
             extTrxId: body.ref_id,
@@ -266,13 +273,14 @@ const main: RequestHandler = async (req, res) => {
         ipAddress: null,
         isNew: false,
         isSellerDigiflazz: true,
+        extTrxId: body.ref_id,
     });
 
     let checkUsername;
     const orderDetailService = new OrderDetailService();
     const newOrderDetail = await orderDetailService.create({
         id: uuid(),
-        orderId: order.id,
+        orderId: newOrder.id,
         productId: product.id,
         userId: userId || "",
         serverId: serverName || "",
@@ -302,12 +310,12 @@ const main: RequestHandler = async (req, res) => {
                     status: DigiflazzOrderStatuses.FAILED,
                     code: body.pulsa_code,
                     hp: body.hp,
-                    price: newOrder.totalAmt,
+                    price: newOrder.totalAmt.toString(),
                     message: "User ID or Server ID is not valid",
                     balance: "0",
-                    tr_id: order.id,
+                    tr_id: newOrder.id,
                     rc: ResponseCodeDigiflazzOrder.INCORRECT_DESTINATION_NUMBER,
-                    sn: order.invoiceId,
+                    sn: newOrder.invoiceId,
                 },
             });
             return;
@@ -320,12 +328,12 @@ const main: RequestHandler = async (req, res) => {
                     status: DigiflazzOrderStatuses.FAILED,
                     code: body.pulsa_code,
                     hp: body.hp,
-                    price: newOrder.totalAmt,
+                    price: newOrder.totalAmt.toString(),
                     message: "User ID or Server ID is not valid",
                     balance: "0",
-                    tr_id: order.id,
+                    tr_id: newOrder.id,
                     rc: ResponseCodeDigiflazzOrder.INCORRECT_DESTINATION_NUMBER,
-                    sn: order.invoiceId,
+                    sn: newOrder.invoiceId,
                 },
             });
             return;
@@ -336,12 +344,12 @@ const main: RequestHandler = async (req, res) => {
                     status: DigiflazzOrderStatuses.FAILED,
                     code: body.pulsa_code,
                     hp: body.hp,
-                    price: newOrder.totalAmt,
+                    price: newOrder.totalAmt.toString(),
                     message: "User ID or Server ID is not valid",
                     balance: "0",
-                    tr_id: order.id,
+                    tr_id: newOrder.id,
                     rc: ResponseCodeDigiflazzOrder.INCORRECT_DESTINATION_NUMBER,
-                    sn: order.invoiceId,
+                    sn: newOrder.invoiceId,
                 },
             });
             return;
@@ -349,16 +357,17 @@ const main: RequestHandler = async (req, res) => {
     }
 
     const config = new Config();
-    await fetch(`http://localhost:${config.port}/api/v1/gasskeun/process-order-success`, {
+    await fetch(`http://localhost:${config.port}/api/v1/gasskeun/process-voucher-internal`, {
         method: "POST",
         headers: {
             "content-type": "application/json",
-            "x-gasskeun-key": config.xApiKeyProcessOrder,
+            "x-gasskeun-key": config.xApiKeyGameVoucher,
         },
         body: JSON.stringify({
             customerId,
-            orderId: order.id,
-            invoiceId,
+            orderId: newOrder.id,
+            gameId: game.id,
+            productId: product.id,
         }),
     });
 
@@ -391,12 +400,12 @@ const main: RequestHandler = async (req, res) => {
             status: DigiflazzOrderStatuses.PENDING,
             code: body.pulsa_code,
             hp: body.hp,
-            price: newOrder.totalAmt,
+            price: newOrder.totalAmt.toString(),
             message: "Processing",
             balance: "0",
-            tr_id: order.id,
+            tr_id: newOrder.id,
             rc: ResponseCodeDigiflazzOrder.PROCESS,
-            sn: order.invoiceId,
+            sn: newOrder.invoiceId,
         },
     });
     return;

@@ -91,48 +91,62 @@ const main: RequestHandler = async (req, res) => {
     const lapakgamingService = new LapakGamingService(lapakGamingApiKey.value);
     const kuponService = new KuponService(kuponApiKey.value);
 
-    for (const product of products) {
-        let isCanUpdate = false;
-        if (product.game.gameProvider.cd === "LAPAK_GAMING") {
-            const lapakGamingProducts = await lapakgamingService.getProductByGamesCode({
-                gameCd: product.game.cd,
-            });
+    // for (const product of products) {
+    //     let isCanUpdate = false;
+    //     if (product.game.gameProvider.cd === "LAPAK_GAMING") {
+    //         const lapakGamingProducts = await lapakgamingService.getProductByGamesCode({
+    //             gameCd: product.game.cd,
+    //         });
 
-            const findProduct = lapakGamingProducts.data.products.find((item) => item.code === product.code);
-            console.log(findProduct);
-            if (!findProduct || findProduct.status !== "available") {
-                continue;
-            }
+    //         const findProduct = lapakGamingProducts.data.products.find((item) => item.code === product.code);
+    //         console.log(findProduct);
+    //         if (!findProduct || findProduct.status !== "available") {
+    //             continue;
+    //         }
 
-            await productService.updateBy({
-                by: "id",
-                value: product.id,
-                data: {
-                    isDisplayed: true,
+    //         await productService.updateBy({
+    //             by: "id",
+    //             value: product.id,
+    //             data: {
+    //                 isDisplayed: true,
+    //             },
+    //         });
+    //     } else if (product.game.gameProvider.cd === "KUPON") {
+    //         const kuponProducts = await kuponService.getProductByGamesCode({
+    //             gameCd: product.game.cd,
+    //         });
+
+    //         const findProduct = kuponProducts.data.products.find((item) => item.id.toString() === product.code);
+    //         console.log(findProduct);
+    //         if (!findProduct || !findProduct.isActive) {
+    //             continue;
+    //         }
+
+    //         await productService.updateBy({
+    //             by: "id",
+    //             value: product.id,
+    //             data: {
+    //                 isDisplayed: true,
+    //             },
+    //         });
+    //     }
+    // }
+
+    await productService.model.update(
+        {
+            isDisplayed: true,
+        },
+        {
+            where: {
+                id: {
+                    [Op.in]: body.productId,
                 },
-            });
-        } else if (product.game.gameProvider.cd === "KUPON") {
-            const kuponProducts = await kuponService.getProductByGamesCode({
-                gameCd: product.game.cd,
-            });
-
-            const findProduct = kuponProducts.data.products.find((item) => item.id.toString() === product.code);
-            console.log(findProduct);
-            if (!findProduct || !findProduct.isActive) {
-                continue;
-            }
-
-            await productService.updateBy({
-                by: "id",
-                value: product.id,
-                data: {
-                    isDisplayed: true,
-                },
-            });
-        }
-    }
+            },
+        },
+    );
 
     res.sendStatus(200);
+    return;
 };
 
 export const putArchiveProduct: IApiRouter = {
