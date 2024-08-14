@@ -65,6 +65,13 @@ export class PaymentMethodEntity extends Model<PaymentMethodEntity> {
     @Column(DataType.BOOLEAN)
     deleted!: boolean;
 
+    @Column(DataType.BOOLEAN)
+    isNeedLogin!: boolean;
+
+    @AllowNull(false)
+    @Column(DataType.INTEGER)
+    sequence!: number;
+
     @Column(DataType.TEXT)
     paymentGuide!: string;
 

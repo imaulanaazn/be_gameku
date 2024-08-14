@@ -15,5 +15,7 @@ export class PaymentMethodDto extends MainDto {
     durationCd: DurationCD;
     logo: string;
     deleted?: boolean;
+    isNeedLogin?: boolean;
+    sequence?: number;
     paymentGuide: string;
 }

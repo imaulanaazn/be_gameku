@@ -56,6 +56,7 @@ const main: RequestHandler = async (req, res) => {
                     [Op.notIn]: filter,
                 },
             },
+            order: [["sequence", "ASC"]],
         });
 
         await di.redisService.setObject(redisKey, paymentMethod);
@@ -73,6 +74,7 @@ const main: RequestHandler = async (req, res) => {
                 isActive: true,
                 deleted: false,
             },
+            order: [["sequence", "ASC"]],
         });
 
         await di.redisService.setObject(redisKey, paymentMethod);

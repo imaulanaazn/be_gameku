@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import { RequestHandler } from "express";
 import { APIAuth, APIMethod } from "@enum/index";
 import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
+import sequelize from "../../../database/index";
 
 const path = "/v1/gasskeun/process-voucher-internal";
 const method = APIMethod.POST;
@@ -62,101 +63,118 @@ const main: RequestHandler = async (req, res) => {
         value: body.orderId,
     });
 
-    const orderDetail = await orderDetailService.findOneBy({
-        column: "orderId",
-        value: order.id,
-    });
+    const transaction = await sequelize.transaction();
+    try {
+        const orderDetail = await orderDetailService.model.findOne({
+            where: {
+                orderId: order.id,
+            },
+            transaction,
+        });
 
-    const gameVouchers = await gameVoucherService.model.findAll({
-        where: {
-            gameId: body.gameId,
-            productId: body.productId,
-            used: false,
-        },
-        limit: orderDetail.quantity,
-    });
+        const gameVouchers = await gameVoucherService.model.findAll({
+            where: {
+                gameId: body.gameId,
+                productId: body.productId,
+                used: false,
+            },
+            limit: orderDetail.quantity,
+            lock: transaction.LOCK.UPDATE,
+            transaction,
+        });
 
-    const customer = await customerService.findOneBy({
-        column: "id",
-        value: body.customerId,
-    });
+        const customer = await customerService.findOneBy({
+            column: "id",
+            value: body.customerId,
+        });
 
-    const product = await productService.findOneBy({
-        column: "id",
-        value: body.productId,
-    });
+        const product = await productService.findOneBy({
+            column: "id",
+            value: body.productId,
+        });
 
-    const game = await gameService.findOneBy({
-        column: "id",
-        value: body.gameId,
-    });
+        const game = await gameService.findOneBy({
+            column: "id",
+            value: body.gameId,
+        });
 
-    let vouchers = [];
-    if (gameVouchers.length > 0) {
-        vouchers = gameVouchers.map((item) => item.code);
-        const gameVouchersId = gameVouchers.map((item) => item.id);
-        await gameVoucherService.model.update(
+        let vouchers = [];
+
+        if (gameVouchers.length === 0) {
+            vouchers.push(null);
+        } else {
+            const gameVouchersId = gameVouchers.map((item) => item.id);
+            vouchers = gameVouchers.map((item) => item.code);
+            await gameVoucherService.model.update(
+                { used: true },
+                {
+                    where: { id: gameVouchersId },
+                    transaction,
+                },
+            );
+        }
+
+        await orderDetailService.model.update(
             {
-                used: true,
+                gameVoucher: JSON.stringify(vouchers),
             },
             {
                 where: {
-                    id: gameVouchersId,
+                    id: orderDetail.id,
                 },
+                transaction,
             },
         );
-    }
 
-    console.log(vouchers);
+        await orderService.model.update(
+            {
+                status: OrderStatuses.SUCCESS,
+                completedAt: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+            },
+            {
+                where: {
+                    id: order.id,
+                },
+                transaction,
+            },
+        );
 
-    if (vouchers.length < orderDetail.quantity) {
-        const nullCount = orderDetail.quantity - vouchers.length;
-        for (let i = 0; i < nullCount; i++) {
-            vouchers.push(null);
+        await transaction.commit();
+        io.emit("order:success", order.id);
+
+        const whatsappTemplateService = new WhatsappTemplateService();
+        const whatsappTemplate = await whatsappTemplateService.findOneBy({
+            column: "cd",
+            value: "voucher",
+        });
+
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.SUCCESS);
+        } else {
+            client.sendNotifyVoucher({
+                targetNumber: customer.mobileNumber,
+                message: whatsappTemplate,
+                isTest: false,
+                data: {
+                    gameName: game.name,
+                    voucher: vouchers,
+                    productName: product.name,
+                },
+            });
+        }
+
+        res.sendStatus(200);
+    } catch (error) {
+        if (transaction) await transaction.rollback();
+
+        if (order.isSellerDigiflazz) {
+            await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.FAILED, "Something wrong");
+        } else {
+            console.log(error);
+            res.sendStatus(500);
+            return;
         }
     }
-
-    await orderDetailService.updateBy({
-        by: "id",
-        value: orderDetail.id,
-        data: {
-            gameVoucher: JSON.stringify(vouchers),
-        },
-    });
-
-    await orderService.updateBy({
-        by: "id",
-        value: order.id,
-        data: {
-            status: OrderStatuses.SUCCESS,
-            completedAt: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-        },
-    });
-
-    io.emit("order:success", order.id);
-
-    const whatsappTemplateService = new WhatsappTemplateService();
-    const whatsappTemplate = await whatsappTemplateService.findOneBy({
-        column: "cd",
-        value: "voucher",
-    });
-
-    if (order.isSellerDigiflazz) {
-        await sendResponseOrderDigiflazz(order.invoiceId, ResponseCodeDigiflazzOrder.SUCCESS);
-    } else {
-        client.sendNotifyVoucher({
-            targetNumber: customer.mobileNumber,
-            message: whatsappTemplate,
-            isTest: false,
-            data: {
-                gameName: game.name,
-                voucher: vouchers,
-                productName: product.name,
-            },
-        });
-    }
-
-    res.sendStatus(200);
 };
 
 export const processVoucherInternal: IApiRouter = {
