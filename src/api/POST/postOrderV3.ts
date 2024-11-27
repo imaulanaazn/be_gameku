@@ -45,6 +45,8 @@ import { TokopayService } from "@serviceExternal/tokopay.service";
 import { APIAuth, APIMethod } from "@enum/index";
 import { EncryptionService } from "@serviceInternal/jose.service";
 import { CustomerDto } from "@dto/customer.dto";
+import { MidtransService } from "@serviceExternal/midtrans.service";
+import { RedisService } from "@serviceExternal/redis.service";
 
 const path = "/v3/order";
 const method = APIMethod.POST;
@@ -747,6 +749,75 @@ const main: RequestHandler = async (req, res) => {
             });
         } catch (error) {
             throw error;
+        }
+    } else if (payment.providerCd === "MIDTRANS") {
+        const midtransService = new MidtransService();
+        let charge;
+        if (payment.category === PaymentsCategory.VIRTUAL_ACCOUNT) {
+            charge = await midtransService.createVirtualAccount({
+                order,
+                orderDetail,
+                paymentMethod: payment,
+                customer,
+            });
+        } else if (payment.category === PaymentsCategory.QRIS) {
+            charge = await midtransService.createQris({
+                order,
+                orderDetail,
+                paymentMethod: payment,
+                customer,
+            });
+
+            const redisService = new RedisService();
+            redisService.set(`qr:payment:${invoiceId}`, charge?.qr_string || "", 15 * 60);
+        } else if (payment.category === PaymentsCategory.EWALLET) {
+            charge = await midtransService.createEWallet({
+                order,
+                orderDetail,
+                paymentMethod: payment,
+                customer,
+            });
+
+            const redisService = new RedisService();
+            const getLink = charge?.actions?.find((item) => item.name === "deeplink-redirect");
+            redisService.set(`qr:payment:${invoiceId}`, getLink?.url || "", 15 * 60);
+        } else if (payment.category === PaymentsCategory.RETAIL) {
+            charge = await midtransService.createRetail({
+                order,
+                orderDetail,
+                paymentMethod: payment,
+                customer,
+            });
+        }
+        if (charge) {
+            await invoiceService.updateBy({
+                by: "id",
+                value: invoiceId,
+                data: {
+                    xenditId: charge.transaction_id,
+                    expiredAt: dayjs(charge.expiry_time).toDate(),
+                },
+            });
+        } else {
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.FAILED,
+                },
+            });
+
+            await invoiceService.updateBy({
+                by: "id",
+                value: invoiceId,
+                data: {
+                    status: InvoiceStatuses.FAILED,
+                },
+            });
+            throw new BusinessError(
+                "Sepertinya ada kesalahan dalam pembayaran, silahkan coba beberapa saat lagi",
+                ErrorType.Internal,
+            );
         }
     }
 

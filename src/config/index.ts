@@ -53,4 +53,7 @@ export class Config {
     minioPassword = process.env.MINIO_PASSWORD || "N0P@ssw0rd";
 
     imageUrl = process.env.IMAGE_URL || `http://localhost:${this.port}/api/v1/get-image`;
+
+    midtransUrl = process.env.MIDTRANS_URL || "https://api.sandbox.midtrans.com/v2";
+    midtransServerKey = process.env.MIDTRANS_SERVER_KEY || "SB-Mid-server-chuDlh06xFlF9cLWYPNjeE0y";
 }

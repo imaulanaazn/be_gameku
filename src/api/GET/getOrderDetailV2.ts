@@ -22,6 +22,8 @@ import { PaymentMethodEntity } from "@entity/paymentMethod.entity";
 import { OrderEntity } from "@entity/order.entity";
 import { TokopayService } from "@serviceExternal/tokopay.service";
 import { APIAuth, APIMethod } from "@enum/index";
+import { MidtransService } from "@serviceExternal/midtrans.service";
+import { RedisService } from "@serviceExternal/redis.service";
 
 const path = "/v2/order-detail/:invoice";
 const method = APIMethod.GET;
@@ -123,61 +125,87 @@ const main: RequestHandler = async (req, res) => {
         paymentCode: undefined,
     };
 
-    if (invoice.order.payment.providerCd === "XENDIT") {
-        const xenditSecretKey = sysConfig.find((item) => item.cd === "api_key");
-        const xenditService = new XenditService(xenditSecretKey.value);
-        const xendit = await xenditService.getPayment({
-            category: invoice.order.payment.category as PaymentsCategory,
-            id: invoice.xenditId,
-        });
-        if (invoice.order.payment.category === PaymentsCategory.EWALLET) {
-            if (invoice.order.payment.cd === "ID_OVO") {
-                paymentData.mobileNumber = xendit.channel_properties.mobile_number;
-            } else if (invoice.order.payment.cd === "ID_JENIUSPAY") {
-                paymentData.mobileNumber = xendit.channel_properties.cashtag;
+    if (invoice.order.status === OrderStatuses.PENDING_PAYMENT) {
+        if (invoice.order.payment.providerCd === "XENDIT") {
+            const xenditSecretKey = sysConfig.find((item) => item.cd === "api_key");
+            const xenditService = new XenditService(xenditSecretKey.value);
+            const xendit = await xenditService.getPayment({
+                category: invoice.order.payment.category as PaymentsCategory,
+                id: invoice.xenditId,
+            });
+            if (invoice.order.payment.category === PaymentsCategory.EWALLET) {
+                if (invoice.order.payment.cd === "ID_OVO") {
+                    paymentData.mobileNumber = xendit.channel_properties.mobile_number;
+                } else if (invoice.order.payment.cd === "ID_JENIUSPAY") {
+                    paymentData.mobileNumber = xendit.channel_properties.cashtag;
+                } else {
+                    paymentData.checkoutUrl =
+                        xendit.actions.mobile_deeplink_checkout_url ||
+                        xendit.actions.mobile_web_checkout_url ||
+                        xendit.actions.desktop_web_checkout_url;
+                    paymentData.qrString = xendit.actions.qr_checkout_string;
+                }
+            } else if (
+                invoice.order.payment.category === PaymentsCategory.VIRTUAL_ACCOUNT ||
+                invoice.order.payment.category === PaymentsCategory.RETAIL
+            ) {
+                paymentData.paymentCode = xendit.account_number || xendit.payment_code;
+            } else if (invoice.order.payment.category === PaymentsCategory.QRIS) {
+                paymentData.qrString = xendit.qr_string;
             } else {
-                paymentData.checkoutUrl =
-                    xendit.actions.mobile_deeplink_checkout_url ||
-                    xendit.actions.mobile_web_checkout_url ||
-                    xendit.actions.desktop_web_checkout_url;
-                paymentData.qrString = xendit.actions.qr_checkout_string;
+                throw new BusinessError("Payment Category is not valid", ErrorType.Internal);
             }
-        } else if (
-            invoice.order.payment.category === PaymentsCategory.VIRTUAL_ACCOUNT ||
-            invoice.order.payment.category === PaymentsCategory.RETAIL
-        ) {
-            paymentData.paymentCode = xendit.account_number || xendit.payment_code;
-        } else if (invoice.order.payment.category === PaymentsCategory.QRIS) {
-            paymentData.qrString = xendit.qr_string;
-        } else {
-            throw new BusinessError("Payment Category is not valid", ErrorType.Internal);
-        }
-    } else if (invoice.order.payment.providerCd === "TOKOPAY") {
-        const tokopayMerchantID = sysConfig.find((item) => item.cd === "tokopay_merchant_id");
-        const tokopaySecretKey = sysConfig.find((item) => item.cd === "tokopay_secret_key");
-        const tokopayService = new TokopayService({
-            merchantID: tokopayMerchantID.value,
-            secretKey: tokopaySecretKey.value,
-        });
+        } else if (invoice.order.payment.providerCd === "TOKOPAY") {
+            const tokopayMerchantID = sysConfig.find((item) => item.cd === "tokopay_merchant_id");
+            const tokopaySecretKey = sysConfig.find((item) => item.cd === "tokopay_secret_key");
+            const tokopayService = new TokopayService({
+                merchantID: tokopayMerchantID.value,
+                secretKey: tokopaySecretKey.value,
+            });
 
-        const order = await tokopayService.getInvoice({
-            invoiceId: invoice.id,
-            paymentCode: invoice.order.payment.cd,
-            totalAmt: invoice.order.totalAmt,
-        });
+            const order = await tokopayService.getInvoice({
+                invoiceId: invoice.id,
+                paymentCode: invoice.order.payment.cd,
+                totalAmt: invoice.order.totalAmt,
+            });
 
-        console.log(order);
+            console.log(order);
 
-        if (invoice.order.payment.category === PaymentsCategory.PULSA) {
-            paymentData.checkoutUrl = order.data.checkout_url;
-        } else if (invoice.order.payment.category === PaymentsCategory.RETAIL) {
-            paymentData.paymentCode = order.data.nomor_va;
-        } else if (invoice.order.payment.category === PaymentsCategory.VIRTUAL_ACCOUNT) {
-            paymentData.paymentCode = order.data.nomor_va;
-        } else if (invoice.order.payment.category === PaymentsCategory.QRIS) {
-            paymentData.qrString = order.data.qr_string;
-        } else if (invoice.order.payment.category === PaymentsCategory.EWALLET) {
-            paymentData.checkoutUrl = order.data.checkout_url;
+            if (invoice.order.payment.category === PaymentsCategory.PULSA) {
+                paymentData.checkoutUrl = order.data.checkout_url;
+            } else if (invoice.order.payment.category === PaymentsCategory.RETAIL) {
+                paymentData.paymentCode = order.data.nomor_va;
+            } else if (invoice.order.payment.category === PaymentsCategory.VIRTUAL_ACCOUNT) {
+                paymentData.paymentCode = order.data.nomor_va;
+            } else if (invoice.order.payment.category === PaymentsCategory.QRIS) {
+                paymentData.qrString = order.data.qr_string;
+            } else if (invoice.order.payment.category === PaymentsCategory.EWALLET) {
+                paymentData.checkoutUrl = order.data.checkout_url;
+            }
+        } else if (invoice.order.payment.providerCd === "MIDTRANS") {
+            const midtransService = new MidtransService();
+            let trx;
+            const dataFromRedis = ["qris", "shopeepay", "gopay"];
+            if (!dataFromRedis.includes(invoice.order.payment.cd)) {
+                trx = await midtransService.getTransactionStatus(invoice.id);
+            }
+
+            const paymentCode = ["bca", "bni", "bri", "cimb", "permata", "indomaret", "alfamart"];
+            const ewalletGroup = ["shopeepay", "gopay"];
+            if (paymentCode.includes(invoice.order.payment.cd)) {
+                paymentData.paymentCode =
+                    trx?.payment_code || trx?.permata_va_number || trx.va_numbers[0]?.va_number || "";
+            } else if (invoice.order.payment.cd === "mandiri") {
+                paymentData.paymentCode = `${trx?.biller_code || ""} ${trx?.bill_key || ""}`;
+            } else if (invoice.order.payment.cd === "qris") {
+                const redisService = new RedisService();
+                const data = await redisService.get(`qr:payment:${invoice.id}`);
+                paymentData.qrString = data || "";
+            } else if (ewalletGroup.includes(invoice.order.payment.cd)) {
+                const redisService = new RedisService();
+                const data = await redisService.get(`qr:payment:${invoice.id}`);
+                paymentData.checkoutUrl = data || "";
+            }
         }
     }
 
