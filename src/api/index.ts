@@ -6,6 +6,7 @@ import {
     authReseller,
     authWebhookDigiflazz,
     authWebhookLapakgaming,
+    authWebhookMidtrans,
     authWebhookTokopay,
     authWehbookAPIGames,
     authWehbookInternal,
@@ -180,6 +181,7 @@ import { getUserBalance } from "./GET/getUserBalance";
 import { postOrderDigiflazzSeller } from "./webhook/digiflazz/sellerDigiflazz";
 import { dropdownProductCategoryPagination } from "./admin/maintenanceProductCategory/getDropdownProductCategory";
 import { dropdownGameCategory } from "./admin/maintenanceGameCategory/dropdownGameCategory";
+import { webhookMidtrans } from "./webhook/midtrans";
 // import { getWhatsappStatus } from "./admin/maintenanceConfiguration/getWhatsappStatus";
 
 let router = Router();
@@ -484,6 +486,9 @@ const apisWebhook = [
 
     // TOKOPAY
     webhookTokopay,
+
+    // MIDTRANS
+    webhookMidtrans,
 ];
 
 for (const api of apisWebhook) {
@@ -514,6 +519,8 @@ for (const api of apisWebhook) {
         authorization = authDigiflazzOrder;
     } else if (auth === APIAuth.WEBHOOK_TOKOPAY) {
         authorization = authWebhookTokopay;
+    } else if (auth === APIAuth.WEBHOOK_MIDTRANS) {
+        authorization = authWebhookMidtrans;
     }
 
     const main = (req: Request, res: Response, next: NextFunction) =>

@@ -134,18 +134,16 @@ const main: RequestHandler = async (req, res) => {
             value: game.provider,
         });
 
-        console.log(productProvider?.dataValues);
-
         if (process.env.NODE_ENV.toLowerCase() === "development" || !process.env.NODE_ENV) {
-            // await orderService.updateBy({
-            //     by: "id",
-            //     value: order.id,
-            //     data: {
-            //         status: OrderStatuses.SUCCESS,
-            //     },
-            // });
+            await orderService.updateBy({
+                by: "id",
+                value: order.id,
+                data: {
+                    status: OrderStatuses.SUCCESS,
+                },
+            });
 
-            // return;
+            return;
             const customerService = new CustomerService();
             const customer = await customerService.model.findOne({
                 where: {

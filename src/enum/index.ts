@@ -166,6 +166,7 @@ export enum APIAuth {
     WEBHOOK_LAPAKGAMING = "webhook-lapakgaming",
     WEBHOOK_TOKOPAY = "webhook-tokopay",
     WEBHOOK_INTERNAL = "webhook-internal",
+    WEBHOOK_MIDTRANS = "webhook-midtrans",
     DIGIFLAZZ_SELLER = "digiflazz-order",
 }
 

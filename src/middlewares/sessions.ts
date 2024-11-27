@@ -267,6 +267,21 @@ export const authWebhookTokopay: RequestHandler = async (req, res, next) => {
     }
 };
 
+export const authWebhookMidtrans: RequestHandler = async (req, res, next) => {
+    const config = new Config();
+    const hash = crypto
+        .createHash("sha512")
+        .update(req.body.order_id + req.body.status_code + req.body.gross_amount + config.midtransServerKey)
+        .digest("hex");
+
+    if (req.body.signature_key === hash) {
+        next();
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+};
+
 export const authDigiflazzOrder: RequestHandler = async (req, res, next) => {
     const sysConfigService = new SysConfigService();
     const sysConfig = await sysConfigService.model.findAll({
