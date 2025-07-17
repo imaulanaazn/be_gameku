@@ -7,14 +7,14 @@ import { InvoiceService } from "@serviceInternal/invoice.service";
 import { CustomerEntity, OrderEntity } from "@entity/index";
 import { BusinessError } from "@helper/handleError";
 
-const path = "/v1/webhook/midtrans";
+const path = "/v1/webhook/manual";
 const method = APIMethod.POST;
-const auth = APIAuth.WEBHOOK_MIDTRANS;
+const auth = APIAuth.WEBHOOK_MANUAL;
 
 const main: RequestHandler = async (req, res) => {
   const body = req.body;
   console.log(
-    `WEBHOOK ${body.payment_type} ${body.transaction_status} diterima [${body.order_id}]`
+    `WEBHOOK manual ${body.transaction_status} diterima [${body.order_id}]`
   );
 
   const config = new Config();
@@ -45,13 +45,20 @@ const main: RequestHandler = async (req, res) => {
     );
   }
 
-  res.send({ status: true });
-
   if (
     body.transaction_status === "settlement" &&
     invoice.status !== InvoiceStatuses.PAID
   ) {
     console.log("meow");
+
+    await invoiceService.updateBy({
+      by: "id",
+      value: invoice.id,
+      data: {
+        status: InvoiceStatuses.PAID,
+      },
+    });
+
     const res = await fetch(
       `http://localhost:${config.port}/api/v1/gameku/process-order-success`,
       {
@@ -69,12 +76,12 @@ const main: RequestHandler = async (req, res) => {
     );
 
     console.log(await res.text());
-
-    return;
   }
+
+  return res.send({ status: true });
 };
 
-export const webhookMidtrans: IApiRouter = {
+export const webhookManual: IApiRouter = {
   path,
   method,
   main,

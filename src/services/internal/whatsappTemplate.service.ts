@@ -1,9 +1,9 @@
-import { MainService } from "./main.service";
-import { WhatsappTemplateDto } from "src/dtos/index";
-import { WhatsappTemplateEntity } from "@entity/index";
+// import { MainService } from "./main.service";
+// import { WhatsappTemplateDto } from "src/dtos/index";
+// import { WhatsappTemplateEntity } from "@entity/index";
 
-export class WhatsappTemplateService extends MainService<WhatsappTemplateEntity, WhatsappTemplateDto> {
-    constructor() {
-        super(WhatsappTemplateEntity);
-    }
-}
+// export class WhatsappTemplateService extends MainService<WhatsappTemplateEntity, WhatsappTemplateDto> {
+//     constructor() {
+//         super(WhatsappTemplateEntity);
+//     }
+// }

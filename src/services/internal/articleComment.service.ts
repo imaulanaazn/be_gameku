@@ -1,9 +1,9 @@
-import { MainService } from "./main.service";
-import { ArticleCommentDto } from "src/dtos/index";
-import { ArticleCommentEntity } from "@entity/index";
+// import { MainService } from "./main.service";
+// import { ArticleCommentDto } from "src/dtos/index";
+// import { ArticleCommentEntity } from "@entity/index";
 
-export class ArticleCommentService extends MainService<ArticleCommentEntity, ArticleCommentDto> {
-    constructor() {
-        super(ArticleCommentEntity);
-    }
-}
+// export class ArticleCommentService extends MainService<ArticleCommentEntity, ArticleCommentDto> {
+//     constructor() {
+//         super(ArticleCommentEntity);
+//     }
+// }
