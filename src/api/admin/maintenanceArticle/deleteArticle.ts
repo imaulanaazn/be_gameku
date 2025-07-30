@@ -82,7 +82,7 @@
 
 //     for (const file of minioFiles) {
 //         di.minioService.deleteFile({
-//             bucketName: "gasskeuntopup",
+//             bucketName: "topupgameku",
 //             filename: file,
 //         });
 //     }

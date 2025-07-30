@@ -8,13 +8,13 @@ const method = APIMethod.DELETE;
 const auth = APIAuth.USER;
 
 const main: RequestHandler = async (req, res) => {
-    res.clearCookie("session_gasskeun_user");
-    return res.sendStatus(200);
+  res.clearCookie("session_gameku_user");
+  return res.sendStatus(200);
 };
 
 export const deleteLogout: IApiRouter = {
-    path,
-    method,
-    main,
-    auth,
+  path,
+  method,
+  main,
+  auth,
 };

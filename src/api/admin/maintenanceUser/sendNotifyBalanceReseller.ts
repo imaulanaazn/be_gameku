@@ -54,7 +54,7 @@
 //     const paymentMethodService = new PaymentMethodService();
 //     const payment = await paymentMethodService.findOneBy({
 //         column: "cd",
-//         value: "GASSKEUN",
+//         value: "GAMEKU",
 //     });
 
 //     const orderService = new OrderService();

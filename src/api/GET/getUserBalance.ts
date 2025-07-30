@@ -13,49 +13,53 @@ const method = APIMethod.GET;
 const auth = APIAuth.USER;
 
 const main: RequestHandler = async (req, res) => {
-    const session = req.user.data;
-    const fundService = new FundService();
-    const orderService = new OrderService();
-    const paymentMethodService = new PaymentMethodService();
+  const session = req.user.data;
+  const fundService = new FundService();
+  const orderService = new OrderService();
+  const paymentMethodService = new PaymentMethodService();
 
-    const payment = await paymentMethodService.findOneBy({
-        column: "cd",
-        value: "GASSKEUN_USER",
+  const payment = await paymentMethodService.findOneBy({
+    column: "cd",
+    value: "GAMEKU_USER",
+  });
+
+  let fund = await fundService.findOneBy({
+    column: "customerId",
+    value: session.id,
+  });
+
+  if (!fund) {
+    await fundService.create({
+      id: uuid(),
+      customerId: session.id,
+      name: "Gameku Coin",
+      value: 0,
     });
 
-    let fund = await fundService.findOneBy({
-        column: "customerId",
-        value: session.id,
+    fund = await fundService.findOneBy({
+      column: "customerId",
+      value: session.id,
     });
+  }
 
-    if (!fund) {
-        await fundService.create({
-            id: uuid(),
-            customerId: session.id,
-            name: "Gasskeun Coin",
-            value: 0,
-        });
-
-        fund = await fundService.findOneBy({
-            column: "customerId",
-            value: session.id,
-        });
-    }
-
-    const orders = await orderService.model.sum("totalAmt", {
-        where: {
-            // type: [OrderType.TOPUP, null],
-            status: [OrderStatuses.PENDING_ORDER, OrderStatuses.PROCESSING, OrderStatuses.SUCCESS],
-            customerId: session.id,
-            paymentMethodId: payment.id,
-        },
-    });
-    return res.send({ ...fund.dataValues, value: fund.value - orders });
+  const orders = await orderService.model.sum("totalAmt", {
+    where: {
+      // type: [OrderType.TOPUP, null],
+      status: [
+        OrderStatuses.PENDING_ORDER,
+        OrderStatuses.PROCESSING,
+        OrderStatuses.SUCCESS,
+      ],
+      customerId: session.id,
+      paymentMethodId: payment.id,
+    },
+  });
+  return res.send({ ...fund.dataValues, value: fund.value - orders });
 };
 
 export const getUserBalance: IApiRouter = {
-    path,
-    method,
-    main,
-    auth,
+  path,
+  method,
+  main,
+  auth,
 };

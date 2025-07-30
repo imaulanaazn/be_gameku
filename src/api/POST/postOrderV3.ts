@@ -163,13 +163,13 @@ const main: RequestHandler = async (req, res) => {
 
   let customer;
 
-  const session = req.cookies.session_gasskeun_user;
+  const session = req.cookies.session_gameku_user;
   if (session) {
     const encryptService = new EncryptionService(EncryptJoseType.USER);
     try {
       const decode = await encryptService.decryptData<CustomerDto>(session);
       if (decode.isExpired) {
-        res.clearCookie("session_gasskeun_user");
+        res.clearCookie("session_gameku_user");
         return res.status(ErrorStatusCode.Authorization).send({
           errorCode: ErrorType.Authorization,
           message: "Cannot access to this resource",
@@ -178,7 +178,7 @@ const main: RequestHandler = async (req, res) => {
       customer = decode.data;
     } catch (error) {
       console.error(error);
-      res.clearCookie("session_gasskeun_user");
+      res.clearCookie("session_gameku_user");
       return res.status(ErrorStatusCode.Authorization).send({
         errorCode: ErrorType.Authorization,
         message: "Cannot access to this resource",
@@ -214,7 +214,7 @@ const main: RequestHandler = async (req, res) => {
       deleted: false,
       isActive: true,
       cd: {
-        [Op.notIn]: ["GASSKEUN", "GASSKEUN_DEPOSIT"],
+        [Op.notIn]: ["GAMEKU", "GAMEKU_DEPOSIT"],
       },
     },
   });
@@ -239,19 +239,19 @@ const main: RequestHandler = async (req, res) => {
 
   if (payment.cd === "GAMEKU_CASH" && !session) {
     throw new BusinessError(
-      "Metode Pembayaran Gasskeun Coin hanya bisa digunakan ketika login",
+      "Metode Pembayaran Gameku Coin hanya bisa digunakan ketika login",
       ErrorType.Authorization
     );
   }
 
   let balance;
   if (payment.cd === "GAMEKU_CASH") {
-    const cookie = req.cookies.session_gasskeun_user;
+    const cookie = req.cookies.session_gameku_user;
     const reqbalance = await fetch(
       `http://localhost:${config.port}/api/v1/user/balance`,
       {
         headers: {
-          cookie: "session_gasskeun_user=" + cookie,
+          cookie: "session_gameku_user=" + cookie,
         },
       }
     );
@@ -594,8 +594,8 @@ const main: RequestHandler = async (req, res) => {
   //     // totalAmt: amount,
   //     totalAmt: amount,
   //     customer: {
-  //       name: customer.name || "Gasskeun Topup",
-  //       email: customer.email || "guess@gasskeuntopup.com",
+  //       name: customer.name || "Gameku Topup",
+  //       email: customer.email || "guess@topupgameku.com",
   //       mobileNumber: customer.mobileNumber,
   //     },
   //     expiredAt: expiredAt.getTime() / 1000,
@@ -791,7 +791,7 @@ const main: RequestHandler = async (req, res) => {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            "x-gasskeun-key": config.xApiKeyProcessOrder,
+            "x-gameku-key": config.xApiKeyProcessOrder,
           },
           body: JSON.stringify({
             customerId: customer.id,

@@ -19,7 +19,7 @@ import { APIAuth, APIMethod } from "@enum/index";
 // import { sendResponseOrderDigiflazz } from "../digiflazz/sendResponseOrder";
 import sequelize from "../../../database/index";
 
-const path = "/v1/gasskeun/process-voucher-internal";
+const path = "/v1/gameku/process-voucher-internal";
 const method = APIMethod.POST;
 const auth = APIAuth.WEBHOOK_INTERNAL;
 const schemaValidation: Validation[] = [

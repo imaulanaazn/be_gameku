@@ -20,7 +20,7 @@
 
 //     const payment = await paymentMethodService.findOneBy({
 //         column: "cd",
-//         value: "GASSKEUN",
+//         value: "GAMEKU",
 //     });
 
 //     let fund = await fundService.findOneBy({
@@ -32,7 +32,7 @@
 //         await fundService.create({
 //             id: uuid(),
 //             customerId: session.id,
-//             name: "Gasskeun Coin",
+//             name: "Gameku Coin",
 //             value: 0,
 //         });
 

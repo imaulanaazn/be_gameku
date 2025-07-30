@@ -229,7 +229,7 @@
 //     const paymentMethodService = new PaymentMethodService();
 //     const payment = await paymentMethodService.model.findOne({
 //         where: {
-//             cd: "GASSKEUN",
+//             cd: "GAMEKU",
 //         },
 //     });
 
@@ -357,11 +357,11 @@
 //     }
 
 //     const config = new Config();
-//     await fetch(`http://localhost:${config.port}/api/v1/gasskeun/process-voucher-internal`, {
+//     await fetch(`http://localhost:${config.port}/api/v1/gameku/process-voucher-internal`, {
 //         method: "POST",
 //         headers: {
 //             "content-type": "application/json",
-//             "x-gasskeun-key": config.xApiKeyGameVoucher,
+//             "x-gameku-key": config.xApiKeyGameVoucher,
 //         },
 //         body: JSON.stringify({
 //             customerId,

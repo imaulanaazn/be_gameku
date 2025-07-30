@@ -140,13 +140,13 @@
 //     const newContentFilename = `content-${formatName}.html`;
 //     const newContentPreviewFilename = `content-preview-${formatName}.html`;
 //     const uploadNewContent = di.minioService.uploadFile({
-//         bucketName: "gasskeuntopup",
+//         bucketName: "topupgameku",
 //         filename: newContentFilename,
 //         folder: "article",
 //         fileBuffer: Buffer.from(body.content, "utf-8"),
 //     });
 //     const uploadNewContentPreview = di.minioService.uploadFile({
-//         bucketName: "gasskeuntopup",
+//         bucketName: "topupgameku",
 //         filename: newContentPreviewFilename,
 //         folder: "article",
 //         fileBuffer: Buffer.from(body.contentPreview, "utf-8"),
@@ -171,7 +171,7 @@
 //         const articleImageBefore = article.images.find((item) => item.type === "banner");
 //         if (articleImageBefore) {
 //             await di.minioService.deleteFile({
-//                 bucketName: "gasskeuntopup",
+//                 bucketName: "topupgameku",
 //                 filename: articleImageBefore.path,
 //             });
 
@@ -191,7 +191,7 @@
 //             });
 //         }
 //         await di.minioService.uploadFile({
-//             bucketName: "gasskeuntopup",
+//             bucketName: "topupgameku",
 //             filename: req.file.filename,
 //             folder: "article-image",
 //             filePath: req.file.path,
@@ -235,7 +235,7 @@
 //     const deletedMinioFilename = [article.content, article.contentPreview];
 //     const deleteBulkMinioFile = deletedMinioFilename.map((item) => {
 //         di.minioService.deleteFile({
-//             bucketName: "gasskeuntopup",
+//             bucketName: "topupgameku",
 //             filename: item,
 //         });
 //     });

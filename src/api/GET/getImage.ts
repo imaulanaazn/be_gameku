@@ -16,45 +16,50 @@ const method = APIMethod.GET;
 const auth = APIAuth.GUEST;
 
 const schemaValidation = Joi.object({
-    folder: Joi.string().required(),
-    filename: Joi.string().required(),
+  folder: Joi.string().required(),
+  filename: Joi.string().required(),
 });
 
 const main: RequestHandler = async (req, res) => {
-    const param = new ValidatorV2(req, res).process<{
-        folder: string;
-        filename: string;
-    }>(schemaValidation, ValidatorType.PARAMS);
-    const di = req.di;
-    const { folder, filename } = param;
+  const param = new ValidatorV2(req, res).process<{
+    folder: string;
+    filename: string;
+  }>(schemaValidation, ValidatorType.PARAMS);
+  const di = req.di;
+  const { folder, filename } = param;
 
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    const mimeType = mime.lookup(filename);
-    if (!mimeType || !allowedMimeTypes.includes(mimeType)) {
-        res.status(415).send({
-            message: "Unsupported Media Type",
-        });
-        return;
-    }
-
-    const getImage = await di.minioService.getFile({
-        bucketName: "gasskeuntopup",
-        filename: `${folder}/${filename}`,
-        result: "buffer",
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+  ];
+  const mimeType = mime.lookup(filename);
+  if (!mimeType || !allowedMimeTypes.includes(mimeType)) {
+    res.status(415).send({
+      message: "Unsupported Media Type",
     });
-
-    if (typeof getImage === "string") {
-        throw new BusinessError(getImage, ErrorType.NotFound);
-    }
-
-    res.setHeader("Content-Type", mimeType);
-    res.send(getImage);
     return;
+  }
+
+  const getImage = await di.minioService.getFile({
+    bucketName: "topupgameku",
+    filename: `${folder}/${filename}`,
+    result: "buffer",
+  });
+
+  if (typeof getImage === "string") {
+    throw new BusinessError(getImage, ErrorType.NotFound);
+  }
+
+  res.setHeader("Content-Type", mimeType);
+  res.send(getImage);
+  return;
 };
 
 export const getImage: IApiRouter = {
-    path,
-    method,
-    main,
-    auth,
+  path,
+  method,
+  main,
+  auth,
 };

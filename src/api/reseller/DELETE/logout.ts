@@ -8,7 +8,7 @@
 
 // const main: RequestHandler = async (req, res) => {
 //     const reseller = req.reseller.data;
-//     res.clearCookie("session_gasskeun_reseller");
+//     res.clearCookie("session_gameku_reseller");
 //     return res.sendStatus(200);
 // };
 

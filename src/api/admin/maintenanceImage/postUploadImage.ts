@@ -11,47 +11,53 @@ const method = APIMethod.POST;
 const auth = APIAuth.ALL_ADMIN;
 
 const schemaValidation = Joi.object({
-    folder: Joi.string().required(),
+  folder: Joi.string().required(),
 });
 
 const main: RequestHandler = async (req, res) => {
-    const body = new ValidatorV2(req, res).process<{
-        folder: string;
-    }>(schemaValidation, ValidatorType.BODY);
-    const di = req.di;
-    const file = req.file;
-    if (!file) {
-        throw new BusinessError("Tidak ada gambar yang di unggah", ErrorType.Validation);
-    }
+  const body = new ValidatorV2(req, res).process<{
+    folder: string;
+  }>(schemaValidation, ValidatorType.BODY);
+  const di = req.di;
+  const file = req.file;
+  if (!file) {
+    throw new BusinessError(
+      "Tidak ada gambar yang di unggah",
+      ErrorType.Validation
+    );
+  }
 
-    const mimePattern = /^image\/(jpeg|jpg|png|gif)$/;
-    if (!mimePattern.test(file.mimetype)) {
-        throw new BusinessError("Hanya gambar yang bisa di unggah", ErrorType.BadRequest);
-    }
+  const mimePattern = /^image\/(jpeg|jpg|png|gif)$/;
+  if (!mimePattern.test(file.mimetype)) {
+    throw new BusinessError(
+      "Hanya gambar yang bisa di unggah",
+      ErrorType.BadRequest
+    );
+  }
 
-    await di.minioService.uploadFile({
-        bucketName: "gasskeuntopup",
-        filename: req.file.filename,
-        folder: body.folder,
-        filePath: req.file.path,
-    });
+  await di.minioService.uploadFile({
+    bucketName: "topupgameku",
+    filename: req.file.filename,
+    folder: body.folder,
+    filePath: req.file.path,
+  });
 
-    const baseImageUrl = di.config.imageUrl;
-    const imgUrl = `${baseImageUrl}/${body.folder}/${req.file.filename}`;
+  const baseImageUrl = di.config.imageUrl;
+  const imgUrl = `${baseImageUrl}/${body.folder}/${req.file.filename}`;
 
-    res.send({
-        url: imgUrl,
-    });
+  res.send({
+    url: imgUrl,
+  });
 };
 
 export const postUploadImage: IApiRouter = {
-    path,
-    method,
-    main,
-    auth,
-    isUploadImage: true,
-    dataImg: {
-        field: "image",
-        single: true,
-    },
+  path,
+  method,
+  main,
+  auth,
+  isUploadImage: true,
+  dataImg: {
+    field: "image",
+    single: true,
+  },
 };

@@ -90,13 +90,13 @@
 //     const contentFilename = `content-${formatName}.html`;
 //     const contentPreviewFilename = `content-preview-${formatName}.html`;
 //     const uploadContent = di.minioService.uploadFile({
-//         bucketName: "gasskeuntopup",
+//         bucketName: "topupgameku",
 //         filename: contentFilename,
 //         folder: "article",
 //         fileBuffer: Buffer.from(body.content, "utf-8"),
 //     });
 //     const uploadContentPreview = di.minioService.uploadFile({
-//         bucketName: "gasskeuntopup",
+//         bucketName: "topupgameku",
 //         filename: contentPreviewFilename,
 //         folder: "article",
 //         fileBuffer: Buffer.from(body.contentPreview, "utf-8"),
@@ -119,7 +119,7 @@
 
 //     if (req?.file?.fieldname === "banner") {
 //         await di.minioService.uploadFile({
-//             bucketName: "gasskeuntopup",
+//             bucketName: "topupgameku",
 //             filename: req.file.filename,
 //             folder: "article-image",
 //             filePath: req.file.path,

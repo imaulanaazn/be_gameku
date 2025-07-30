@@ -253,10 +253,12 @@ const main: RequestHandler = async (req, res) => {
           "digibank_va",
           "bsi_va",
           "mandiri_va",
+          "atm_bersama_va",
           "seabank_va",
           "qris_url",
-          "shopeepay_url",
-          "gopay_url",
+          "shopeepay_va",
+          "gopay_va",
+          "ovo_va",
           "dana_url",
         ],
         operator: "in",
@@ -273,22 +275,26 @@ const main: RequestHandler = async (req, res) => {
         "digibank",
         "bsi",
         "mandiri",
+        "atm_bersama",
         "seabank",
+        "shopeepay",
+        "gopay",
+        "ovo",
         // "indomaret",
         // "alfamart",
       ];
-      const ewalletGroup = ["shopeepay", "gopay", "dana"];
+      const ewalletGroup = ["dana"];
 
       if (paymentCode.includes(invoice.order.payment.cd)) {
         const vaNumber = paymentAddress.find((item) =>
           item.cd.includes(invoice.order.payment.cd)
         );
         paymentData.paymentCode = vaNumber.value;
-      } else if (invoice.order.payment.cd === "mandiri") {
-        const vaNumber = paymentAddress.find(
-          (item) => item.cd === "mandiri_va"
-        );
-        paymentData.paymentCode = vaNumber.value;
+        // } else if (invoice.order.payment.cd === "mandiri") {
+        //   const vaNumber = paymentAddress.find(
+        //     (item) => item.cd === "mandiri_va"
+        //   );
+        //   paymentData.paymentCode = vaNumber.value;
       } else if (invoice.order.payment.cd === "qris") {
         const checkoutUrl = paymentAddress.find(
           (item) => item.cd === "qris_url"
@@ -305,6 +311,7 @@ const main: RequestHandler = async (req, res) => {
 
   res.send({
     order: {
+      id: invoice.order.id,
       invoiceId: invoice.id,
       totalAmt: invoice.order.totalAmt,
       feeAmt: invoice.order.feeAmt,
@@ -332,7 +339,7 @@ const main: RequestHandler = async (req, res) => {
       expiredAt: invoice.expiredAt,
     },
     product: {
-      name: invoice.order.orderDetail?.product?.name || "Topup Gasskeun Coin",
+      name: invoice.order.orderDetail?.product?.name || "Topup Gameku Coin",
       logoDenom:
         invoice.order.orderDetail?.product?.logoDenom ||
         invoice.order.orderDetail?.product?.game?.logoDenom ||
@@ -340,7 +347,7 @@ const main: RequestHandler = async (req, res) => {
         logo.value,
     },
     game: {
-      name: invoice.order.orderDetail.product?.game?.name || "Gasskeun Coin",
+      name: invoice.order.orderDetail.product?.game?.name || "Gameku Coin",
       logoUrl: invoice.order.orderDetail.product?.game?.logoUrl || logo.value,
     },
   });

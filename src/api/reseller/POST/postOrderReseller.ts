@@ -150,16 +150,16 @@
 //         throw new BusinessError("Cashtag harus di isi jika memilih pembayaran via Jenius pay", ErrorType.Validation);
 //     }
 
-//     if (payment.cd !== "GASSKEUN") {
+//     if (payment.cd !== "GAMEKU") {
 //         throw new BusinessError("Metode Pembayaran tidak valid", ErrorType.BadRequest);
 //     }
 
 //     let balance;
-//     if (payment.cd === "GASSKEUN") {
-//         const cookie = req.cookies.session_gasskeun_reseller;
+//     if (payment.cd === "GAMEKU") {
+//         const cookie = req.cookies.session_gameku_reseller;
 //         const reqbalance = await fetch(`http://localhost:${config.port}/api/v1/reseller/balance`, {
 //             headers: {
-//                 cookie: "session_gasskeun_reseller=" + cookie,
+//                 cookie: "session_gameku_reseller=" + cookie,
 //             },
 //         });
 
@@ -209,10 +209,10 @@
 //     let discount = 0;
 //     let voucher: PromotionEntity;
 //     if (body.promoCode) {
-//         const cookie = req.cookies.session_gasskeun_reseller;
+//         const cookie = req.cookies.session_gameku_reseller;
 //         const reqCheckPromotion = await fetch(`http://localhost:${config.port}/api/v1/reseller/check-promotion`, {
 //             headers: {
-//                 cookie: "session_gasskeun_reseller=" + cookie,
+//                 cookie: "session_gameku_reseller=" + cookie,
 //                 "content-type": "application/json",
 //             },
 //             method: "POST",
@@ -257,7 +257,7 @@
 //         );
 //     }
 
-//     if (payment.cd === "GASSKEUN" && amount > balance.value) {
+//     if (payment.cd === "GAMEKU" && amount > balance.value) {
 //         throw new BusinessError("Saldo kamu tidak mencukupi untuk melakukan transaksi", ErrorType.BadRequest);
 //     }
 
@@ -488,7 +488,7 @@
 //                 method: "POST",
 //                 headers: {
 //                     "content-type": "application/json",
-//                     "x-gasskeun-key": config.xApiKeyProcessOrder,
+//                     "x-gameku-key": config.xApiKeyProcessOrder,
 //                 },
 //                 body: JSON.stringify({
 //                     customerId: customer.id,
@@ -543,7 +543,7 @@
 //         );
 //     }
 
-//     if (payment.cd !== "GASSKEUN") {
+//     if (payment.cd !== "GAMEKU") {
 //         const whatsappTemplateService = new WhatsappTemplateService();
 //         const template = await whatsappTemplateService.findOneBy({
 //             column: "cd",

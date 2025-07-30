@@ -46,7 +46,7 @@
 //         7,
 //         "day",
 //     );
-//     res.cookie("session_gasskeun_reseller", encrypt, {
+//     res.cookie("session_gameku_reseller", encrypt, {
 //         httpOnly: true,
 //         maxAge: config.maxAgeLogin * 1000,
 //         // domain: config.domainReseller,

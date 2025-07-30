@@ -80,7 +80,7 @@ const main: RequestHandler = async (req, res) => {
     where: {
       id: body.paymentMethodId,
       cd: {
-        [Op.notIn]: ["GASSKEUN", "GASSKEUN_DEPOSIT", "GASSKEUN_USER"],
+        [Op.notIn]: ["GAMEKU", "GAMEKU_DEPOSIT", "GAMEKU_USER"],
       },
     },
   });
@@ -151,8 +151,8 @@ const main: RequestHandler = async (req, res) => {
     discAmt: 0,
     status: OrderStatuses.PENDING_PAYMENT,
     promoCd: null,
-    game: "Gasskeun Coin",
-    productName: "Topup Gasskeun Coin",
+    game: "Gameku Coin",
+    productName: "Topup Gameku Coin",
     paymentMethod: payment.name,
     amtBuy: 0,
     type: OrderType.BUY,
@@ -198,15 +198,15 @@ const main: RequestHandler = async (req, res) => {
   //         // totalAmt: amount,
   //         totalAmt: amount,
   //         customer: {
-  //             name: customer.name || "Gasskeun Topup",
-  //             email: customer.email || "guess@gasskeuntopup.com",
+  //             name: customer.name || "Gameku Topup",
+  //             email: customer.email || "guess@topupgameku.com",
   //             mobileNumber: customer.mobileNumber,
   //         },
   //         expiredAt: expiredAt.getTime() / 1000,
   //         product: {
-  //             gameName: "Gasskeun Topup",
+  //             gameName: "Gameku Topup",
   //             code: "TOPUP",
-  //             name: "Gasskeun Coin",
+  //             name: "Gameku Coin",
   //             price: body.amount,
   //             gameImageUrl: "",
   //             quantity: 1,

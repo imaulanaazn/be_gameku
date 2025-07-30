@@ -2,7 +2,7 @@ export class Config {
   port = process.env.PORT || 3001;
   timezone = process.env.TZ;
   originCors = process.env.ORIGIN_CORS;
-  databaseName = process.env.DB_NAME || "jokikugasskeun";
+  databaseName = process.env.DB_NAME || "jokikugameku";
   databaseUsername = process.env.DB_USERNAME || "root";
   databasePassword = process.env.DB_PASSWORD || "P@ssw0rd";
   databaseHost = process.env.DB_HOST || "127.0.0.1";
@@ -28,7 +28,7 @@ export class Config {
   maxAgeGuest = parseInt(process.env.MAX_AGE_GUEST) || 60;
   maxAgeLogin = parseInt(process.env.MAX_AGE_LOGIN) || 60 * 60 * 24 * 3;
 
-  bucketName = process.env.BUCKET_NAME || "gasskeun-topup.appspot.com";
+  bucketName = process.env.BUCKET_NAME || "gameku-topup.appspot.com";
 
   expiredTimeOtp = parseInt(process.env.EXPIRED_TIME_OTP) || 10;
 
@@ -60,7 +60,7 @@ export class Config {
 
   minioUrl = process.env.MINIO_URL || "154.26.129.236";
   minioPort = parseInt(process.env.MINIO_PORT) || 9100;
-  minioUsername = process.env.MINIO_USERNAME || "gasskeuntopup";
+  minioUsername = process.env.MINIO_USERNAME || "topupgameku";
   minioPassword = process.env.MINIO_PASSWORD || "N0P@ssw0rd";
 
   imageUrl =

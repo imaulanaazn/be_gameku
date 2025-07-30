@@ -137,7 +137,7 @@ const main: RequestHandler = async (req, res) => {
   );
 
   io.emit("count:register");
-  res.cookie("session_gasskeun_user", encrypt, {
+  res.cookie("session_gameku_user", encrypt, {
     httpOnly: true,
     maxAge: config.maxAgeLogin * 1000,
     // domain: config.domainReseller,

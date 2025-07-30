@@ -92,7 +92,7 @@
 //             },
 //         });
 
-//         if (paymentMethod.cd !== "GASSKEUN_USER" && paymentMethod.cd !== "GASSKEUN" && !order.isGuest) {
+//         if (paymentMethod.cd !== "GAMEKU_USER" && paymentMethod.cd !== "GAMEKU" && !order.isGuest) {
 //             const fundService = new FundService();
 //             let fund = await fundService.findOneBy({
 //                 column: "customerId",
@@ -103,7 +103,7 @@
 //                 await fundService.create({
 //                     id: uuid(),
 //                     customerId: customer.id,
-//                     name: "Gasskeun Coin",
+//                     name: "Gameku Coin",
 //                     value: 0,
 //                 });
 

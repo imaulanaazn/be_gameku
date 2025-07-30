@@ -135,7 +135,7 @@
 //         }));
 
 //         const contentPreview = await di.minioService.getFile({
-//             bucketName: "gasskeuntopup",
+//             bucketName: "topupgameku",
 //             filename: article.contentPreview,
 //             result: "string",
 //         });

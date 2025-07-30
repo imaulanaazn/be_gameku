@@ -11,39 +11,39 @@ const method = APIMethod.DELETE;
 const auth = APIAuth.ALL_ADMIN;
 
 const schemaValidation = Joi.object({
-    folder: Joi.string().required(),
-    filename: Joi.string().required(),
+  folder: Joi.string().required(),
+  filename: Joi.string().required(),
 });
 
 const main: RequestHandler = async (req, res) => {
-    const param = new ValidatorV2(req, res).process<{
-        folder: string;
-        filename: string;
-    }>(schemaValidation, ValidatorType.PARAMS);
-    const di = req.di;
+  const param = new ValidatorV2(req, res).process<{
+    folder: string;
+    filename: string;
+  }>(schemaValidation, ValidatorType.PARAMS);
+  const di = req.di;
 
-    const { folder, filename } = param;
-    const getImage = await di.minioService.getFile({
-        bucketName: "gasskeuntopup",
-        filename: `${folder}/${filename}`,
-        result: "buffer",
-    });
+  const { folder, filename } = param;
+  const getImage = await di.minioService.getFile({
+    bucketName: "topupgameku",
+    filename: `${folder}/${filename}`,
+    result: "buffer",
+  });
 
-    if (typeof getImage === "string") {
-        throw new BusinessError(getImage, ErrorType.NotFound);
-    }
+  if (typeof getImage === "string") {
+    throw new BusinessError(getImage, ErrorType.NotFound);
+  }
 
-    await di.minioService.deleteFile({
-        filename: `${folder}/${filename}`,
-        bucketName: "gasskeuntopup",
-    });
+  await di.minioService.deleteFile({
+    filename: `${folder}/${filename}`,
+    bucketName: "topupgameku",
+  });
 
-    res.sendStatus(200);
+  res.sendStatus(200);
 };
 
 export const deleteImage: IApiRouter = {
-    path,
-    method,
-    main,
-    auth,
+  path,
+  method,
+  main,
+  auth,
 };

@@ -84,7 +84,7 @@ const main: RequestHandler = async (req, res) => {
       await fundService.create({
         id: uuid(),
         customerId: customer.id,
-        name: "Gasskeun Coin",
+        name: "Gameku Coin",
         value: orderDetail.amount,
       });
 

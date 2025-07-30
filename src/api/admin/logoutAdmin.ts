@@ -8,16 +8,16 @@ const method = APIMethod.DELETE;
 const auth = APIAuth.ALL_ADMIN;
 
 const main: RequestHandler = async (req, res) => {
-    res.clearCookie("session_gasskeun_admin", {
-        httpOnly: true,
-    });
+  res.clearCookie("session_gameku_admin", {
+    httpOnly: true,
+  });
 
-    return res.sendStatus(200);
+  return res.sendStatus(200);
 };
 
 export const deleteLogoutAdmin: IApiRouter = {
-    path,
-    method,
-    main,
-    auth,
+  path,
+  method,
+  main,
+  auth,
 };

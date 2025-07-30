@@ -139,12 +139,12 @@
 //             cd: invoice.order.payment.cd,
 //             logo: invoice.order.payment.logo,
 //             paymentGuide: invoice.order.payment.paymentGuide,
-//             ...(invoice.order.payment.cd === "GASSKEUN_DEPOSIT"
+//             ...(invoice.order.payment.cd === "GAMEKU_DEPOSIT"
 //                 ? { action: { paymentCode: rekeningNumber.value, name: rekeningName.value } }
 //                 : {}),
 //         },
 //         product: {
-//             name: invoice.order.orderDetail?.product?.name || "Topup Gasskeun Coin",
+//             name: invoice.order.orderDetail?.product?.name || "Topup Gameku Coin",
 //             logoDenom:
 //                 invoice.order.orderDetail?.product?.logoDenom ||
 //                 invoice.order.orderDetail?.product?.game?.logoDenom ||
@@ -152,7 +152,7 @@
 //                 logo.value,
 //         },
 //         game: {
-//             name: invoice.order.orderDetail.product?.game?.name || "Gasskeun Coin",
+//             name: invoice.order.orderDetail.product?.game?.name || "Gameku Coin",
 //             logoUrl: invoice.order.orderDetail.product?.game?.logoUrl || logo.value,
 //         },
 //     });

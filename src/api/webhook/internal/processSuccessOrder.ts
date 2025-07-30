@@ -158,7 +158,7 @@ const main: RequestHandler = async (req, res) => {
     //       await fundService.create({
     //         id: uuid(),
     //         customerId: customer.id,
-    //         name: "Gasskeun Coin",
+    //         name: "Gameku Coin",
     //         value: 0,
     //       });
 
@@ -281,7 +281,7 @@ const main: RequestHandler = async (req, res) => {
       //         },
       //       });
       //     } else {
-      //       const refundCd = ["GASSKEUN_USER", "GASSKEUN"];
+      //       const refundCd = ["GAMEKU_USER", "GAMEKU"];
 
       //       await orderService.updateBy({
       //         by: "id",

@@ -97,7 +97,7 @@
 //             method: "POST",
 //             headers: {
 //                 "content-type": "application/json",
-//                 "x-gasskeun-key": config.xApiKeyProcessOrder,
+//                 "x-gameku-key": config.xApiKeyProcessOrder,
 //             },
 //             body: JSON.stringify({
 //                 customerId: customer.id,

@@ -36,7 +36,7 @@
 //     const paymentMethodService = new PaymentMethodService();
 //     const payment = await paymentMethodService.model.findOne({
 //         where: {
-//             cd: "GASSKEUN_DEPOSIT",
+//             cd: "GAMEKU_DEPOSIT",
 //         },
 //     });
 
@@ -73,8 +73,8 @@
 //         discAmt: 0,
 //         status: OrderStatuses.PENDING_PAYMENT,
 //         promoCd: null,
-//         game: "Gasskeun",
-//         productName: "Topup Saldo Gasskeun",
+//         game: "Gameku",
+//         productName: "Topup Saldo Gameku",
 //         paymentMethod: payment.name,
 //         amtBuy: 0,
 //         type: OrderType.BUY,

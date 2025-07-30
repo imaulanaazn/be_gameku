@@ -180,7 +180,7 @@
 //             deleted: false,
 //             isActive: true,
 //             cd: {
-//                 [Op.notIn]: ["GASSKEUN", "GASSKEUN_DEPOSIT"],
+//                 [Op.notIn]: ["GAMEKU", "GAMEKU_DEPOSIT"],
 //             },
 //         },
 //     });
@@ -486,8 +486,8 @@
 //             // totalAmt: amount,
 //             totalAmt: amount,
 //             customer: {
-//                 name: customer.name || "Gasskeun Topup",
-//                 email: customer.email || "guess@gasskeuntopup.com",
+//                 name: customer.name || "Gameku Topup",
+//                 email: customer.email || "guess@topupgameku.com",
 //                 mobileNumber: customer.mobileNumber,
 //             },
 //             expiredAt: expiredAt.getTime() / 1000,

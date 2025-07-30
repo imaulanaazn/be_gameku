@@ -57,11 +57,11 @@ export const createSessions: RequestHandler = (req, res, next) => {
 
 export const authLoginUser: RequestHandler = async (req, res, next) => {
   const encryptService = new EncryptionService(EncryptJoseType.USER);
-  const session = req.cookies.session_gasskeun_user;
+  const session = req.cookies.session_gameku_user;
   try {
     const decode = await encryptService.decryptData<CustomerDto>(session);
     if (decode.isExpired) {
-      res.clearCookie("session_gasskeun_user");
+      res.clearCookie("session_gameku_user");
       return res.status(ErrorStatusCode.Authorization).send({
         errorCode: ErrorType.Authorization,
         message: "Cannot access to this resource",
@@ -73,7 +73,7 @@ export const authLoginUser: RequestHandler = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res.clearCookie("session_gasskeun_user");
+    res.clearCookie("session_gameku_user");
     return res.status(ErrorStatusCode.Authorization).send({
       errorCode: ErrorType.Authorization,
       message: "Cannot access to this resource",
@@ -93,7 +93,7 @@ export const authAdmin =
   (req: Request, res: Response, next: NextFunction) =>
   async (auth: APIAuth) => {
     const encryptService = new EncryptionService(EncryptJoseType.ADMIN);
-    const session = req.cookies.session_gasskeun_admin;
+    const session = req.cookies.session_gameku_admin;
     try {
       const decode = await encryptService.decryptData<DataEncryptAdmin>(
         session
@@ -103,7 +103,7 @@ export const authAdmin =
       const adminRoles = decode.data.roles;
       if (auth === APIAuth.ALL_ADMIN) {
         if (adminRoles.length === 0) {
-          res.clearCookie("session_gasskeun_admin");
+          res.clearCookie("session_gameku_admin");
           return res.status(ErrorStatusCode.Authorization).send({
             errorCode: ErrorType.Authorization,
             message: "Cannot access to this resource",
@@ -130,7 +130,7 @@ export const authAdmin =
       }
     } catch (error) {
       console.error(error);
-      res.clearCookie("session_gasskeun_admin");
+      res.clearCookie("session_gameku_admin");
       return res.status(ErrorStatusCode.Authorization).send({
         errorCode: ErrorType.Authorization,
         message: "Cannot access to this resource",
@@ -140,11 +140,11 @@ export const authAdmin =
 
 export const authReseller: RequestHandler = async (req, res, next) => {
   const encryptService = new EncryptionService(EncryptJoseType.RESELLER);
-  const session = req.cookies.session_gasskeun_reseller;
+  const session = req.cookies.session_gameku_reseller;
   try {
     const decode = await encryptService.decryptData<CustomerDto>(session);
     if (decode.isExpired) {
-      res.clearCookie("session_gasskeun_reseller");
+      res.clearCookie("session_gameku_reseller");
       return res.status(ErrorStatusCode.Authorization).send({
         errorCode: ErrorType.Authorization,
         message: "Cannot access to this resource",
@@ -156,7 +156,7 @@ export const authReseller: RequestHandler = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res.clearCookie("session_gasskeun_reseller");
+    res.clearCookie("session_gameku_reseller");
     return res.status(ErrorStatusCode.Authorization).send({
       errorCode: ErrorType.Authorization,
       message: "Cannot access to this resource",
@@ -218,7 +218,7 @@ export const authWehbookAPIGames: RequestHandler = async (req, res, next) => {
 
 export const authWehbookInternal =
   (req: Request, res: Response, next: NextFunction) => (xApiKey: string) => {
-    const headerApiKey = req.headers["x-gasskeun-key"];
+    const headerApiKey = req.headers["x-gameku-key"];
     if (xApiKey === headerApiKey) {
       next();
       return;
