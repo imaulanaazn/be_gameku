@@ -48,7 +48,7 @@ const main: RequestHandler = async (req, res) => {
     status: OrderStatuses.REFUNDED | OrderStatuses.SUCCESS;
   }>(queryValidation, ValidatorType.QUERY);
 
-  const config = new Config();
+  // const config = new Config();
   const orderService = new OrderService();
   const order = await orderService.findOneBy({
     column: "id",
@@ -58,23 +58,24 @@ const main: RequestHandler = async (req, res) => {
   if (!order) {
     throw new BusinessError("Pesanan tidak valid", ErrorType.BadRequest);
   }
-  const orderDetailService = new OrderDetailService();
-  const orderDetail = await orderDetailService.findOneBy({
-    column: "orderId",
-    value: order.id,
-  });
+  // const orderDetailService = new OrderDetailService();
+  // const orderDetail = await orderDetailService.findOneBy({
+  //   column: "orderId",
+  //   value: order.id,
+  // });
 
   io.emit("order:success", order.id);
-  const customerService = new CustomerService();
-  const customer = await customerService.findOneBy({
-    column: "id",
-    value: order.customerId,
-  });
+  // const customerService = new CustomerService();
+  // const customer = await customerService.findOneBy({
+  //   column: "id",
+  //   value: order.customerId,
+  // });
   //   const whatsappTemplateService = new WhatsappTemplateService();
   //   const whatsappTemplate = await whatsappTemplateService.findOneBy({
   //     column: "cd",
   //     value: "order_success",
   //   });
+
   if (order.status === OrderStatuses.FAILED) {
     // client.sendNotifyOrder({
     //   targetNumber: customer.mobileNumber,
@@ -95,17 +96,25 @@ const main: RequestHandler = async (req, res) => {
     //   },
     // });
 
-    await orderService.updateBy({
-      by: "id",
-      value: params.id,
-      data: {
-        status: query.status,
-        completedAt: dayjs().toDate(),
-      },
-    });
+    if (
+      query.status === OrderStatuses.SUCCESS ||
+      query.status === OrderStatuses.REFUNDED
+    ) {
+      await orderService.updateBy({
+        by: "id",
+        value: params.id,
+        data: {
+          status: query.status,
+          completedAt: dayjs().toDate(),
+        },
+      });
+      return res.sendStatus(200);
+    } else {
+      return res.status(400).json({
+        message: "Status tidak valid untuk order yang gagal",
+      });
+    }
   }
-
-  return res.sendStatus(200);
 };
 
 export const putStatusOrder: IApiRouter = {

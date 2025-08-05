@@ -424,12 +424,12 @@ const main: RequestHandler = async (req, res) => {
                 }
               } catch (err) {
                 console.error("Error getting status:", err);
-                if (errorCount >= 5) {
+                if (errorCount >= 10) {
                   clearInterval(getOrder3rdPartyStatus);
                 }
                 errorCount++;
               }
-            }, 3000);
+            }, 2500);
           } else {
             throw new Error(createTrxMiraclegaming.msg);
           }
