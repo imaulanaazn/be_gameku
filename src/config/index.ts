@@ -70,4 +70,6 @@ export class Config {
     process.env.MIDTRANS_URL || "https://api.sandbox.midtrans.com/v2";
   midtransServerKey =
     process.env.MIDTRANS_SERVER_KEY || "SB-Mid-server-Ib4NzM_M1zUhIojHB7NvZzcb";
+
+  adminTelegramBotToken = process.env.ADMIN_TELEGRAM_BOT_TOKEN;
 }

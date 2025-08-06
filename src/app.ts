@@ -7,6 +7,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import { createSessions } from "@middleware/sessions";
+import { tgBot } from "../bot/config";
+import { botEndpoint } from "../bot/index";
 import { Config } from "./config";
 import requestTime from "@middleware/requestTime";
 import { Server as HttpServer, IncomingMessage, ServerResponse } from "http";
@@ -23,6 +25,7 @@ const getApp = async (
 ) => {
   const config = new Config();
   const resolvedPath = path.resolve("uploads");
+  // const bot = new Bot(config.adminTelegramBotToken);
 
   if (!fs.existsSync(resolvedPath)) {
     fs.mkdirSync(resolvedPath, { recursive: true });
@@ -102,6 +105,9 @@ const getApp = async (
         method: req.method,
       });
     });
+
+    botEndpoint();
+    tgBot.start();
   } catch (error) {
     console.error(error);
   }

@@ -47,6 +47,7 @@ import { EncryptionService } from "@serviceInternal/jose.service";
 import { CustomerDto } from "@dto/customer.dto";
 import { MidtransService } from "@serviceExternal/midtrans.service";
 import { RedisService } from "@serviceExternal/redis.service";
+import { tgBot } from "../../../bot/config";
 
 const path = "/v3/order";
 const method = APIMethod.POST;
@@ -890,6 +891,20 @@ const main: RequestHandler = async (req, res) => {
         expiredAt: expiredAt.toDate(),
       },
     });
+
+    tgBot.api.sendMessage(
+      "7451175637",
+      `
+New Order Received
+
+Invoice ID: ${invoiceId}
+Game: ${game.name}
+Product: ${product.name}
+Amount: ${amount}
+Customer: ${customer.mobileNumber}
+Payment Method: ${payment.name}
+    `
+    );
   }
 
   io.emit("order:new", {
