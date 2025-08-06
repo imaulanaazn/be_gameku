@@ -47,7 +47,7 @@ import { EncryptionService } from "@serviceInternal/jose.service";
 import { CustomerDto } from "@dto/customer.dto";
 import { MidtransService } from "@serviceExternal/midtrans.service";
 import { RedisService } from "@serviceExternal/redis.service";
-import { tgBot } from "../../../bot/config";
+import { tgBot } from "src/bot/config";
 
 const path = "/v3/order";
 const method = APIMethod.POST;

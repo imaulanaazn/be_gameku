@@ -1,4 +1,4 @@
-import { Config } from "../src/config";
+import { Config } from "src/config";
 const { Bot } = require("grammy");
 
 const config = new Config();
