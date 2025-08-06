@@ -2,18 +2,17 @@ export class Config {
   port = process.env.PORT || 3001;
   timezone = process.env.TZ;
   originCors = process.env.ORIGIN_CORS;
-  databaseName = process.env.DB_NAME || "jokikugameku";
+  databaseName = process.env.DB_NAME || "db_gameku";
   databaseUsername = process.env.DB_USERNAME || "root";
   databasePassword = process.env.DB_PASSWORD || "P@ssw0rd";
   databaseHost = process.env.DB_HOST || "127.0.0.1";
   databasePort = parseInt(process.env.DB_PORT) || 3306;
 
-  roleUser = process.env.ROLE_USER || "asdasdadwqfqwfwqafasd";
-  roleAdmin = process.env.ROLE_ADMIN || "asdwqdwqdwhjqbsadwijqbd";
-  roleSuperAdmin =
-    process.env.ROLE_SUPER_ADMIN || "hiewsvdfikweqviwevoufvewauoldfewvo";
-  roleGuest = process.env.ROLE_GUEST || "wqbdfpouqwbfpiqbfpndpqn";
-  roleReseller = process.env.ROLE_RESELLER || "foehqofjbejkdbs";
+  roleUser = process.env.ROLE_USER;
+  roleAdmin = process.env.ROLE_ADMIN;
+  roleSuperAdmin = process.env.ROLE_SUPER_ADMIN;
+  roleGuest = process.env.ROLE_GUEST;
+  roleReseller = process.env.ROLE_RESELLER;
 
   feUrl = process.env.FE_URL || "http://localhost:3000";
 
