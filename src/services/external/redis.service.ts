@@ -7,7 +7,7 @@ export class RedisService {
 
   constructor() {
     const config = new Config();
-    const url = `redis://${config.redisHost}:${config.redisPort}`;
+    const url = `redis://${config.redisHost}@${config.redisPassword}:${config.redisPort}`;
     this.client = createClient({
       url,
     });
