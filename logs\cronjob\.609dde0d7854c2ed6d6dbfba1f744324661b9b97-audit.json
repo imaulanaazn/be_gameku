@@ -1,0 +1,185 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 120
+    },
+    "auditLog": "logs\\cronjob\\.609dde0d7854c2ed6d6dbfba1f744324661b9b97-audit.json",
+    "files": [
+        {
+            "date": 1751182645396,
+            "name": "logs\\cronjob\\logger-cronjob-2025-06-29.log",
+            "hash": "ccbbb0a479cc9f5cd92a6079ffadb89173e859758352823bf1a64cdb01acc624"
+        },
+        {
+            "date": 1751237727445,
+            "name": "logs\\cronjob\\logger-cronjob-2025-06-30.log",
+            "hash": "8323bc88f90974276e067ecc7504783623f527af486a3e922d7002c157b0f254"
+        },
+        {
+            "date": 1751322526464,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-01.log",
+            "hash": "28553c450c337f634ee193f47bf327fc0f6f2407cfd3173bd63700c4112f9f06"
+        },
+        {
+            "date": 1751408412534,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-02.log",
+            "hash": "3a0a34c8ba6058699e4f478733f2c8d68a5d0e576aea3bb509cf82575f256e20"
+        },
+        {
+            "date": 1751549333992,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-03.log",
+            "hash": "fecc774f37ecf40c4e89ecccf07c24a919907b63ae7b707e8158bc9596ca1a8c"
+        },
+        {
+            "date": 1751582619172,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-04.log",
+            "hash": "a838fadaeaeae8fc62c9d29be4a1e783d4f788ac18e523bdbe235a0ee779a8de"
+        },
+        {
+            "date": 1751697302038,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-05.log",
+            "hash": "884f066a0c4ecebca2156244b49006de9e42f77b8f70ea693bc8f4f458bbd69e"
+        },
+        {
+            "date": 1751770379786,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-06.log",
+            "hash": "57e9ddf109abd518179f4a3ae2bc48ed04aa341cd9ac485d1caf7173d7354012"
+        },
+        {
+            "date": 1751872714379,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-07.log",
+            "hash": "aa87d472db029366170c3bd5dcfa6872b62d404777b16ea66752bd6f6a744a27"
+        },
+        {
+            "date": 1751957288629,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-08.log",
+            "hash": "2bec730106892c5b53dc5426d3de102f7180c86227f97296f406c33859cf25eb"
+        },
+        {
+            "date": 1752027472214,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-09.log",
+            "hash": "f5c1630972494f0880ea5db27583a1309456e7434764772431c9157c4e7e3fdc"
+        },
+        {
+            "date": 1752112358690,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-10.log",
+            "hash": "f01ef1f8515c3681471cf878db10bb2c5bcf665357006c59044dc620bf9c9233"
+        },
+        {
+            "date": 1752203715601,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-11.log",
+            "hash": "11e91fbfbb9ff74869a2eabc34d44d118f8ce798a14250f8d95cec9b9dff4095"
+        },
+        {
+            "date": 1752379251335,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-13.log",
+            "hash": "ac225f2d8cd6b87e44a0684b24b550b8bffec11f4a51e63e8568da9c3fb8d035"
+        },
+        {
+            "date": 1752445254844,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-14.log",
+            "hash": "fb2e4fde153fe623ec291f518ab6f31ae6a78b805206fbcb16a6d777d5d85482"
+        },
+        {
+            "date": 1752543607515,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-15.log",
+            "hash": "46ca1f4eb026fa06edc9cb450099fa3a701e4e9d8f2a32fe1f171ebf9063c21d"
+        },
+        {
+            "date": 1752631556467,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-16.log",
+            "hash": "313c588c6d3175e9c3244854430e8be23cd14910cda1c0c1e21141999c5890e3"
+        },
+        {
+            "date": 1752712775157,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-17.log",
+            "hash": "726fc897bd604537895909805e90ed709b8a323e13f596eb8f19624afc0e6bf7"
+        },
+        {
+            "date": 1752788738457,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-18.log",
+            "hash": "c321881e73ced8a3b2178407156187338d2d8bd920c06357aecc0b8bb9eaa9ce"
+        },
+        {
+            "date": 1752881893245,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-19.log",
+            "hash": "0d09bf8ed3040c895b8dc35a1b4544223d1ffe998639feff423e6f7c82ecd124"
+        },
+        {
+            "date": 1752992479574,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-20.log",
+            "hash": "5779987be327723c214b8ff929c55888b9d9626e5454884250115dfac7065a5b"
+        },
+        {
+            "date": 1753166899049,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-22.log",
+            "hash": "117be00a0c7de7f5e349d01959373c90a0e10dde27cac5e88f4b14600fc0b2b2"
+        },
+        {
+            "date": 1753224858345,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-23.log",
+            "hash": "27d176fb3d0b39c7f155837727ac79856eed84e211afc4d08f27daefeada505d"
+        },
+        {
+            "date": 1753310618616,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-24.log",
+            "hash": "fdd3a49900f1108b39eb062ca7a892b00e290a326c89726e859a182c48555b2b"
+        },
+        {
+            "date": 1753544910073,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-26.log",
+            "hash": "36c4a2bdd145781fcc79cc5adf7a407e50026489fa88ea3a0fd3ce6f5ff8a378"
+        },
+        {
+            "date": 1753893885168,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-30.log",
+            "hash": "e6cdd738f454f14a58f3dd553e1c17cbb94b7010d71bb898d63049049ccca17f"
+        },
+        {
+            "date": 1753895749887,
+            "name": "logs\\cronjob\\logger-cronjob-2025-07-31.log",
+            "hash": "1b95309d60aa58814793aa2b03385486bc4b41be8bb2c4dcea86292a8b0c0095"
+        },
+        {
+            "date": 1754031839748,
+            "name": "logs\\cronjob\\logger-cronjob-2025-08-01.log",
+            "hash": "08e10e7d50cc473cee496a40ad6fc450f7a824ad1a3eeac0454029a8edf547d8"
+        },
+        {
+            "date": 1754280876595,
+            "name": "logs\\cronjob\\logger-cronjob-2025-08-04.log",
+            "hash": "4e02b0b6eac0842e8304767938db59d373cb4f3201ffeaec512ad6cc669e46db"
+        },
+        {
+            "date": 1754363036962,
+            "name": "logs\\cronjob\\logger-cronjob-2025-08-05.log",
+            "hash": "4ec39f1b88bfb0bbc3b80eafd6018da8277a6843ca18104e9bf67706fcc98e13"
+        },
+        {
+            "date": 1754428671323,
+            "name": "logs\\cronjob\\logger-cronjob-2025-08-06.log",
+            "hash": "e160b9d1f88fe48bd31b5c033ac519ba7599728c651e374e66979b02f67083b7"
+        },
+        {
+            "date": 1754520222564,
+            "name": "logs\\cronjob\\logger-cronjob-2025-08-07.log",
+            "hash": "73dbabcc9bf2fc8c1e92bbf7fb3bb6c0506a9ba6297ae3cd0e3028600ddf5ce3"
+        },
+        {
+            "date": 1757992524953,
+            "name": "logs\\cronjob\\logger-cronjob-2025-09-16.log",
+            "hash": "5bde3f297697d24c8007862353aad1e5f6904fb70ffc2c867ae79cf8127c3526"
+        },
+        {
+            "date": 1758283690472,
+            "name": "logs\\cronjob\\logger-cronjob-2025-09-19.log",
+            "hash": "8d32cec7fee7505b4783a8445bef20c58e0312b849354c0f8692495465b47307"
+        },
+        {
+            "date": 1758545158418,
+            "name": "logs/cronjob/logger-cronjob-2025-09-22.log",
+            "hash": "cbcba14a4179d0a60a15e33714b75ca737f448d1165af9039e9e2e1d3bd6bb9d"
+        }
+    ],
+    "hashType": "sha256"
+}

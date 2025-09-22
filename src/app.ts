@@ -92,9 +92,6 @@ const getApp = async (
     app.use(createSessions);
     app.use(cookieParser());
     app.use(requestTime);
-    app.use("/api/v1/game", (req, res, next) => {
-      console.log(req.body);
-    });
     app.use(webhook);
     app.use(router);
     app.use("*", (req: Request, res: Response) => {

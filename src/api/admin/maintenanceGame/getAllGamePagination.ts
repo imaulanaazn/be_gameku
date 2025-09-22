@@ -42,7 +42,7 @@ const schemaValidation: Validation[] = [
 const main: RequestHandler = async (req, res) => {
     const query = new Validator(req, res).process<{
         name?: string;
-        categoryId: string;
+        categoryId?: string;
         type?: string;
         isPopular?: string;
     }>(schemaValidation, ValidatorType.QUERY, true);
@@ -52,6 +52,7 @@ const main: RequestHandler = async (req, res) => {
     delete clearQuery.sort;
     delete clearQuery.order;
     delete clearQuery.limit;
+
 
     const gameService = new GameService();
     const gameCategoryService = new GameCategoryService();

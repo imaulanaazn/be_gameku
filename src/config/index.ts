@@ -4,7 +4,7 @@ export class Config {
   originCors = process.env.ORIGIN_CORS;
   databaseName = process.env.DB_NAME || "db_gameku";
   databaseUsername = process.env.DB_USERNAME || "root";
-  databasePassword = process.env.DB_PASSWORD || "P@ssw0rd";
+  databasePassword = process.env.DB_PASSWORD || "";
   databaseHost = process.env.DB_HOST || "127.0.0.1";
   databasePort = parseInt(process.env.DB_PORT) || 3306;
 

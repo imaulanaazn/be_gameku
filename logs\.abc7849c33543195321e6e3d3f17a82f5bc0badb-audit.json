@@ -1,0 +1,60 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 120
+    },
+    "auditLog": "logs\\.abc7849c33543195321e6e3d3f17a82f5bc0badb-audit.json",
+    "files": [
+        {
+            "date": 1753893885055,
+            "name": "logs\\logger-management-topupgameku 2025-07-30.log",
+            "hash": "c5f9afb4f525c502711d3f7381430bae88419ed24f8a065274252b4d4c976f93"
+        },
+        {
+            "date": 1753895749844,
+            "name": "logs\\logger-management-topupgameku 2025-07-31.log",
+            "hash": "6193d22daa612a581ad87b6bcd10c0a22b5a54bb233787d6fea41d2470c777e7"
+        },
+        {
+            "date": 1754031839682,
+            "name": "logs\\logger-management-topupgameku 2025-08-01.log",
+            "hash": "3a80487e11b3ab2173fa2077ae686915ae5e6f79d44c35e963ec054fa4769a3b"
+        },
+        {
+            "date": 1754280876252,
+            "name": "logs\\logger-management-topupgameku 2025-08-04.log",
+            "hash": "e6bc7a422d29dde4acead9acd7187d23ad94ada258111e37fb723c14e2d74078"
+        },
+        {
+            "date": 1754363036720,
+            "name": "logs\\logger-management-topupgameku 2025-08-05.log",
+            "hash": "8c297f53c5865e6683cfacb7cb750ca421c38122cb2ee61a1b5f150f359ff2ad"
+        },
+        {
+            "date": 1754428671062,
+            "name": "logs\\logger-management-topupgameku 2025-08-06.log",
+            "hash": "69ef07d4bf7427e77fb5e98aefc8c912c215da7c54baa8a5d00c0f1a7b78fbd0"
+        },
+        {
+            "date": 1754520222296,
+            "name": "logs\\logger-management-topupgameku 2025-08-07.log",
+            "hash": "34ed3d68e88d8537806d50cff4527c29db32e31b31b8585fc6b35cdcc65a1df7"
+        },
+        {
+            "date": 1757992524690,
+            "name": "logs\\logger-management-topupgameku 2025-09-16.log",
+            "hash": "3ad83f59813407e35ffc7945085770e4cd0bf24653ccef542ce152297b18b421"
+        },
+        {
+            "date": 1758283690089,
+            "name": "logs\\logger-management-topupgameku 2025-09-19.log",
+            "hash": "c74902a4ca16502e183bb8b74be682b3d47b51a2f441bb474b8dca007e6cf943"
+        },
+        {
+            "date": 1758545158410,
+            "name": "logs/logger-management-topupgameku 2025-09-22.log",
+            "hash": "5cca27d5028b9f08c866ef919cb2c496d6755f7c5cf33d8d5f68060d9bd186f8"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -1,0 +1,185 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 120
+    },
+    "auditLog": "logs\\webhook\\.6739895436642005acecb4524a268b65f6d211e6-audit.json",
+    "files": [
+        {
+            "date": 1751182645364,
+            "name": "logs\\webhook\\logger-webhook-2025-06-29.log",
+            "hash": "9d95fb691d99762fa5a3dd5e292edbdb062b7e621c99ac6aac9b710f025ca080"
+        },
+        {
+            "date": 1751237727422,
+            "name": "logs\\webhook\\logger-webhook-2025-06-30.log",
+            "hash": "0432c2b1e4e257d88bdfd033a0df2adca08139176cf9e8d72c0504390c51fb67"
+        },
+        {
+            "date": 1751322526430,
+            "name": "logs\\webhook\\logger-webhook-2025-07-01.log",
+            "hash": "e1ff4dcaf37d0981b37297f29f46a8744a6edfc60eb0ecc4da9154671e877c5a"
+        },
+        {
+            "date": 1751408412504,
+            "name": "logs\\webhook\\logger-webhook-2025-07-02.log",
+            "hash": "e7417282c679cb2c64e266c8d3bfe5c846e95064d41018655ed4457732bf776d"
+        },
+        {
+            "date": 1751549333840,
+            "name": "logs\\webhook\\logger-webhook-2025-07-03.log",
+            "hash": "4742f964c3047f943f8a943f28620d94a125a53ebdc690945355e405eb5d2c9e"
+        },
+        {
+            "date": 1751582619153,
+            "name": "logs\\webhook\\logger-webhook-2025-07-04.log",
+            "hash": "cad0293dc99e7444088b7520fe428c91bf957c9699337c40625cce260c8a4f3a"
+        },
+        {
+            "date": 1751697302021,
+            "name": "logs\\webhook\\logger-webhook-2025-07-05.log",
+            "hash": "ad54f6e63180cefca9c79e8da712e1be021d938343db99e6313a80598260017d"
+        },
+        {
+            "date": 1751770379777,
+            "name": "logs\\webhook\\logger-webhook-2025-07-06.log",
+            "hash": "10913af7a579aba1b93664786da1493616a61f5db5a6058542ab4b8933b1613e"
+        },
+        {
+            "date": 1751872714356,
+            "name": "logs\\webhook\\logger-webhook-2025-07-07.log",
+            "hash": "a5dc67d46da5bc912987867e4a0d0bfb3dcbdf0e1fc0867d2e8fed069f64af68"
+        },
+        {
+            "date": 1751957288625,
+            "name": "logs\\webhook\\logger-webhook-2025-07-08.log",
+            "hash": "3de65635e5c5e08b8191dfcd82ca8ec74e15b205a8a9e99f28da15d624281be6"
+        },
+        {
+            "date": 1752027472193,
+            "name": "logs\\webhook\\logger-webhook-2025-07-09.log",
+            "hash": "1e95eb3a6710439d285517c59b8675546b24c30c6e8a5c55d89f425ebab91e70"
+        },
+        {
+            "date": 1752112358684,
+            "name": "logs\\webhook\\logger-webhook-2025-07-10.log",
+            "hash": "646f88a5e40b3a39f0d8622451dbb943b0cb5480dcb45de5e9e9f8ec31e9e87f"
+        },
+        {
+            "date": 1752203715578,
+            "name": "logs\\webhook\\logger-webhook-2025-07-11.log",
+            "hash": "2dd013f0854fbfb0d7a3bfdfa07b5b8e6d5a0ddefec6581274632f4adf65e6b6"
+        },
+        {
+            "date": 1752379251323,
+            "name": "logs\\webhook\\logger-webhook-2025-07-13.log",
+            "hash": "0f33d11f89ff918a806df13a0170e9ac986a36be8d94eb0ba0c66c14ffe0566d"
+        },
+        {
+            "date": 1752445254832,
+            "name": "logs\\webhook\\logger-webhook-2025-07-14.log",
+            "hash": "ca8d9720d9c9d893f8b81cf88889036b719fac0d8e1e75e6215fa6410a34bee6"
+        },
+        {
+            "date": 1752543607508,
+            "name": "logs\\webhook\\logger-webhook-2025-07-15.log",
+            "hash": "57072fe1825f8893297bcc7685cad81639e2951be221c813163f45bca872b34d"
+        },
+        {
+            "date": 1752631556461,
+            "name": "logs\\webhook\\logger-webhook-2025-07-16.log",
+            "hash": "db90dfd60c8e4afd920ca526066448310c863ab2da9192bae9b42dcf70e410c1"
+        },
+        {
+            "date": 1752712775150,
+            "name": "logs\\webhook\\logger-webhook-2025-07-17.log",
+            "hash": "23225a5cc25396c5539778435d9a0f7a6255c676879229b5a61dd28a522ca80b"
+        },
+        {
+            "date": 1752788738452,
+            "name": "logs\\webhook\\logger-webhook-2025-07-18.log",
+            "hash": "d3343937b4f34ca7a52ea469abea4d0fb848bee75d86c9549553851778d6e339"
+        },
+        {
+            "date": 1752881893233,
+            "name": "logs\\webhook\\logger-webhook-2025-07-19.log",
+            "hash": "fcb230359d29e31361b0261468469c98c7679970b0e1f079a117ccaa2bb8b2c6"
+        },
+        {
+            "date": 1752992479566,
+            "name": "logs\\webhook\\logger-webhook-2025-07-20.log",
+            "hash": "4b96229af4f410dd1bdfc9017dd48b5cd5ed34022237783c9b050bfef3eefddd"
+        },
+        {
+            "date": 1753166898971,
+            "name": "logs\\webhook\\logger-webhook-2025-07-22.log",
+            "hash": "8a03e97e28519bdb0d7c9bdd4d91ad655c94546a2e37f00b25a3748ee83bd273"
+        },
+        {
+            "date": 1753224858340,
+            "name": "logs\\webhook\\logger-webhook-2025-07-23.log",
+            "hash": "ccb98681c5cc45b75ad9d1efe484cdf21f6ed40b3997363e6c190a8faeabb241"
+        },
+        {
+            "date": 1753310618604,
+            "name": "logs\\webhook\\logger-webhook-2025-07-24.log",
+            "hash": "b2c66a07c72236d998368bff9f914a8cd0f05f1290729a9e5127ba3cdf9e9665"
+        },
+        {
+            "date": 1753544910062,
+            "name": "logs\\webhook\\logger-webhook-2025-07-26.log",
+            "hash": "2b93bfc5e6b3ca576d798740d4e24b44ef4912e330cc9658b8986b4ffe93bebc"
+        },
+        {
+            "date": 1753893885156,
+            "name": "logs\\webhook\\logger-webhook-2025-07-30.log",
+            "hash": "b18f638e4a940f08d049322e620410f87072c1e0b6326567f167457961be5ed7"
+        },
+        {
+            "date": 1753895749879,
+            "name": "logs\\webhook\\logger-webhook-2025-07-31.log",
+            "hash": "e8cb09867594b7c616169cf3d43e19e59290db5e8cd5b71174755b60cca3bb1b"
+        },
+        {
+            "date": 1754031839735,
+            "name": "logs\\webhook\\logger-webhook-2025-08-01.log",
+            "hash": "29b0be840224274461339e21a8ec6066068ed1ab78c2d933d0f22a22fd92624b"
+        },
+        {
+            "date": 1754280876568,
+            "name": "logs\\webhook\\logger-webhook-2025-08-04.log",
+            "hash": "58984c3a0f6ae60f55c65a1d65c628d21d17e50d96ca0ce5eeb84f91c585e10e"
+        },
+        {
+            "date": 1754363036938,
+            "name": "logs\\webhook\\logger-webhook-2025-08-05.log",
+            "hash": "a4ab3be3e39a7c60d04b92192d46c91e4bdf22923eed241700f9c11064b9443f"
+        },
+        {
+            "date": 1754428671302,
+            "name": "logs\\webhook\\logger-webhook-2025-08-06.log",
+            "hash": "debfd0a9a02b34ada9e3c85e0bf89fde5be219ecd481229d6ca4d2961cf7d93e"
+        },
+        {
+            "date": 1754520222538,
+            "name": "logs\\webhook\\logger-webhook-2025-08-07.log",
+            "hash": "917fe5dda589bb6c57caa64fe6bd67d44b5fd8fdca95ddcd88414b19175db7a8"
+        },
+        {
+            "date": 1757992524932,
+            "name": "logs\\webhook\\logger-webhook-2025-09-16.log",
+            "hash": "54da4f5a268a0495fd1731d1c3280181469e103a69a7a21e1842b03b3d46d8dd"
+        },
+        {
+            "date": 1758283690430,
+            "name": "logs\\webhook\\logger-webhook-2025-09-19.log",
+            "hash": "1792596965a4d7e19420279d557c26402486cc68ec3b0a04ce698348e3f8c541"
+        },
+        {
+            "date": 1758545158416,
+            "name": "logs/webhook/logger-webhook-2025-09-22.log",
+            "hash": "4f1b50ed46851fc8efaf358d72a6a021bdad36f53aa7a76b9cdc7338b16856ef"
+        }
+    ],
+    "hashType": "sha256"
+}
