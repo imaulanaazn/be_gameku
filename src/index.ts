@@ -36,7 +36,7 @@ function logMemoryUsage() {
         dayjs.tz.setDefault(process.env.TZ || "Asia/Jakarta");
         const e: Express = express();
         const app = http.createServer(e);
-        const port = process.env.PORT || 3000;
+        const port = process.env.PORT || 3002;
         getApp(e, app);
 
         app.listen(port, () => {

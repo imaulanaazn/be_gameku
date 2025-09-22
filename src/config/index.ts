@@ -1,5 +1,5 @@
 export class Config {
-  port = process.env.PORT || 3001;
+  port = process.env.PORT || 3002;
   timezone = process.env.TZ;
   originCors = process.env.ORIGIN_CORS;
   databaseName = process.env.DB_NAME || "db_gameku";
@@ -33,7 +33,7 @@ export class Config {
   expiredTimeOtp = parseInt(process.env.EXPIRED_TIME_OTP) || 10;
 
   domainReseller = process.env.RESELLER_DOMAIN || "http://localhost:3000";
-  domainAdmin = process.env.ADMIN_DOMAIN || "http://localhost:3000";
+  domainAdmin = process.env.ADMIN_DOMAIN || "http://localhost:3001";
 
   xApiKeyGameVoucher =
     process.env.X_API_KEY_GAME_VOUCHER ||
@@ -44,7 +44,7 @@ export class Config {
 
   digiflazzCbUrl =
     process.env.DIGIFLAZZ_CB_URL ||
-    "http://localhost:3001/api/v1/webhook/digiflazz";
+    "http://localhost:3002/api/v1/webhook/digiflazz";
   digiflazzIp = process.env.DIGIFLAZZ_IP || "52.74.250.133";
 
   lapakGamingUrl =
