@@ -100,7 +100,9 @@ const main: RequestHandler = async (req, res) => {
     // domain: config.domainReseller,
     sameSite:"none",
     // path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/v1",
-    secure: process.env.NODE_ENV.toLowerCase() === "production",
+    // secure: process.env.NODE_ENV.toLowerCase() === "production",
+    path: "/",
+    secure: true,
   });
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
