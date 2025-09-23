@@ -63,7 +63,7 @@ const getApp = async (
       credentials: true,
     };
 
-    // app.set("trust proxy", true);
+    app.set("trust proxy", true);
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(cors(corsOptions));
