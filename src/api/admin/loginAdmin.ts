@@ -98,7 +98,7 @@ const main: RequestHandler = async (req, res) => {
     httpOnly: true,
     maxAge: config.maxAgeLogin * 1000,
     // domain: config.domainReseller,
-    // path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/v1",
+    path: process.env.NODE_ENV.toLowerCase() === "production" ? "/" : "/v1",
     secure: process.env.NODE_ENV.toLowerCase() === "production",
   });
   res.setHeader("Access-Control-Allow-Credentials", "true");
